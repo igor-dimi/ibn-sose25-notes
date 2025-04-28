@@ -9,7 +9,7 @@ void* TaskCode (void* argument)
 {
     int tid; tid = *((int* ) argument);
     printf("%d: ", tid);
-    for (int i = 0; i < 51; i++) printf("%d ", i);
+    for (int i = 0; i < 25; i++) printf("%d ", i);
     printf("\n");
     return NULL;
 }
