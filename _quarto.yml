@@ -7,8 +7,11 @@ book:
   date: "12/18/2024"
   chapters:
     - index.qmd
+    - process.qmd
   downloads: ["pdf"]
   page-navigation: true
+
+number-depth: 1
 
 bibliography: references.bib
 
