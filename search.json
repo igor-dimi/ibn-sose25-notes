@@ -8,5 +8,35 @@
     "crumbs": [
       "Preface"
     ]
+  },
+  {
+    "objectID": "process.html",
+    "href": "process.html",
+    "title": "1  Process Management",
+    "section": "",
+    "text": "Condition Variables and Producer / Consumer Problem\nCondition variables are employed together with mutexes when synchronizing producers and consumers. It woul be incorrect ot only use a condition variable without a mutex, or a mutex with busy waiting without a condition varible.",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Process Management</span>"
+    ]
+  },
+  {
+    "objectID": "process.html#condition-variables-and-producer-consumer-problem",
+    "href": "process.html#condition-variables-and-producer-consumer-problem",
+    "title": "1  Process Management",
+    "section": "",
+    "text": "Incorrect Variant 1: Condition Variable Without Mutex\nready = False\ncondition = ConditionVariable()\n\ndef wait_thread():\n    if not ready:\n        condition.wait()  # Incorrect: no mutex guarding shared state\n    print(\"Condition met!\")\n\ndef signal_thread():\n    ready = True\n    condition.notify()\nWhy It’s Wrong:\n\nAccess to ready is unprotected — race conditions may occur.\ncondition.wait() must always be used with a mutex.\n\n\n\nIncorrect Variant 2: Mutex Without Condition Variable (Busy Waiting)\nready = False\nmutex = Mutex()\n\ndef wait_thread():\n    while True:\n        mutex.lock()\n        if ready:\n            mutex.unlock()\n            break\n        mutex.unlock()\n        sleep(0.01)  # Active polling (wasteful)\n\ndef signal_thread():\n    mutex.lock()\n    ready = True\n    mutex.unlock()\nWhy It’s Problematic:\n\nAvoids races, but wastes CPU via busy waiting.\nAlso prone to subtle visibility issues if memory barriers aren’t enforced.\n\n\n\nCorrect Variant: Condition Variable with Mutex\nready = False\nmutex = Mutex()\ncondition = ConditionVariable()\n\ndef wait_thread():\n    mutex.lock()\n    while not ready:\n        condition.wait(mutex)  # Atomically unlocks and waits\n    mutex.unlock()\n    print(\"Condition met!\")\n\ndef signal_thread():\n    mutex.lock()\n    ready = True\n    condition.notify()\n    mutex.unlock()\nWhy It Works:\n\nShared state is properly guarded.\nNo busy waiting.\nSafe signaling and waking.\n\nAnother question is why to use while not ready and not simply if not ready:\ndef wait_thread():\n    mutex.lock()\n    if not ready:\n        condition.wait(mutex)\n    mutex.unlock()\nProblem:\n\nMay miss spurious wakeups or situations where multiple threads wait and only one should proceed.\nA while loop is necessary to recheck the condition after being woken up.\n\n\n\n\nProducer/Consumer Problem\n\nVariant A: Unbounded Queue (No Buffer Limit)\nqueue = []\nmutex = Mutex()\nnot_empty = ConditionVariable()\n\ndef producer():\n    while True:\n        item = produce()\n        mutex.lock()\n        queue.append(item)\n        not_empty.notify()\n        mutex.unlock()\n\ndef consumer():\n    while True:\n        mutex.lock()\n        while not queue:\n            not_empty.wait(mutex)\n        item = queue.pop(0)\n        mutex.unlock()\n        consume(item)\n\n\n\nVariant B: Bounded Queue (Fixed Buffer Size)\nqueue = []\nBUFFER_SIZE = 10\nmutex = Mutex()\nnot_empty = ConditionVariable()\nnot_full = ConditionVariable()\n\ndef producer():\n    while True:\n        item = produce()\n        mutex.lock()\n        while len(queue) &gt;= BUFFER_SIZE:\n            not_full.wait(mutex)\n        queue.append(item)\n        not_empty.notify()\n        mutex.unlock()\n\ndef consumer():\n    while True:\n        mutex.lock()\n        while not queue:\n            not_empty.wait(mutex)\n        item = queue.pop(0)\n        not_full.notify()\n        mutex.unlock()\n        consume(item)",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Process Management</span>"
+    ]
+  },
+  {
+    "objectID": "process.html#summary-table",
+    "href": "process.html#summary-table",
+    "title": "1  Process Management",
+    "section": "Summary Table",
+    "text": "Summary Table\n\n\n\n\n\n\n\n\n\n\n\nCase\nUses Mutex\nUses Condition Variable\nBlocking\nCPU-Efficient\nCorrect\n\n\n\n\n1. Condition variable without mutex\nNo\nYes\nNo\nYes\nNo\n\n\n2. Mutex without condition variable\nYes\nNo\nNo\nNo (busy)\nPartly\n\n\n3. Condition variable with mutex\nYes\nYes\nYes\nYes\nYes\n\n\n4. If instead of while\nYes\nYes\nYes\nYes\nRisky\n\n\n5. Producer/Consumer (unbounded)\nYes\nYes (not_empty)\nYes\nYes\nYes\n\n\n6. Producer/Consumer (bounded)\nYes\nYes (not_empty, not_full)\nYes\nYes\nYes\n\n\n\n\n\nOperations of a Bounded Queue\n\n\n\n\n\n\n\n\n\n\n\nStep\nOperation\nin\nout\nBuffer State\nCount == ((in - out + 5) % 5)\n\n\n\n\n0\nStart\n0\n0\n[_ _ _ _ _]\n0\n\n\n1\nProduce A\n1\n0\n[A _ _ _ _]\n1\n\n\n2\nProduce B\n2\n0\n[A B _ _ _]\n2\n\n\n3\nProduce C\n3\n0\n[A B C _ _]\n3\n\n\n4\nConsume → A\n3\n1\n[_ B C _ _]\n2\n\n\n5\nConsume → B\n3\n2\n[_ _ C _ _]\n1\n\n\n6\nProduce D\n4\n2\n[_ _ C D _]\n2\n\n\n7\nProduce E\n0\n2\n[_ _ C D E]\n3\n\n\n8\nConsume → C\n0\n3\n[_ _ _ D E]\n2\n\n\n9\nProduce F\n1\n3\n[F _ _ D E]\n3\n\n\n\nwhere\n\nin: the write position / index\nout: the read position /index\ncount == (in - out + 5) % 5 is the invariant of the data structure, giving the number of elements in the buffer",
+    "crumbs": [
+      "<span class='chapter-number'>1</span>  <span class='chapter-title'>Process Management</span>"
+    ]
   }
 ]
