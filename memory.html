@@ -6,10 +6,8 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="author" content="Igor Dimitrov">
-<meta name="dcterms.date" content="2024-12-18">
 
-<title>Operating Systems and Networks SoSe 25 Notes</title>
+<title>Operating Systems and Networks SoSe 25 Notes - 2&nbsp; Memory Management</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -32,7 +30,7 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./process.html" rel="next">
+<link href="./process.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -70,6 +68,35 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
@@ -82,7 +109,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html">Preface</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./memory.html"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Memory Management</span></a></li></ol></nav>
         <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
@@ -112,7 +139,7 @@ ul.task-list li input[type="checkbox"] {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./index.html" class="sidebar-item-text sidebar-link active">
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Preface</span></a>
   </div>
 </li>
@@ -124,7 +151,7 @@ ul.task-list li input[type="checkbox"] {
 </li>
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./memory.html" class="sidebar-item-text sidebar-link">
+  <a href="./memory.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Memory Management</span></span></a>
   </div>
 </li>
@@ -138,7 +165,10 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#preface" id="toc-preface" class="nav-link active" data-scroll-target="#preface">Preface</a></li>
+  <li><a href="#virtual-memory" id="toc-virtual-memory" class="nav-link active" data-scroll-target="#virtual-memory">Virtual Memory</a>
+  <ul class="collapse">
+  <li><a href="#paging-translating-logical-to-physical-addresses" id="toc-paging-translating-logical-to-physical-addresses" class="nav-link" data-scroll-target="#paging-translating-logical-to-physical-addresses">Paging: Translating Logical to Physical Addresses</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -147,26 +177,14 @@ ul.task-list li input[type="checkbox"] {
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
-<h1 class="title">Operating Systems and Networks SoSe 25 Notes</h1>
+<h1 class="title"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Memory Management</span></h1>
 </div>
 
 
 
 <div class="quarto-title-meta">
 
-    <div>
-    <div class="quarto-title-meta-heading">Author</div>
-    <div class="quarto-title-meta-contents">
-             <p>Igor Dimitrov </p>
-          </div>
-  </div>
     
-    <div>
-    <div class="quarto-title-meta-heading">Published</div>
-    <div class="quarto-title-meta-contents">
-      <p class="date">December 18, 2024</p>
-    </div>
-  </div>
   
     
   </div>
@@ -176,10 +194,212 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<section id="preface" class="level1 unnumbered">
-<h1 class="unnumbered">Preface</h1>
+<section id="virtual-memory" class="level2">
+<h2 class="anchored" data-anchor-id="virtual-memory">Virtual Memory</h2>
+<section id="paging-translating-logical-to-physical-addresses" class="level3">
+<h3 class="anchored" data-anchor-id="paging-translating-logical-to-physical-addresses">Paging: Translating Logical to Physical Addresses</h3>
+<section id="context" class="level4">
+<h4 class="anchored" data-anchor-id="context">Context</h4>
+<p>In paging, the operating system divides:</p>
+<ul>
+<li>Logical (virtual) memory into fixed-size pages</li>
+<li>Physical memory (RAM) into same-size frames</li>
+</ul>
+<p>Each process has a page table that maps page numbers to frame numbers.</p>
+<p>Our goal is:</p>
+<blockquote class="blockquote">
+<p>Given a virtual address, compute the corresponding physical address.</p>
+</blockquote>
+</section>
+<section id="example-setup" class="level4">
+<h4 class="anchored" data-anchor-id="example-setup">Example Setup</h4>
+<ul>
+<li>Virtual address <span class="math inline">\(V = 7000\)</span></li>
+<li>Page size = 4096 bytes = <span class="math inline">\(2^{12}\)</span> ⇒ <span class="math inline">\(k = 12\)</span></li>
+<li>Assume the page table maps page 1 to frame 9: <span class="math inline">\(F(1) = 9\)</span></li>
+</ul>
+</section>
+<section id="step-1-manual-arithmetic-calculation" class="level4">
+<h4 class="anchored" data-anchor-id="step-1-manual-arithmetic-calculation">Step 1: Manual (Arithmetic) Calculation</h4>
+<p>To translate a virtual address manually, we need to answer two questions:</p>
+<ol type="1">
+<li><strong>Which page</strong> is the address in?</li>
+<li><strong>Where within that page</strong> is the address?</li>
+</ol>
+<p>This is done by:</p>
+<ul>
+<li>Dividing the address by the page size to get the <strong>page number</strong></li>
+<li>Taking the remainder (modulo) to get the <strong>offset</strong> within the page</li>
+</ul>
+<p>Apply this to <span class="math inline">\(V = 7000\)</span> with page size 4096:</p>
+<ul>
+<li>Page number <span class="math inline">\(p = \left\lfloor \frac{7000}{4096} \right\rfloor = 1\)</span></li>
+<li>Offset <span class="math inline">\(d = 7000 \mod 4096 = 2904\)</span></li>
+</ul>
+<p>Now we look up page 1 in the page table:</p>
+<ul>
+<li>Frame number <span class="math inline">\(f = F(1) = 9\)</span></li>
+</ul>
+<p>To get the final physical address, we compute the base address of frame 9 and add the offset:</p>
+<ul>
+<li>Physical address = <span class="math inline">\(f \cdot 4096 + d = 9 \cdot 4096 + 2904 = 39768\)</span></li>
+</ul>
+<p>Result: 39768</p>
+</section>
+<section id="step-2-bitwise-calculation-optimized-for-hardware" class="level4">
+<h4 class="anchored" data-anchor-id="step-2-bitwise-calculation-optimized-for-hardware">Step 2: Bitwise Calculation (Optimized for Hardware)</h4>
+<p>For power-of-two page sizes, the address can be efficiently split using bitwise operations:</p>
+<ul>
+<li>Page number = <span class="math inline">\(V \gg 12\)</span> (right shift by 12 bits is equivalent to dividing by 4096)</li>
+<li>Offset = <span class="math inline">\(V \&amp; (2^{12} - 1) = V \&amp; 0xFFF\)</span> (bit mask keeps the lower 12 bits)</li>
+<li>Page number 1 maps to frame number <span class="math inline">\(f = F(1) = 9\)</span></li>
+</ul>
+<p>To compute the <strong>frame’s starting address</strong>, we use a left shift:</p>
+<ul>
+<li><span class="math inline">\(f \ll 12 = 9 \ll 12 = 36864\)</span>, which is equivalent to <span class="math inline">\(9 \cdot 4096\)</span></li>
+</ul>
+<p>Final physical address:</p>
+<ul>
+<li><span class="math inline">\(\text{Physical Address} = 36864 + 2904 = 39768\)</span></li>
+</ul>
+<p>Same result, now using fast bit operations.</p>
+</section>
+<section id="bit-sequence-visualization" class="level4">
+<h4 class="anchored" data-anchor-id="bit-sequence-visualization">Bit Sequence Visualization</h4>
+<p>Let’s visualize how the virtual address is split in binary:</p>
+<ul>
+<li>Virtual address <span class="math inline">\(V = 7000\)</span></li>
+<li>Binary representation (14 bits): <code>0001 1011 0101 1000</code></li>
+</ul>
+<p>Split into:</p>
+<ul>
+<li>Page number (upper 2 bits): <code>00 01</code> → 1</li>
+<li>Offset (lower 12 bits): <code>1011 0101 1000</code> → 2904</li>
+</ul>
+<p>This split works because:</p>
+<ul>
+<li>The lower 12 bits represent the offset for a 4 KB page</li>
+<li>The upper bits index into the page table</li>
+</ul>
+</section>
+<section id="why-this-works-mathematically" class="level4">
+<h4 class="anchored" data-anchor-id="why-this-works-mathematically">Why This Works Mathematically</h4>
+<p>The logic behind using bit shifts and masks instead of division and modulo is based on how numbers are represented in binary.</p>
+<section id="decimal-analogy-base-10" class="level5">
+<h5 class="anchored" data-anchor-id="decimal-analogy-base-10">Decimal Analogy (Base 10)</h5>
+<p>Consider dividing <code>1375</code> by powers of 10:</p>
+<ul>
+<li>137<strong>5</strong> ÷ 10¹ = 137 (modulo: <strong>5</strong>)</li>
+<li>13<strong>75</strong> ÷ 10² = 13 (modulo: <strong>75</strong>)</li>
+<li>1<strong>375</strong> ÷ 10³ = 1 (modulo: <strong>375</strong>)</li>
+</ul>
+<p>The rightmost digits are the remainder (modulo); the left are the quotient (division).</p>
+</section>
+<section id="binary-example-base-2" class="level5">
+<h5 class="anchored" data-anchor-id="binary-example-base-2">Binary Example (Base 2)</h5>
+<p>Take the binary number <code>1011₂</code> (= 11₁₀):</p>
+<ul>
+<li>101<strong>1</strong> ÷ 2¹ = 101 = 5 (modulo: <strong>1</strong>)</li>
+<li>10<strong>11</strong> ÷ 2² = 10 = 2 (modulo: <strong>11</strong> = 3)</li>
+<li>1<strong>011</strong> ÷ 2³ = 1 = 1 (modulo: <strong>011</strong> = 3)</li>
+</ul>
+<p>In both systems, the rightmost digits/bits represent the <strong>offset</strong>, and the leftmost represent the <strong>page number</strong>.</p>
+<p>This is why in binary:</p>
+<ul>
+<li><span class="math inline">\(V \gg k\)</span> is equivalent to <span class="math inline">\(\left\lfloor V / 2^k \right\rfloor\)</span></li>
+<li><span class="math inline">\(V \&amp; (2^k - 1)\)</span> is equivalent to <span class="math inline">\(V \mod 2^k\)</span></li>
+<li><span class="math inline">\(f \ll k\)</span> is equivalent to <span class="math inline">\(f \cdot 2^k\)</span>, which gives the frame base address</li>
+</ul>
+<p>These operations are both mathematically correct and hardware-efficient.</p>
+</section>
+</section>
+<section id="final-formula" class="level4">
+<h4 class="anchored" data-anchor-id="final-formula">Final Formula</h4>
+<p><span class="math display">\[
+\text{Physical Address} = \left( F(V \gg k) \ll k \right) + \left( V \&amp; (2^k - 1) \right)
+\]</span></p>
+<p>This computes:</p>
+<ul>
+<li>The page number via right shift</li>
+<li>The frame number from the page table</li>
+<li>The frame base via left shift (i.e., multiplying by page size)</li>
+<li>The final physical address by adding the offset</li>
+</ul>
+</section>
+<section id="additional-example-for-practice-and-clarity" class="level4">
+<h4 class="anchored" data-anchor-id="additional-example-for-practice-and-clarity">Additional Example for Practice and Clarity</h4>
+<p>Let’s now take another address and apply all three methods for reinforcement.</p>
+<section id="setup" class="level5">
+<h5 class="anchored" data-anchor-id="setup">Setup</h5>
+<ul>
+<li>Virtual address <span class="math inline">\(V = 13,\!452\)</span></li>
+<li>Page size = 4096 = <span class="math inline">\(2^{12}\)</span></li>
+<li>Page table:</li>
+</ul>
+<table class="table">
+<thead>
+<tr class="header">
+<th>Page #</th>
+<th>Frame #</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0</td>
+<td>3</td>
+</tr>
+<tr class="even">
+<td>1</td>
+<td>7</td>
+</tr>
+<tr class="odd">
+<td>2</td>
+<td>1</td>
+</tr>
+<tr class="even">
+<td>3</td>
+<td>6</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="manual-calculation" class="level5">
+<h5 class="anchored" data-anchor-id="manual-calculation">Manual Calculation</h5>
+<ul>
+<li>Page number: <span class="math inline">\(13,\!452 \div 4096 = 3\)</span></li>
+<li>Offset: <span class="math inline">\(13,\!452 \mod 4096 = 1164\)</span></li>
+<li>Frame number: <span class="math inline">\(F(3) = 6\)</span></li>
+<li>Physical address = <span class="math inline">\(6 \cdot 4096 + 1164 = 24,\!576 + 1164 = 25,\!740\)</span></li>
+</ul>
+</section>
+<section id="bitwise-calculation" class="level5">
+<h5 class="anchored" data-anchor-id="bitwise-calculation">Bitwise Calculation</h5>
+<ul>
+<li><span class="math inline">\(V = 13,\!452 = 0b0011\ 0100\ 1001\ 1100\)</span></li>
+<li>Page number = <span class="math inline">\(V \gg 12 = 3\)</span></li>
+<li>Offset = <span class="math inline">\(V \&amp; 0xFFF = 1164\)</span></li>
+<li>Frame number = <span class="math inline">\(F(3) = 6\)</span></li>
+<li>Frame base = <span class="math inline">\(6 \ll 12 = 24,\!576\)</span></li>
+<li>Physical address = <span class="math inline">\(24,\!576 + 1164 = 25,\!740\)</span></li>
+</ul>
+</section>
+</section>
+<section id="using-the-formula" class="level4">
+<h4 class="anchored" data-anchor-id="using-the-formula">Using the Formula</h4>
+<p><span class="math display">\[
+\text{Physical Address} = (F(V \gg 12) \ll 12) + (V \&amp; 0xFFF)
+\]</span></p>
+<p><span class="math display">\[
+= (6 \ll 12) + 1164 = 24,\!576 + 1164 = 25,\!740
+\]</span></p>
+</section>
+<section id="conclusion" class="level4">
+<h4 class="anchored" data-anchor-id="conclusion">Conclusion</h4>
+<p>When the page size is a power of two, address translation can be performed using fast bit operations instead of division and modulo. This is possible because of how binary numbers encode positional value. We saw that the lower bits give the offset and the upper bits the page number. Whether done manually, with bit operations, or using the translation formula, all approaches yield the same physical address — and this consistency is what makes paging both robust and efficient.</p>
 
 
+</section>
+</section>
 </section>
 
 </main> <!-- /main -->
@@ -594,11 +814,11 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
+      <a href="./process.html" class="pagination-link" aria-label="Process Management">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Process Management</span></span>
+      </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./process.html" class="pagination-link" aria-label="Process Management">
-        <span class="nav-page-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Process Management</span></span> <i class="bi bi-arrow-right-short"></i>
-      </a>
   </div>
 </nav>
 </div> <!-- /content -->
