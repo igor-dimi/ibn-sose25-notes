@@ -21,6 +21,7 @@ csl: nature.csl
 format:
   html:
     theme: cosmo
+    toc-depth: 5
   pdf:
     documentclass: scrreprt
     number-depth: 1
