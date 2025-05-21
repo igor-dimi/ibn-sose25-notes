@@ -168,6 +168,16 @@ window.Quarto = {
   <li><a href="#virtual-memory" id="toc-virtual-memory" class="nav-link active" data-scroll-target="#virtual-memory">Virtual Memory</a>
   <ul class="collapse">
   <li><a href="#paging-translating-logical-to-physical-addresses" id="toc-paging-translating-logical-to-physical-addresses" class="nav-link" data-scroll-target="#paging-translating-logical-to-physical-addresses">Paging: Translating Logical to Physical Addresses</a></li>
+  <li><a href="#single-level-direct-page-tables" id="toc-single-level-direct-page-tables" class="nav-link" data-scroll-target="#single-level-direct-page-tables">Single-Level (Direct) Page Tables</a></li>
+  <li><a href="#why-single-level-tables-are-impractical" id="toc-why-single-level-tables-are-impractical" class="nav-link" data-scroll-target="#why-single-level-tables-are-impractical">Why Single-Level Tables Are Impractical</a></li>
+  <li><a href="#frame-table-global-physical-memory-tracking" id="toc-frame-table-global-physical-memory-tracking" class="nav-link" data-scroll-target="#frame-table-global-physical-memory-tracking">Frame Table (Global Physical Memory Tracking)</a></li>
+  <li><a href="#inverted-page-tables" id="toc-inverted-page-tables" class="nav-link" data-scroll-target="#inverted-page-tables">Inverted Page Tables</a></li>
+  <li><a href="#hierarchical-page-tables" id="toc-hierarchical-page-tables" class="nav-link" data-scroll-target="#hierarchical-page-tables">Hierarchical Page Tables</a></li>
+  <li><a href="#when-and-how-page-tables-are-allocated" id="toc-when-and-how-page-tables-are-allocated" class="nav-link" data-scroll-target="#when-and-how-page-tables-are-allocated">When and How Page Tables Are Allocated</a></li>
+  <li><a href="#physical-memory-frames-and-their-usage" id="toc-physical-memory-frames-and-their-usage" class="nav-link" data-scroll-target="#physical-memory-frames-and-their-usage">Physical Memory: Frames and Their Usage</a></li>
+  <li><a href="#kernel-mapping-and-access" id="toc-kernel-mapping-and-access" class="nav-link" data-scroll-target="#kernel-mapping-and-access">Kernel Mapping and Access</a></li>
+  <li><a href="#translation-lookaside-buffer" id="toc-translation-lookaside-buffer" class="nav-link" data-scroll-target="#translation-lookaside-buffer">Translation Lookaside Buffer</a></li>
+  <li><a href="#final-thoughts" id="toc-final-thoughts" class="nav-link" data-scroll-target="#final-thoughts">Final Thoughts</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -396,9 +406,195 @@ window.Quarto = {
 <section id="conclusion" class="level4">
 <h4 class="anchored" data-anchor-id="conclusion">Conclusion</h4>
 <p>When the page size is a power of two, address translation can be performed using fast bit operations instead of division and modulo. This is possible because of how binary numbers encode positional value. We saw that the lower bits give the offset and the upper bits the page number. Whether done manually, with bit operations, or using the translation formula, all approaches yield the same physical address — and this consistency is what makes paging both robust and efficient.</p>
-
-
 </section>
+</section>
+<section id="single-level-direct-page-tables" class="level3">
+<h3 class="anchored" data-anchor-id="single-level-direct-page-tables">Single-Level (Direct) Page Tables</h3>
+<p>In the simplest form of paging, each process has its own <strong>single-level page table</strong>, which directly maps <strong>virtual page numbers</strong> to <strong>physical frame numbers</strong>.</p>
+<p>For example, in a system with:</p>
+<ul>
+<li>A <strong>32-bit virtual address space</strong> (4 GB total)</li>
+<li>A <strong>page size of 4 KB = 2¹² bytes</strong></li>
+</ul>
+<p>The number of virtual pages is:</p>
+<p><span class="math display">\[
+2^{32} / 2^{12} = 2^{20} = 1,\!048,\!576 \text{ entries}
+\]</span></p>
+<p>If each page table entry (PTE) is 4 bytes, the total size of the page table is:</p>
+<p><span class="math display">\[
+2^{20} \times 4 = 4 \text{ MB} \text{ per process}
+\]</span></p>
+<p>In a <strong>64-bit system</strong>, even with larger pages (e.g.&nbsp;4 MB), the number of virtual pages is so large (e.g., <span class="math inline">\(2^{52}\)</span>) that flat page tables become <strong>completely impractical</strong>.</p>
+<hr>
+</section>
+<section id="why-single-level-tables-are-impractical" class="level3">
+<h3 class="anchored" data-anchor-id="why-single-level-tables-are-impractical">Why Single-Level Tables Are Impractical</h3>
+<p>Main issues:</p>
+<ul>
+<li><strong>Memory usage per process</strong> becomes excessive (e.g., 4 MB/page table × hundreds of processes)</li>
+<li><strong>Scaling issues</strong> as address spaces grow</li>
+<li>Most processes <strong>use only a small part</strong> of their virtual address space, so allocating full page tables is wasteful</li>
+</ul>
+<p>Thus, alternative paging strategies are needed.</p>
+<hr>
+</section>
+<section id="frame-table-global-physical-memory-tracking" class="level3">
+<h3 class="anchored" data-anchor-id="frame-table-global-physical-memory-tracking">Frame Table (Global Physical Memory Tracking)</h3>
+<p>The OS maintains a <strong>frame table</strong>, which tracks:</p>
+<ul>
+<li>Which physical frames are in use</li>
+<li>What each frame is used for (user page, kernel structure, page table, etc.)</li>
+<li>Associated metadata: dirty bit, reference count, owner process</li>
+</ul>
+<p>This allows the OS to <strong>allocate and deallocate physical memory</strong> intelligently and safely, and is crucial for page replacement, memory protection, and I/O operations.</p>
+<hr>
+</section>
+<section id="inverted-page-tables" class="level3">
+<h3 class="anchored" data-anchor-id="inverted-page-tables">Inverted Page Tables</h3>
+<p>Instead of one page table per process, an <strong>inverted page table</strong> contains <strong>one entry per physical frame</strong>. Each entry stores:</p>
+<ul>
+<li><strong>Process ID</strong></li>
+<li><strong>Virtual page number</strong> mapped to this frame</li>
+</ul>
+<p>The index in the table corresponds to the <strong>physical frame number</strong>.</p>
+<p>Benefits:</p>
+<ul>
+<li>Memory usage depends only on <strong>RAM size</strong>, not virtual address space</li>
+</ul>
+<p>Drawbacks:</p>
+<ul>
+<li>To resolve a virtual address, the system must <strong>search (or hash)</strong> the inverted table to find the matching (PID, VPN) pair</li>
+<li>More complex lookup; slower than indexed access</li>
+<li>Difficult to implement efficient TLB caching</li>
+</ul>
+<p>Used in some older or memory-constrained systems, but rare in modern general-purpose OSes.</p>
+<hr>
+</section>
+<section id="hierarchical-page-tables" class="level3">
+<h3 class="anchored" data-anchor-id="hierarchical-page-tables">Hierarchical Page Tables</h3>
+<p>Modern systems (e.g., x86, Linux, Windows) use <strong>multi-level page tables</strong> to address sparsity in virtual memory usage.</p>
+<p>The virtual address is divided into parts:</p>
+<ul>
+<li>Each part indexes a <strong>level in the page table hierarchy</strong></li>
+<li>Only needed page table levels are <strong>allocated on demand</strong></li>
+</ul>
+<hr>
+<section id="bit-two-level-paging-example" class="level4">
+<h4 class="anchored" data-anchor-id="bit-two-level-paging-example">32-bit Two-Level Paging Example</h4>
+<p>For a 32-bit address space with 4 KB pages:</p>
+<p><span class="math display">\[
+\text{Virtual address} = [10-bit Page Dir] | [10-bit Page Table] | [12-bit Offset]
+\]</span></p>
+<ul>
+<li>1024 entries in the <strong>Page Directory (PD)</strong></li>
+<li>Each PD entry points to a <strong>Page Table (PT)</strong> with 1024 entries</li>
+<li>Final PT entry points to the <strong>physical frame</strong></li>
+</ul>
+<p>Only PD is allocated initially. PTs are created <strong>only when needed</strong>, saving memory.</p>
+<hr>
+</section>
+<section id="bit-four-level-paging-example-x86-64" class="level4">
+<h4 class="anchored" data-anchor-id="bit-four-level-paging-example-x86-64">64-bit Four-Level Paging Example (x86-64)</h4>
+<p>Typically uses <strong>48-bit virtual addresses</strong>, split into:</p>
+<p><span class="math display">\[
+[9-bit PML4] | [9-bit PDPT] | [9-bit PD] | [9-bit PT] | [12-bit offset]
+\]</span></p>
+<p>Each level (PML4, PDPT, PD, PT) is 512 entries (9 bits).</p>
+<p>This allows mapping of:</p>
+<p><span class="math display">\[
+512^4 \times 4\text{ KB} = 256 \text{ TB of virtual address space}
+\]</span></p>
+<p>Page tables are allocated <strong>only as needed</strong> — i.e., when a virtual page is first accessed.</p>
+<hr>
+</section>
+</section>
+<section id="when-and-how-page-tables-are-allocated" class="level3">
+<h3 class="anchored" data-anchor-id="when-and-how-page-tables-are-allocated">When and How Page Tables Are Allocated</h3>
+<p>Page tables are allocated in two situations:</p>
+<ol type="1">
+<li><p><strong>At program load time</strong></p>
+<ul>
+<li>When the OS loads a process, it allocates top-level tables and reserves virtual regions for code, data, stack, etc.</li>
+<li>Not all intermediate tables are allocated yet.</li>
+</ul></li>
+<li><p><strong>On demand via page faults</strong></p>
+<ul>
+<li><p>When a process accesses a virtual address with no current mapping, the CPU triggers a <strong>page fault</strong></p></li>
+<li><p>The OS checks if the access is valid (e.g., within heap or stack)</p></li>
+<li><p>If valid:</p>
+<ul>
+<li>Missing intermediate page tables are allocated</li>
+<li>A physical frame is allocated</li>
+<li>Page tables are updated</li>
+<li>Execution resumes</li>
+</ul></li>
+</ul></li>
+</ol>
+<hr>
+</section>
+<section id="physical-memory-frames-and-their-usage" class="level3">
+<h3 class="anchored" data-anchor-id="physical-memory-frames-and-their-usage">Physical Memory: Frames and Their Usage</h3>
+<p>RAM is divided into fixed-size <strong>frames</strong> (e.g., 4 KB). Each frame can hold:</p>
+<ul>
+<li>A user page (code, stack, heap)</li>
+<li>A page table (of any level)</li>
+<li>A kernel structure</li>
+<li>Anything the OS needs</li>
+</ul>
+<p>Important: <strong>contiguous physical frames may contain totally unrelated contents</strong>, from different processes or different kinds of structures. The OS manages this via the frame table.</p>
+<hr>
+</section>
+<section id="kernel-mapping-and-access" class="level3">
+<h3 class="anchored" data-anchor-id="kernel-mapping-and-access">Kernel Mapping and Access</h3>
+<ul>
+<li><p>Kernel code and data are mapped into the <strong>upper portion of each process’s virtual address space</strong></p>
+<ul>
+<li>E.g., in 32-bit Linux: <code>0xC0000000 – 0xFFFFFFFF</code></li>
+</ul></li>
+<li><p>This region is <strong>not accessible in user mode</strong> (protected by page table flags)</p></li>
+</ul>
+<p>Benefits:</p>
+<ul>
+<li>Enables <strong>fast system calls and interrupt handling</strong> without switching page tables</li>
+<li>Avoids need to reload CR3 (page table base register) on each syscall</li>
+</ul>
+<p>Kernel runs entirely in <strong>kernel mode</strong>, and its physical location is:</p>
+<ul>
+<li>Not fixed</li>
+<li>Determined at boot (by the bootloader)</li>
+<li>Mapped into kernel virtual memory</li>
+</ul>
+<p>Modern systems may use <strong>KASLR (Kernel Address Space Layout Randomization)</strong> to randomize the kernel’s location for security.</p>
+<hr>
+</section>
+<section id="translation-lookaside-buffer" class="level3">
+<h3 class="anchored" data-anchor-id="translation-lookaside-buffer">Translation Lookaside Buffer</h3>
+<p>The TLB is a small, fast cache used by the CPU’s MMU to store <strong>recent virtual-to-physical translations</strong>.</p>
+<p>Why it’s needed:</p>
+<ul>
+<li>Page table lookups involve multiple memory accesses (especially in multi-level schemes)</li>
+<li>TLB provides <strong>near-instant translation</strong> for repeated accesses</li>
+</ul>
+<p>Effectiveness:</p>
+<ul>
+<li>Very high hit rate due to <strong>spatial and temporal locality</strong></li>
+<li>TLBs are usually 16–512 entries</li>
+<li>Managed by the hardware; updated on TLB misses</li>
+</ul>
+<hr>
+</section>
+<section id="final-thoughts" class="level3">
+<h3 class="anchored" data-anchor-id="final-thoughts">Final Thoughts</h3>
+<p>Modern virtual memory management systems are built around the idea of:</p>
+<ul>
+<li><strong>Sparse usage</strong> of large address spaces</li>
+<li><strong>On-demand, hierarchical translation structures</strong></li>
+<li><strong>Fast caching and protection</strong> mechanisms</li>
+</ul>
+<p>Direct page tables are conceptually simple but infeasible for large systems. Hierarchical page tables, supported by frame tables and TLBs, provide the scalability, flexibility, and efficiency required in today’s general-purpose operating systems.</p>
+<hr>
+
+
 </section>
 </section>
 
