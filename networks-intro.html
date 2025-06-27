@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Operating Systems and Networks SoSe 25 Notes - 1&nbsp; Process Management</title>
+<title>Operating Systems and Networks SoSe 25 Notes - 3&nbsp; Network Fundamentals - Summary of Slides 1 - 45</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -20,40 +20,6 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
-/* CSS for syntax highlighting */
-pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { line-height: 1.25; }
-pre > code.sourceCode > span:empty { height: 1.2em; }
-.sourceCode { overflow: visible; }
-code.sourceCode > span { color: inherit; text-decoration: inherit; }
-div.sourceCode { margin: 1em 0; }
-pre.sourceCode { margin: 0; }
-@media screen {
-div.sourceCode { overflow: auto; }
-}
-@media print {
-pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
-}
-pre.numberSource code
-  { counter-reset: source-line 0; }
-pre.numberSource code > span
-  { position: relative; left: -4em; counter-increment: source-line; }
-pre.numberSource code > span > a:first-child::before
-  { content: counter(source-line);
-    position: relative; left: -1em; text-align: right; vertical-align: baseline;
-    border: none; display: inline-block;
-    -webkit-touch-callout: none; -webkit-user-select: none;
-    -khtml-user-select: none; -moz-user-select: none;
-    -ms-user-select: none; user-select: none;
-    padding: 0 4px; width: 4em;
-  }
-pre.numberSource { margin-left: 3em;  padding-left: 4px; }
-div.sourceCode
-  {   }
-@media screen {
-pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
-}
 </style>
 
 
@@ -64,8 +30,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./memory.html" rel="next">
-<link href="./index.html" rel="prev">
+<link href="./memory.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -103,6 +68,35 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   }
 }</script>
 
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
@@ -115,7 +109,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./process.html">Operating Systems</a></li><li class="breadcrumb-item"><a href="./process.html"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Process Management</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./networks-intro.html">Networks</a></li><li class="breadcrumb-item"><a href="./networks-intro.html"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Network Fundamentals - Summary of Slides 1 - 45</span></a></li></ol></nav>
         <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
@@ -160,7 +154,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./process.html" class="sidebar-item-text sidebar-link active">
+  <a href="./process.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Process Management</span></span></a>
   </div>
 </li>
@@ -183,7 +177,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./networks-intro.html" class="sidebar-item-text sidebar-link">
+  <a href="./networks-intro.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Network Fundamentals - Summary of Slides 1 - 45</span></span></a>
   </div>
 </li>
@@ -199,30 +193,42 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#condition-variables-and-producer-consumer-problem" id="toc-condition-variables-and-producer-consumer-problem" class="nav-link active" data-scroll-target="#condition-variables-and-producer-consumer-problem">Condition Variables and Producer / Consumer Problem</a>
+  <li><a href="#overview" id="toc-overview" class="nav-link active" data-scroll-target="#overview">Overview</a></li>
+  <li><a href="#historical-background-and-internet-foundations-slides-116" id="toc-historical-background-and-internet-foundations-slides-116" class="nav-link" data-scroll-target="#historical-background-and-internet-foundations-slides-116">Historical Background and Internet Foundations (Slides 1–16)</a></li>
+  <li><a href="#transmission-media-and-infrastructure-slides-1620" id="toc-transmission-media-and-infrastructure-slides-1620" class="nav-link" data-scroll-target="#transmission-media-and-infrastructure-slides-1620">Transmission Media and Infrastructure (Slides 16–20)</a></li>
+  <li><a href="#circuit-switching-vs.-packet-switching-slides-1823" id="toc-circuit-switching-vs.-packet-switching-slides-1823" class="nav-link" data-scroll-target="#circuit-switching-vs.-packet-switching-slides-1823">Circuit Switching vs.&nbsp;Packet Switching (Slides 18–23)</a></li>
+  <li><a href="#network-performance-metrics-slides-2432" id="toc-network-performance-metrics-slides-2432" class="nav-link" data-scroll-target="#network-performance-metrics-slides-2432">Network Performance Metrics (Slides 24–32)</a>
   <ul>
-  <li><a href="#incorrect-variant-1-condition-variable-without-mutex" id="toc-incorrect-variant-1-condition-variable-without-mutex" class="nav-link" data-scroll-target="#incorrect-variant-1-condition-variable-without-mutex">Incorrect Variant 1: Condition Variable Without Mutex</a></li>
-  <li><a href="#incorrect-variant-2-mutex-without-condition-variable-busy-waiting" id="toc-incorrect-variant-2-mutex-without-condition-variable-busy-waiting" class="nav-link" data-scroll-target="#incorrect-variant-2-mutex-without-condition-variable-busy-waiting">Incorrect Variant 2: Mutex Without Condition Variable (Busy Waiting)</a></li>
-  <li><a href="#correct-variant-condition-variable-with-mutex" id="toc-correct-variant-condition-variable-with-mutex" class="nav-link" data-scroll-target="#correct-variant-condition-variable-with-mutex">Correct Variant: Condition Variable with Mutex</a></li>
-  <li><a href="#producerconsumer-problem" id="toc-producerconsumer-problem" class="nav-link" data-scroll-target="#producerconsumer-problem">Producer/Consumer Problem</a>
+  <li><a href="#four-types-of-delay" id="toc-four-types-of-delay" class="nav-link" data-scroll-target="#four-types-of-delay">Four types of delay:</a></li>
+  <li><a href="#total-node-delay" id="toc-total-node-delay" class="nav-link" data-scroll-target="#total-node-delay">Total node delay:</a></li>
+  <li><a href="#traffic-intensity-and-queue-behavior" id="toc-traffic-intensity-and-queue-behavior" class="nav-link" data-scroll-target="#traffic-intensity-and-queue-behavior">Traffic intensity and queue behavior:</a></li>
+  <li><a href="#end-to-end-delay-over-multiple-hops" id="toc-end-to-end-delay-over-multiple-hops" class="nav-link" data-scroll-target="#end-to-end-delay-over-multiple-hops">End-to-end delay over multiple hops:</a></li>
+  <li><a href="#traceroute" id="toc-traceroute" class="nav-link" data-scroll-target="#traceroute">Traceroute:</a></li>
+  </ul></li>
+  <li><a href="#throughput-slides-3335" id="toc-throughput-slides-3335" class="nav-link" data-scroll-target="#throughput-slides-3335">Throughput (Slides 33–35)</a>
   <ul>
-  <li><a href="#variant-a-unbounded-queue-no-buffer-limit" id="toc-variant-a-unbounded-queue-no-buffer-limit" class="nav-link" data-scroll-target="#variant-a-unbounded-queue-no-buffer-limit">Variant A: Unbounded Queue (No Buffer Limit)</a></li>
+  <li><a href="#two-cases-slide-34" id="toc-two-cases-slide-34" class="nav-link" data-scroll-target="#two-cases-slide-34">Two cases (Slide 34):</a></li>
+  <li><a href="#multi-user-sharing-slide-35" id="toc-multi-user-sharing-slide-35" class="nav-link" data-scroll-target="#multi-user-sharing-slide-35">Multi-user sharing (Slide 35):</a></li>
   </ul></li>
-  <li><a href="#variant-b-bounded-queue-fixed-buffer-size" id="toc-variant-b-bounded-queue-fixed-buffer-size" class="nav-link" data-scroll-target="#variant-b-bounded-queue-fixed-buffer-size">Variant B: Bounded Queue (Fixed Buffer Size)</a></li>
-  </ul></li>
-  <li><a href="#summary-table" id="toc-summary-table" class="nav-link" data-scroll-target="#summary-table">Summary Table</a>
+  <li><a href="#summary-protokollschichten-und-ihre-dienstmodelle-slides-36---45" id="toc-summary-protokollschichten-und-ihre-dienstmodelle-slides-36---45" class="nav-link" data-scroll-target="#summary-protokollschichten-und-ihre-dienstmodelle-slides-36---45">Summary: Protokollschichten und ihre Dienstmodelle (Slides 36 - 45)</a>
   <ul>
-  <li><a href="#operations-of-a-bounded-queue" id="toc-operations-of-a-bounded-queue" class="nav-link" data-scroll-target="#operations-of-a-bounded-queue">Operations of a Bounded Queue</a></li>
+  <li><a href="#layering-motivation-slide-3637" id="toc-layering-motivation-slide-3637" class="nav-link" data-scroll-target="#layering-motivation-slide-3637">Layering Motivation (Slide 36–37)</a></li>
+  <li><a href="#protocol-layering-foundations-slides-3638" id="toc-protocol-layering-foundations-slides-3638" class="nav-link" data-scroll-target="#protocol-layering-foundations-slides-3638">Protocol Layering: Foundations (Slides 36–38)</a></li>
+  <li><a href="#the-internet-stack-slide-3839" id="toc-the-internet-stack-slide-3839" class="nav-link" data-scroll-target="#the-internet-stack-slide-3839">The Internet Stack (Slide 38–39)</a></li>
+  <li><a href="#protocol-scope-by-device-slide-40" id="toc-protocol-scope-by-device-slide-40" class="nav-link" data-scroll-target="#protocol-scope-by-device-slide-40">Protocol Scope by Device (Slide 40)</a></li>
+  <li><a href="#encapsulation-slides-4143" id="toc-encapsulation-slides-4143" class="nav-link" data-scroll-target="#encapsulation-slides-4143">Encapsulation (Slides 41–43)</a></li>
+  <li><a href="#osi-model-slide-44" id="toc-osi-model-slide-44" class="nav-link" data-scroll-target="#osi-model-slide-44">OSI Model (Slide 44)</a></li>
   </ul></li>
+  <li><a href="#unified-protocoll-stack-overview" id="toc-unified-protocoll-stack-overview" class="nav-link" data-scroll-target="#unified-protocoll-stack-overview">Unified Protocoll Stack Overview</a></li>
   </ul>
 </nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./process.html">Operating Systems</a></li><li class="breadcrumb-item"><a href="./process.html"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Process Management</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./networks-intro.html">Networks</a></li><li class="breadcrumb-item"><a href="./networks-intro.html"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Network Fundamentals - Summary of Slides 1 - 45</span></a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Process Management</span></h1>
+<h1 class="title"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Network Fundamentals - Summary of Slides 1 - 45</span></h1>
 </div>
 
 
@@ -239,331 +245,427 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </header>
 
 
-<section id="condition-variables-and-producer-consumer-problem" class="level2">
-<h2 class="anchored" data-anchor-id="condition-variables-and-producer-consumer-problem">Condition Variables and Producer / Consumer Problem</h2>
-<p>Condition variables are employed <strong>together</strong> with mutexes when synchronizing producers and consumers. It woul be incorrect ot only use a condition variable without a mutex, or a mutex with busy waiting without a condition varible.</p>
-<section id="incorrect-variant-1-condition-variable-without-mutex" class="level3">
-<h3 class="anchored" data-anchor-id="incorrect-variant-1-condition-variable-without-mutex">Incorrect Variant 1: Condition Variable Without Mutex</h3>
-<div class="sourceCode" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>ready <span class="op">=</span> <span class="va">False</span></span>
-<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>condition <span class="op">=</span> ConditionVariable()</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> wait_thread():</span>
-<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="kw">not</span> ready:</span>
-<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>        condition.wait()  <span class="co"># Incorrect: no mutex guarding shared state</span></span>
-<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"Condition met!"</span>)</span>
-<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> signal_thread():</span>
-<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    ready <span class="op">=</span> <span class="va">True</span></span>
-<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    condition.notify()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Why It’s Wrong:</p>
-<ul>
-<li>Access to <code>ready</code> is unprotected — race conditions may occur.</li>
-<li><code>condition.wait()</code> must always be used with a mutex.</li>
-</ul>
-</section>
-<section id="incorrect-variant-2-mutex-without-condition-variable-busy-waiting" class="level3">
-<h3 class="anchored" data-anchor-id="incorrect-variant-2-mutex-without-condition-variable-busy-waiting">Incorrect Variant 2: Mutex Without Condition Variable (Busy Waiting)</h3>
-<div class="sourceCode" id="cb2"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>ready <span class="op">=</span> <span class="va">False</span></span>
-<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>mutex <span class="op">=</span> Mutex()</span>
-<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> wait_thread():</span>
-<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="va">True</span>:</span>
-<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>        mutex.lock()</span>
-<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> ready:</span>
-<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>            mutex.unlock()</span>
-<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>            <span class="cf">break</span></span>
-<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>        mutex.unlock()</span>
-<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>        sleep(<span class="fl">0.01</span>)  <span class="co"># Active polling (wasteful)</span></span>
-<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> signal_thread():</span>
-<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    mutex.lock()</span>
-<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    ready <span class="op">=</span> <span class="va">True</span></span>
-<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    mutex.unlock()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Why It’s Problematic:</p>
-<ul>
-<li>Avoids races, but wastes CPU via busy waiting.</li>
-<li>Also prone to subtle visibility issues if memory barriers aren’t enforced.</li>
-</ul>
-</section>
-<section id="correct-variant-condition-variable-with-mutex" class="level3">
-<h3 class="anchored" data-anchor-id="correct-variant-condition-variable-with-mutex">Correct Variant: Condition Variable with Mutex</h3>
-<div class="sourceCode" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>ready <span class="op">=</span> <span class="va">False</span></span>
-<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>mutex <span class="op">=</span> Mutex()</span>
-<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>condition <span class="op">=</span> ConditionVariable()</span>
-<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> wait_thread():</span>
-<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    mutex.lock()</span>
-<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="kw">not</span> ready:</span>
-<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>        condition.wait(mutex)  <span class="co"># Atomically unlocks and waits</span></span>
-<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    mutex.unlock()</span>
-<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"Condition met!"</span>)</span>
-<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> signal_thread():</span>
-<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    mutex.lock()</span>
-<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>    ready <span class="op">=</span> <span class="va">True</span></span>
-<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>    condition.notify()</span>
-<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    mutex.unlock()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Why It Works:</p>
-<ul>
-<li>Shared state is properly guarded.</li>
-<li>No busy waiting.</li>
-<li>Safe signaling and waking.</li>
-</ul>
-<p>Another question is why to use <code>while not ready</code> and not simply <code>if not ready</code>:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> wait_thread():</span>
-<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>    mutex.lock()</span>
-<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="kw">not</span> ready:</span>
-<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>        condition.wait(mutex)</span>
-<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    mutex.unlock()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>Problem:</p>
-<ul>
-<li>May miss spurious wakeups or situations where multiple threads wait and only one should proceed.</li>
-<li>A <code>while</code> loop is necessary to recheck the condition after being woken up.</li>
-</ul>
-<hr>
-</section>
-<section id="producerconsumer-problem" class="level3">
-<h3 class="anchored" data-anchor-id="producerconsumer-problem">Producer/Consumer Problem</h3>
-<section id="variant-a-unbounded-queue-no-buffer-limit" class="level4">
-<h4 class="anchored" data-anchor-id="variant-a-unbounded-queue-no-buffer-limit">Variant A: Unbounded Queue (No Buffer Limit)</h4>
-<div class="sourceCode" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>queue <span class="op">=</span> []</span>
-<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>mutex <span class="op">=</span> Mutex()</span>
-<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>not_empty <span class="op">=</span> ConditionVariable()</span>
-<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> producer():</span>
-<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="va">True</span>:</span>
-<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>        item <span class="op">=</span> produce()</span>
-<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>        mutex.lock()</span>
-<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>        queue.append(item)</span>
-<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>        not_empty.notify()</span>
-<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a>        mutex.unlock()</span>
-<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> consumer():</span>
-<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="va">True</span>:</span>
-<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>        mutex.lock()</span>
-<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>        <span class="cf">while</span> <span class="kw">not</span> queue:</span>
-<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>            not_empty.wait(mutex)</span>
-<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a>        item <span class="op">=</span> queue.pop(<span class="dv">0</span>)</span>
-<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>        mutex.unlock()</span>
-<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>        consume(item)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</section>
-</section>
-<section id="variant-b-bounded-queue-fixed-buffer-size" class="level3">
-<h3 class="anchored" data-anchor-id="variant-b-bounded-queue-fixed-buffer-size">Variant B: Bounded Queue (Fixed Buffer Size)</h3>
-<div class="sourceCode" id="cb6"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>queue <span class="op">=</span> []</span>
-<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>BUFFER_SIZE <span class="op">=</span> <span class="dv">10</span></span>
-<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>mutex <span class="op">=</span> Mutex()</span>
-<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>not_empty <span class="op">=</span> ConditionVariable()</span>
-<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>not_full <span class="op">=</span> ConditionVariable()</span>
-<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> producer():</span>
-<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="va">True</span>:</span>
-<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>        item <span class="op">=</span> produce()</span>
-<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>        mutex.lock()</span>
-<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">while</span> <span class="bu">len</span>(queue) <span class="op">&gt;=</span> BUFFER_SIZE:</span>
-<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>            not_full.wait(mutex)</span>
-<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>        queue.append(item)</span>
-<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>        not_empty.notify()</span>
-<span id="cb6-15"><a href="#cb6-15" aria-hidden="true" tabindex="-1"></a>        mutex.unlock()</span>
-<span id="cb6-16"><a href="#cb6-16" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb6-17"><a href="#cb6-17" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> consumer():</span>
-<span id="cb6-18"><a href="#cb6-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">while</span> <span class="va">True</span>:</span>
-<span id="cb6-19"><a href="#cb6-19" aria-hidden="true" tabindex="-1"></a>        mutex.lock()</span>
-<span id="cb6-20"><a href="#cb6-20" aria-hidden="true" tabindex="-1"></a>        <span class="cf">while</span> <span class="kw">not</span> queue:</span>
-<span id="cb6-21"><a href="#cb6-21" aria-hidden="true" tabindex="-1"></a>            not_empty.wait(mutex)</span>
-<span id="cb6-22"><a href="#cb6-22" aria-hidden="true" tabindex="-1"></a>        item <span class="op">=</span> queue.pop(<span class="dv">0</span>)</span>
-<span id="cb6-23"><a href="#cb6-23" aria-hidden="true" tabindex="-1"></a>        not_full.notify()</span>
-<span id="cb6-24"><a href="#cb6-24" aria-hidden="true" tabindex="-1"></a>        mutex.unlock()</span>
-<span id="cb6-25"><a href="#cb6-25" aria-hidden="true" tabindex="-1"></a>        consume(item)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<hr>
-</section>
-</section>
-<section id="summary-table" class="level2">
-<h2 class="anchored" data-anchor-id="summary-table">Summary Table</h2>
+<section id="overview" class="level2">
+<h2 class="anchored" data-anchor-id="overview">Overview</h2>
 <table class="table">
 <colgroup>
-<col style="width: 34%">
-<col style="width: 9%">
-<col style="width: 28%">
-<col style="width: 7%">
-<col style="width: 12%">
-<col style="width: 6%">
+<col style="width: 35%">
+<col style="width: 13%">
+<col style="width: 50%">
 </colgroup>
 <thead>
 <tr class="header">
-<th>Case</th>
-<th>Uses Mutex</th>
-<th>Uses Condition Variable</th>
-<th>Blocking</th>
-<th>CPU-Efficient</th>
-<th>Correct</th>
+<th><strong>Topic</strong></th>
+<th><strong>Slide Range</strong></th>
+<th>Notes</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td>1. Condition variable without mutex</td>
-<td>No</td>
-<td>Yes</td>
-<td>No</td>
-<td>Yes</td>
-<td>No</td>
+<td>1. History &amp; Fundamentals of the Internet</td>
+<td>Slides 1–16</td>
+<td>ARPANET, TCP/IP, WWW, client-server, HTTP statelessness</td>
 </tr>
 <tr class="even">
-<td>2. Mutex without condition variable</td>
-<td>Yes</td>
-<td>No</td>
-<td>No</td>
-<td>No (busy)</td>
-<td>Partly</td>
+<td>2. Circuit vs.&nbsp;Packet Switching</td>
+<td>Slides 17–23</td>
+<td>FDM, TDM, statistical multiplexing, delay tradeoffs</td>
 </tr>
 <tr class="odd">
-<td>3. Condition variable with mutex</td>
-<td>Yes</td>
-<td>Yes</td>
-<td>Yes</td>
-<td>Yes</td>
-<td>Yes</td>
+<td>3. Delays, Loss, Throughput</td>
+<td>Slides 24–35</td>
+<td>d_proc, d_queue, La/R, traceroute, throughput bottlenecks</td>
 </tr>
 <tr class="even">
-<td>4. If instead of while</td>
-<td>Yes</td>
-<td>Yes</td>
-<td>Yes</td>
-<td>Yes</td>
-<td>Risky</td>
-</tr>
-<tr class="odd">
-<td>5. Producer/Consumer (unbounded)</td>
-<td>Yes</td>
-<td>Yes (<code>not_empty</code>)</td>
-<td>Yes</td>
-<td>Yes</td>
-<td>Yes</td>
-</tr>
-<tr class="even">
-<td>6. Producer/Consumer (bounded)</td>
-<td>Yes</td>
-<td>Yes (<code>not_empty</code>, <code>not_full</code>)</td>
-<td>Yes</td>
-<td>Yes</td>
-<td>Yes</td>
+<td>4. <strong>Protocol Layers and Encapsulation</strong></td>
+<td><strong>Slides 36–44</strong></td>
+<td>Layer model, encapsulation, host/router/switch roles</td>
 </tr>
 </tbody>
 </table>
+</section>
+<section id="historical-background-and-internet-foundations-slides-116" class="level2">
+<h2 class="anchored" data-anchor-id="historical-background-and-internet-foundations-slides-116">Historical Background and Internet Foundations (Slides 1–16)</h2>
+<ul>
+<li><p>Early developments: ARPANET, Cyclades, and ALOHANet pioneered <strong>packet switching</strong>.</p></li>
+<li><p>The <strong>Internet</strong> emerged as a global interconnection of autonomous systems using the <strong>TCP/IP protocol suite</strong>.</p></li>
+<li><p><strong>Tim Berners-Lee’s World Wide Web (1989–1991)</strong> introduced:</p>
+<ul>
+<li>A unified model of hyperlinked documents (HTML)</li>
+<li>The HTTP protocol (stateless)</li>
+<li>URLs for addressing</li>
+<li>The browser-server interaction model</li>
+</ul></li>
+<li><p>The <strong>stateless nature of HTTP</strong> means each request is handled independently — servers do not retain memory of previous interactions.</p></li>
+</ul>
+</section>
+<section id="transmission-media-and-infrastructure-slides-1620" class="level2">
+<h2 class="anchored" data-anchor-id="transmission-media-and-infrastructure-slides-1620">Transmission Media and Infrastructure (Slides 16–20)</h2>
+<ul>
+<li><p>Data transmission can occur over:</p>
+<ul>
+<li><strong>Copper (UTP)</strong>: electrical signals</li>
+<li><strong>Fiber optics</strong>: light pulses</li>
+<li><strong>Radio</strong>: electromagnetic waves (Wi-Fi, LTE)</li>
+</ul></li>
+<li><p>Fiber-optic links offer high bandwidth and low latency — widely used in backbone and undersea cables.</p></li>
+<li><p><strong>Satellite communication</strong> has higher propagation delay (≥500 ms round-trip) due to distance (~36,000 km geostationary orbit).</p></li>
+<li><p>Real-world systems combine many media and technologies in layered infrastructure.</p></li>
+</ul>
+</section>
+<section id="circuit-switching-vs.-packet-switching-slides-1823" class="level2">
+<h2 class="anchored" data-anchor-id="circuit-switching-vs.-packet-switching-slides-1823">Circuit Switching vs.&nbsp;Packet Switching (Slides 18–23)</h2>
+<ul>
+<li><p><strong>Circuit switching</strong>: fixed, reserved paths (e.g.&nbsp;telephony)</p>
+<ul>
+<li>Uses <strong>TDM (Time Division Multiplexing)</strong> or <strong>FDM (Frequency Division Multiplexing)</strong></li>
+</ul></li>
+<li><p><strong>Packet switching</strong>: data is broken into packets routed independently</p>
+<ul>
+<li>Uses <strong>statistical multiplexing</strong></li>
+<li>No reservation of bandwidth; packets share the link dynamically</li>
+</ul></li>
+<li><p>Trade-offs of packet switching:</p>
+<ul>
+<li>More efficient use of bandwidth under bursty traffic</li>
+<li>Potential for packet delay, loss, and reordering</li>
+</ul></li>
+</ul>
+</section>
+<section id="network-performance-metrics-slides-2432" class="level2">
+<h2 class="anchored" data-anchor-id="network-performance-metrics-slides-2432">Network Performance Metrics (Slides 24–32)</h2>
+<section id="four-types-of-delay" class="level3">
+<h3 class="anchored" data-anchor-id="four-types-of-delay">Four types of delay:</h3>
+<ol type="1">
+<li><p><strong>Processing delay</strong>: time to examine packet header and perform checks</p></li>
+<li><p><strong>Queueing delay</strong>: time waiting in the router buffer</p></li>
+<li><p><strong>Transmission delay</strong>:</p>
+<p><span class="math display">\[
+d_{\text{trans}} = \frac{L}{R}
+\]</span></p>
+<p>where:</p>
+<ul>
+<li><span class="math inline">\(L\)</span>: packet size (bits)</li>
+<li><span class="math inline">\(R\)</span>: link bandwidth (bps)</li>
+</ul></li>
+<li><p><strong>Propagation delay</strong>:</p>
+<p><span class="math display">\[
+d_{\text{prop}} = \frac{d}{s}
+\]</span></p>
+<p>where:</p>
+<ul>
+<li><span class="math inline">\(d\)</span>: physical distance (meters)</li>
+<li><span class="math inline">\(s\)</span>: signal propagation speed (m/s)</li>
+</ul></li>
+</ol>
+</section>
+<section id="total-node-delay" class="level3">
+<h3 class="anchored" data-anchor-id="total-node-delay">Total node delay:</h3>
+<p><span class="math display">\[
+d_{\text{nodal}} = d_{\text{proc}} + d_{\text{queue}} + d_{\text{trans}} + d_{\text{prop}}
+\]</span></p>
+</section>
+<section id="traffic-intensity-and-queue-behavior" class="level3">
+<h3 class="anchored" data-anchor-id="traffic-intensity-and-queue-behavior">Traffic intensity and queue behavior:</h3>
+<p>Let:</p>
+<ul>
+<li><span class="math inline">\(a\)</span>: average packet arrival rate (packets/sec)</li>
+<li><span class="math inline">\(L\)</span>: packet size (bits)</li>
+<li><span class="math inline">\(R\)</span>: link bandwidth (bps)</li>
+</ul>
+<p>Then:</p>
+<p><span class="math display">\[
+\text{Traffic intensity} = \frac{aL}{R}
+\]</span></p>
+<p>Interpretation:</p>
+<ul>
+<li>If <span class="math inline">\(\frac{aL}{R} \geq 1\)</span>: the queue grows without bound</li>
+<li>As <span class="math inline">\(\frac{aL}{R} \rightarrow 1\)</span>: delay increases sharply</li>
+</ul>
+</section>
+<section id="end-to-end-delay-over-multiple-hops" class="level3">
+<h3 class="anchored" data-anchor-id="end-to-end-delay-over-multiple-hops">End-to-end delay over multiple hops:</h3>
+<p><span class="math display">\[
+d_{\text{end-to-end}} = \sum_{i=1}^N (d_{\text{proc},i} + d_{\text{queue},i} + d_{\text{trans},i} + d_{\text{prop},i})
+\]</span></p>
+<p>where <span class="math inline">\(N\)</span> is the number of routers.</p>
+</section>
+<section id="traceroute" class="level3">
+<h3 class="anchored" data-anchor-id="traceroute">Traceroute:</h3>
+<ul>
+<li>Uses IP TTL (Time-To-Live) field to probe each hop</li>
+<li>When TTL reaches zero, routers send an ICMP “Time Exceeded” message</li>
+<li>Allows measurement of <strong>round-trip time (RTT)</strong> per hop</li>
+</ul>
 <hr>
-<section id="operations-of-a-bounded-queue" class="level4">
-<h4 class="anchored" data-anchor-id="operations-of-a-bounded-queue">Operations of a Bounded Queue</h4>
+</section>
+</section>
+<section id="throughput-slides-3335" class="level2">
+<h2 class="anchored" data-anchor-id="throughput-slides-3335">Throughput (Slides 33–35)</h2>
+<ul>
+<li><strong>Throughput</strong>: the rate at which data is successfully delivered (bps)</li>
+</ul>
+<section id="two-cases-slide-34" class="level3">
+<h3 class="anchored" data-anchor-id="two-cases-slide-34">Two cases (Slide 34):</h3>
+<p>If:</p>
+<ul>
+<li><span class="math inline">\(R_S\)</span>: server’s sending rate</li>
+<li><span class="math inline">\(R_C\)</span>: client-side link rate</li>
+</ul>
+<p>Then:</p>
+<ul>
+<li>If <span class="math inline">\(R_S &lt; R_C\)</span>, then <span class="math inline">\(\text{Throughput} = R_S\)</span></li>
+<li>If <span class="math inline">\(R_S &gt; R_C\)</span>, then <span class="math inline">\(\text{Throughput} = R_C\)</span></li>
+</ul>
+<p><span class="math display">\[
+\text{Throughput} = \min(R_S, R_C)
+\]</span></p>
+</section>
+<section id="multi-user-sharing-slide-35" class="level3">
+<h3 class="anchored" data-anchor-id="multi-user-sharing-slide-35">Multi-user sharing (Slide 35):</h3>
+<p>If 10 users share a backbone link of rate <span class="math inline">\(R\)</span>, and each has:</p>
+<ul>
+<li>Sender link: <span class="math inline">\(R_s\)</span></li>
+<li>Receiver link: <span class="math inline">\(R_c\)</span></li>
+</ul>
+<p>Then per-connection throughput is:</p>
+<p><span class="math display">\[
+\text{Throughput} = \min(R_s, R_c, \frac{R}{10})
+\]</span></p>
+<hr>
+<p>Yes — definitely. The current version is clean and comprehensive, but if your goal is <strong>clarity + conciseness for study purposes</strong>, we can streamline it without sacrificing completeness.</p>
+<p>Here is a <strong>more succinct version</strong> of the same summary, optimized for use in study notes:</p>
+<hr>
+</section>
+</section>
+<section id="summary-protokollschichten-und-ihre-dienstmodelle-slides-36---45" class="level2">
+<h2 class="anchored" data-anchor-id="summary-protokollschichten-und-ihre-dienstmodelle-slides-36---45">Summary: Protokollschichten und ihre Dienstmodelle (Slides 36 - 45)</h2>
+<p><em>(Slides 36–44)</em></p>
+<p>This final chapter introduces the <strong>layered architecture of the Internet</strong>. It explains how each protocol layer serves the one above and relies on the one below, and how encapsulation enables structured communication.</p>
+<hr>
+<section id="layering-motivation-slide-3637" class="level3">
+<h3 class="anchored" data-anchor-id="layering-motivation-slide-3637">Layering Motivation (Slide 36–37)</h3>
+<ul>
+<li>Networks are complex (hosts, routers, media, apps).</li>
+<li>Solution: <strong>Schichtenarchitektur</strong> for modular design.</li>
+<li>Each layer performs actions and uses only the services of the layer below.</li>
+</ul>
+<hr>
+</section>
+<section id="protocol-layering-foundations-slides-3638" class="level3">
+<h3 class="anchored" data-anchor-id="protocol-layering-foundations-slides-3638">Protocol Layering: Foundations (Slides 36–38)</h3>
+<ul>
+<li><p>Due to network complexity, functionality is divided into <strong>layers</strong>, each with clear responsibilities.</p></li>
+<li><p>A layer <span class="math inline">\(k\)</span> uses only the services of layer <span class="math inline">\(k-1\)</span>:</p>
+<p><span class="math display">\[
+\text{Layer } k \longrightarrow \text{uses services of Layer } (k-1)
+\]</span></p></li>
+<li><p>Each layer communicates <strong>vertically</strong> (service interface) and defines <strong>horizontal protocols</strong> (with its counterpart on the remote host).</p></li>
+<li><p>Layering enables:</p>
+<ul>
+<li>Modularity</li>
+<li>Replaceability</li>
+<li>Interoperability</li>
+<li>Abstraction from hardware details</li>
+</ul></li>
+</ul>
+</section>
+<section id="the-internet-stack-slide-3839" class="level3">
+<h3 class="anchored" data-anchor-id="the-internet-stack-slide-3839">The Internet Stack (Slide 38–39)</h3>
 <table class="table">
 <colgroup>
-<col style="width: 6%">
 <col style="width: 16%">
-<col style="width: 6%">
-<col style="width: 7%">
-<col style="width: 20%">
-<col style="width: 43%">
+<col style="width: 53%">
+<col style="width: 29%">
 </colgroup>
 <thead>
 <tr class="header">
-<th>Step</th>
-<th>Operation</th>
-<th><code>in</code></th>
-<th><code>out</code></th>
-<th>Buffer State</th>
-<th>Count == (<code>(in - out + 5) % 5</code>)</th>
+<th><strong>Layer</strong></th>
+<th><strong>Function</strong></th>
+<th><strong>Examples</strong></th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td>0</td>
-<td>Start</td>
-<td>0</td>
-<td>0</td>
-<td><code>[_ _ _ _ _]</code></td>
-<td>0</td>
+<td>Application</td>
+<td>Application protocols, user data</td>
+<td>HTTP, FTP, SMTP</td>
 </tr>
 <tr class="even">
-<td>1</td>
-<td>Produce A</td>
-<td>1</td>
-<td>0</td>
-<td><code>[A _ _ _ _]</code></td>
-<td>1</td>
+<td>Transport</td>
+<td>Process-to-process delivery</td>
+<td>TCP, UDP</td>
 </tr>
 <tr class="odd">
-<td>2</td>
-<td>Produce B</td>
-<td>2</td>
-<td>0</td>
-<td><code>[A B _ _ _]</code></td>
-<td>2</td>
+<td>Network</td>
+<td>Host-to-host delivery, routing</td>
+<td>IP, ICMP</td>
 </tr>
 <tr class="even">
-<td>3</td>
-<td>Produce C</td>
-<td>3</td>
-<td>0</td>
-<td><code>[A B C _ _]</code></td>
-<td>3</td>
+<td>Data Link</td>
+<td>Frame-level delivery on local links</td>
+<td>Ethernet, Wi-Fi, PPP</td>
 </tr>
 <tr class="odd">
-<td>4</td>
-<td>Consume → A</td>
-<td>3</td>
-<td>1</td>
-<td><code>[_ B C _ _]</code></td>
-<td>2</td>
-</tr>
-<tr class="even">
-<td>5</td>
-<td>Consume → B</td>
-<td>3</td>
-<td>2</td>
-<td><code>[_ _ C _ _]</code></td>
-<td>1</td>
-</tr>
-<tr class="odd">
-<td>6</td>
-<td>Produce D</td>
-<td>4</td>
-<td>2</td>
-<td><code>[_ _ C D _]</code></td>
-<td>2</td>
-</tr>
-<tr class="even">
-<td>7</td>
-<td>Produce E</td>
-<td>0</td>
-<td>2</td>
-<td><code>[_ _ C D E]</code></td>
-<td>3</td>
-</tr>
-<tr class="odd">
-<td>8</td>
-<td>Consume → C</td>
-<td>0</td>
-<td>3</td>
-<td><code>[_ _ _ D E]</code></td>
-<td>2</td>
-</tr>
-<tr class="even">
-<td>9</td>
-<td>Produce F</td>
-<td>1</td>
-<td>3</td>
-<td><code>[F _ _ D E]</code></td>
-<td>3</td>
+<td>Physical</td>
+<td>Transmission of bits over the medium</td>
+<td>Fiber, DSL, 5G</td>
 </tr>
 </tbody>
 </table>
-<p>where</p>
 <ul>
-<li><code>in</code>: the write position / index</li>
-<li><code>out</code>: the read position /index</li>
-<li><code>count == (in - out + 5) % 5</code> is the invariant of the data structure, giving the number of elements in the buffer</li>
+<li>Layers are identified by <strong>who communicates</strong> (e.g.&nbsp;processes, hosts, links).</li>
+<li>Data is encapsulated step by step as it moves downward.</li>
 </ul>
-
-
+<hr>
 </section>
+<section id="protocol-scope-by-device-slide-40" class="level3">
+<h3 class="anchored" data-anchor-id="protocol-scope-by-device-slide-40">Protocol Scope by Device (Slide 40)</h3>
+<table class="table">
+<thead>
+<tr class="header">
+<th><strong>Device</strong></th>
+<th><strong>Implements Up To</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Host</td>
+<td>All 5 layers</td>
+</tr>
+<tr class="even">
+<td>Router</td>
+<td>Network layer (IP)</td>
+</tr>
+<tr class="odd">
+<td>Switch</td>
+<td>Data Link layer (MAC)</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+<section id="encapsulation-slides-4143" class="level3">
+<h3 class="anchored" data-anchor-id="encapsulation-slides-4143">Encapsulation (Slides 41–43)</h3>
+<p>Each layer adds its own header (and possibly trailer). The result:</p>
+<pre><code>Frame = [Data Link hdr] + [IP hdr] + [TCP hdr] + Message + [Trailer]</code></pre>
+<p>At the receiver, each layer removes its own header.</p>
+<ul>
+<li>Only <strong>hosts</strong> process all layers.</li>
+<li><strong>Routers</strong> read only IP headers.</li>
+<li><strong>Switches</strong> forward based on MAC addresses.</li>
+</ul>
+</section>
+<section id="osi-model-slide-44" class="level3">
+<h3 class="anchored" data-anchor-id="osi-model-slide-44">OSI Model (Slide 44)</h3>
+<p>A 7-layer reference model defined by ISO, used mostly for conceptual clarity.</p>
+<table class="table">
+<thead>
+<tr class="header">
+<th><strong>OSI Layer</strong></th>
+<th><strong>Added vs.&nbsp;Internet Model</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>7: Application</td>
+<td>Matches Internet’s application layer</td>
+</tr>
+<tr class="even">
+<td>6: Presentation</td>
+<td>Data format, compression, encryption</td>
+</tr>
+<tr class="odd">
+<td>5: Session</td>
+<td>Dialog management</td>
+</tr>
+<tr class="even">
+<td>4–1: Transport → Physical</td>
+<td>Same as in Internet stack</td>
+</tr>
+</tbody>
+</table>
+<blockquote class="blockquote">
+<p>Internet model simplifies OSI: layers 5–7 are often merged into the application.</p>
+</blockquote>
+<hr>
+<p>This version keeps all major points but trims redundant explanation and tightens the wording for effective study reference.</p>
+<p>Would you like it exported to markdown or added to your ongoing Quarto notes?</p>
+</section>
+</section>
+<section id="unified-protocoll-stack-overview" class="level2">
+<h2 class="anchored" data-anchor-id="unified-protocoll-stack-overview">Unified Protocoll Stack Overview</h2>
+<table class="table">
+<colgroup>
+<col style="width: 8%">
+<col style="width: 25%">
+<col style="width: 8%">
+<col style="width: 14%">
+<col style="width: 11%">
+<col style="width: 15%">
+<col style="width: 15%">
+</colgroup>
+<thead>
+<tr class="header">
+<th><strong>Layer</strong></th>
+<th><strong>Communication Endpoint</strong></th>
+<th><strong>Data Unit Name</strong></th>
+<th><strong>What It Contains</strong></th>
+<th><strong>Adds Header/Footer?</strong></th>
+<th><strong>Can Split Data?</strong></th>
+<th><strong>Typical Protocols</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Application</strong></td>
+<td>Applications or processes (e.g., browser ↔︎ web server)</td>
+<td><strong>Message</strong></td>
+<td>App-level data (e.g.&nbsp;HTTP, SMTP)</td>
+<td>No</td>
+<td>Yes — application logic (e.g.&nbsp;file chunks)</td>
+<td>HTTP, FTP, SMTP, DNS, TLS, SSH, POP, IMAP</td>
+</tr>
+<tr class="even">
+<td><strong>Transport (TCP/UDP)</strong></td>
+<td>Sockets on end hosts (process ↔︎ process)</td>
+<td><strong>Segment</strong></td>
+<td>Message + TCP/UDP header</td>
+<td>Yes — transport header</td>
+<td><strong>Yes</strong> — TCP segments long messages</td>
+<td>TCP, UDP</td>
+</tr>
+<tr class="odd">
+<td><strong>Network (IP)</strong></td>
+<td>Hosts or end systems (host ↔︎ host, abstracting from processes)</td>
+<td><strong>Packet</strong> (or Datagram)</td>
+<td>Segment + IP header</td>
+<td>Yes — network header</td>
+<td><strong>Yes</strong> — IP may fragment large packets</td>
+<td>IP (v4/v6), ICMP, IGMP</td>
+</tr>
+<tr class="even">
+<td><strong>Data Link</strong></td>
+<td>Directly connected devices (e.g.&nbsp;Host ↔︎ Router)</td>
+<td><strong>Frame</strong></td>
+<td>Packet + MAC header + trailer (e.g.&nbsp;CRC)</td>
+<td>Yes — frame header and trailer</td>
+<td><strong>No</strong> — one packet per frame</td>
+<td>Ethernet, Wi-Fi (802.11), PPP, ARP</td>
+</tr>
+<tr class="odd">
+<td><strong>Physical</strong></td>
+<td>Physical interfaces (e.g., NICs, cables, radio) exchanging raw bits</td>
+<td><strong>Bits</strong></td>
+<td>Encoded electrical/optical/radio signals</td>
+<td>N/A (not in software)</td>
+<td>No — transmits one bit at a time</td>
+<td>DSL, Optical Fiber, Ethernet Cable, 5G</td>
+</tr>
+</tbody>
+</table>
+
+
 </section>
 
 </main> <!-- /main -->
@@ -978,14 +1080,11 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
-      <a href="./index.html" class="pagination-link" aria-label="Preface">
-        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Preface</span>
+      <a href="./memory.html" class="pagination-link" aria-label="Memory Management">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Memory Management</span></span>
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./memory.html" class="pagination-link" aria-label="Memory Management">
-        <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Memory Management</span></span> <i class="bi bi-arrow-right-short"></i>
-      </a>
   </div>
 </nav>
 </div> <!-- /content -->
