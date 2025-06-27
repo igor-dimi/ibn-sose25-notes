@@ -9,6 +9,7 @@ book:
     - index.qmd
     - process.qmd
     - memory.qmd
+    - networks.qmd
   downloads: ["pdf"]
   page-navigation: true
 
