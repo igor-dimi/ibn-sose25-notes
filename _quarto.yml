@@ -7,9 +7,13 @@ book:
   date: "12/18/2024"
   chapters:
     - index.qmd
-    - process.qmd
-    - memory.qmd
-    - networks.qmd
+    - part: "Operating Systems"
+      chapters:
+      - process.qmd
+      - memory.qmd
+    - part: "Networks"
+      chapters:
+      - networks-intro.qmd
   downloads: ["pdf"]
   page-navigation: true
 
