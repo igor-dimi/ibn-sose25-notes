@@ -7,8 +7,17 @@ book:
   date: "12/18/2024"
   chapters:
     - index.qmd
+    - part: "Operating Systems"
+      chapters:
+      - process.qmd
+      - memory.qmd
+    - part: "Networks"
+      chapters:
+      - networks-intro.qmd
   downloads: ["pdf"]
   page-navigation: true
+
+number-depth: 1
 
 bibliography: references.bib
 
@@ -17,6 +26,7 @@ csl: nature.csl
 format:
   html:
     theme: cosmo
+    toc-depth: 5
   pdf:
     documentclass: scrreprt
     number-depth: 1

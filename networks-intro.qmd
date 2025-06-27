@@ -1,0 +1,266 @@
+---
+title: Network Fundamentals - Summary of Slides 1 - 45
+---
+
+
+## Overview 
+
+| **Topic**                                 | **Slide Range**  | Notes                                                       |
+| ----------------------------------------- | ---------------- | ----------------------------------------------------------- |
+| 1. History & Fundamentals of the Internet | Slides 1–16      | ARPANET, TCP/IP, WWW, client-server, HTTP statelessness     |
+| 2. Circuit vs. Packet Switching           | Slides 17–23     | FDM, TDM, statistical multiplexing, delay tradeoffs         |
+| 3. Delays, Loss, Throughput               | Slides 24–35     | d\_proc, d\_queue, La/R, traceroute, throughput bottlenecks |
+| 4. **Protocol Layers and Encapsulation**  | **Slides 36–44** | Layer model, encapsulation, host/router/switch roles        |
+
+
+## Historical Background and Internet Foundations (Slides 1–16)
+
+* Early developments: ARPANET, Cyclades, and ALOHANet pioneered **packet switching**.
+* The **Internet** emerged as a global interconnection of autonomous systems using the **TCP/IP protocol suite**.
+* **Tim Berners-Lee's World Wide Web (1989–1991)** introduced:
+
+  * A unified model of hyperlinked documents (HTML)
+  * The HTTP protocol (stateless)
+  * URLs for addressing
+  * The browser-server interaction model
+* The **stateless nature of HTTP** means each request is handled independently — servers do not retain memory of previous interactions.
+
+## Transmission Media and Infrastructure (Slides 16–20)
+
+* Data transmission can occur over:
+
+  * **Copper (UTP)**: electrical signals
+  * **Fiber optics**: light pulses
+  * **Radio**: electromagnetic waves (Wi-Fi, LTE)
+* Fiber-optic links offer high bandwidth and low latency — widely used in backbone and undersea cables.
+* **Satellite communication** has higher propagation delay (≥500 ms round-trip) due to distance (\~36,000 km geostationary orbit).
+* Real-world systems combine many media and technologies in layered infrastructure.
+
+## Circuit Switching vs. Packet Switching (Slides 18–23)
+
+* **Circuit switching**: fixed, reserved paths (e.g. telephony)
+
+  * Uses **TDM (Time Division Multiplexing)** or **FDM (Frequency Division Multiplexing)**
+* **Packet switching**: data is broken into packets routed independently
+
+  * Uses **statistical multiplexing**
+  * No reservation of bandwidth; packets share the link dynamically
+* Trade-offs of packet switching:
+
+  * More efficient use of bandwidth under bursty traffic
+  * Potential for packet delay, loss, and reordering
+
+## Network Performance Metrics (Slides 24–32)
+
+### Four types of delay:
+
+1. **Processing delay**: time to examine packet header and perform checks
+2. **Queueing delay**: time waiting in the router buffer
+3. **Transmission delay**:
+
+   $$
+   d_{\text{trans}} = \frac{L}{R}
+   $$
+
+   where:
+
+   * $L$: packet size (bits)
+   * $R$: link bandwidth (bps)
+4. **Propagation delay**:
+
+   $$
+   d_{\text{prop}} = \frac{d}{s}
+   $$
+
+   where:
+
+   * $d$: physical distance (meters)
+   * $s$: signal propagation speed (m/s)
+
+### Total node delay:
+
+$$
+d_{\text{nodal}} = d_{\text{proc}} + d_{\text{queue}} + d_{\text{trans}} + d_{\text{prop}}
+$$
+
+### Traffic intensity and queue behavior:
+
+Let:
+
+* $a$: average packet arrival rate (packets/sec)
+* $L$: packet size (bits)
+* $R$: link bandwidth (bps)
+
+Then:
+
+$$
+\text{Traffic intensity} = \frac{aL}{R}
+$$
+
+Interpretation:
+
+* If $\frac{aL}{R} \geq 1$: the queue grows without bound
+* As $\frac{aL}{R} \rightarrow 1$: delay increases sharply
+
+### End-to-end delay over multiple hops:
+
+$$
+d_{\text{end-to-end}} = \sum_{i=1}^N (d_{\text{proc},i} + d_{\text{queue},i} + d_{\text{trans},i} + d_{\text{prop},i})
+$$
+
+where $N$ is the number of routers.
+
+### Traceroute:
+
+* Uses IP TTL (Time-To-Live) field to probe each hop
+* When TTL reaches zero, routers send an ICMP “Time Exceeded” message
+* Allows measurement of **round-trip time (RTT)** per hop
+
+---
+
+## Throughput (Slides 33–35)
+
+* **Throughput**: the rate at which data is successfully delivered (bps)
+
+### Two cases (Slide 34):
+
+If:
+
+* $R_S$: server’s sending rate
+* $R_C$: client-side link rate
+
+Then:
+
+* If $R_S < R_C$, then $\text{Throughput} = R_S$
+* If $R_S > R_C$, then $\text{Throughput} = R_C$
+
+$$
+\text{Throughput} = \min(R_S, R_C)
+$$
+
+### Multi-user sharing (Slide 35):
+
+If 10 users share a backbone link of rate $R$, and each has:
+
+* Sender link: $R_s$
+* Receiver link: $R_c$
+
+Then per-connection throughput is:
+
+$$
+\text{Throughput} = \min(R_s, R_c, \frac{R}{10})
+$$
+
+---
+
+Yes — definitely. The current version is clean and comprehensive, but if your goal is **clarity + conciseness for study purposes**, we can streamline it without sacrificing completeness.
+
+Here is a **more succinct version** of the same summary, optimized for use in study notes:
+
+---
+
+## Summary: Protokollschichten und ihre Dienstmodelle (Slides 36 - 45)
+
+*(Slides 36–44)*
+
+This final chapter introduces the **layered architecture of the Internet**. It explains how each protocol layer serves the one above and relies on the one below, and how encapsulation enables structured communication.
+
+---
+
+### Layering Motivation (Slide 36–37)
+
+* Networks are complex (hosts, routers, media, apps).
+* Solution: **Schichtenarchitektur** for modular design.
+* Each layer performs actions and uses only the services of the layer below.
+
+---
+
+
+### Protocol Layering: Foundations (Slides 36–38)
+
+* Due to network complexity, functionality is divided into **layers**, each with clear responsibilities.
+
+* A layer $k$ uses only the services of layer $k-1$:
+
+  $$
+  \text{Layer } k \longrightarrow \text{uses services of Layer } (k-1)
+  $$
+
+* Each layer communicates **vertically** (service interface) and defines **horizontal protocols** (with its counterpart on the remote host).
+
+* Layering enables:
+
+  * Modularity
+  * Replaceability
+  * Interoperability
+  * Abstraction from hardware details
+
+### The Internet Stack (Slide 38–39)
+
+| **Layer**   | **Function**                         | **Examples**         |
+| ----------- | ------------------------------------ | -------------------- |
+| Application | Application protocols, user data     | HTTP, FTP, SMTP      |
+| Transport   | Process-to-process delivery          | TCP, UDP             |
+| Network     | Host-to-host delivery, routing       | IP, ICMP             |
+| Data Link   | Frame-level delivery on local links  | Ethernet, Wi-Fi, PPP |
+| Physical    | Transmission of bits over the medium | Fiber, DSL, 5G       |
+
+* Layers are identified by **who communicates** (e.g. processes, hosts, links).
+* Data is encapsulated step by step as it moves downward.
+
+---
+
+### Protocol Scope by Device (Slide 40)
+
+| **Device** | **Implements Up To**  |
+| ---------- | --------------------- |
+| Host       | All 5 layers          |
+| Router     | Network layer (IP)    |
+| Switch     | Data Link layer (MAC) |
+
+---
+
+### Encapsulation (Slides 41–43)
+
+Each layer adds its own header (and possibly trailer). The result:
+
+```
+Frame = [Data Link hdr] + [IP hdr] + [TCP hdr] + Message + [Trailer]
+```
+
+At the receiver, each layer removes its own header.
+
+* Only **hosts** process all layers.
+* **Routers** read only IP headers.
+* **Switches** forward based on MAC addresses.
+
+
+### OSI Model (Slide 44)
+
+A 7-layer reference model defined by ISO, used mostly for conceptual clarity.
+
+| **OSI Layer**             | **Added vs. Internet Model**         |
+| ------------------------- | ------------------------------------ |
+| 7: Application            | Matches Internet's application layer |
+| 6: Presentation           | Data format, compression, encryption |
+| 5: Session                | Dialog management                    |
+| 4–1: Transport → Physical | Same as in Internet stack            |
+
+> Internet model simplifies OSI: layers 5–7 are often merged into the application.
+
+---
+
+This version keeps all major points but trims redundant explanation and tightens the wording for effective study reference.
+
+Would you like it exported to markdown or added to your ongoing Quarto notes?
+
+
+## Unified Protocoll Stack Overview
+
+| **Layer**               | **Communication Endpoint**                                          | **Data Unit Name**       | **What It Contains**                     | **Adds Header/Footer?**        | **Can Split Data?**                        | **Typical Protocols**                     |
+| ----------------------- | ------------------------------------------------------------------- | ------------------------ | ---------------------------------------- | ------------------------------ | ------------------------------------------ | ----------------------------------------- |
+| **Application**         | Applications or processes (e.g., browser ↔ web server)              | **Message**              | App-level data (e.g. HTTP, SMTP)         | No                             | Yes — application logic (e.g. file chunks) | HTTP, FTP, SMTP, DNS, TLS, SSH, POP, IMAP |
+| **Transport (TCP/UDP)** | Sockets on end hosts (process ↔ process)                            | **Segment**              | Message + TCP/UDP header                 | Yes — transport header         | **Yes** — TCP segments long messages       | TCP, UDP                                  |
+| **Network (IP)**        | Hosts or end systems (host ↔ host, abstracting from processes)      | **Packet** (or Datagram) | Segment + IP header                      | Yes — network header           | **Yes** — IP may fragment large packets    | IP (v4/v6), ICMP, IGMP                    |
+| **Data Link**           | Directly connected devices (e.g. Host ↔ Router)                     | **Frame**                | Packet + MAC header + trailer (e.g. CRC) | Yes — frame header and trailer | **No** — one packet per frame              | Ethernet, Wi-Fi (802.11), PPP, ARP        |
+| **Physical**            | Physical interfaces (e.g., NICs, cables, radio) exchanging raw bits | **Bits**                 | Encoded electrical/optical/radio signals | N/A (not in software)          | No — transmits one bit at a time           | DSL, Optical Fiber, Ethernet Cable, 5G    |
