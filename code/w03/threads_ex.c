@@ -8,9 +8,7 @@
 void* TaskCode (void* argument)
 {
     int tid; tid = *((int* ) argument);
-    printf("%d: ", tid);
-    for (int i = 0; i < 25; i++) printf("%d ", i);
-    printf("\n");
+    printf("number: %d\n", tid);
     return NULL;
 }
 
@@ -23,7 +21,7 @@ int main(int argc, char const *argv[])
 
     for (int i = 0; i < NUM_THREADS; i++) { /* create all threads */
         thread_args[i] = i;
-        // printf("In main: creating thread %d\n", i);
+        printf("In main: creating thread %d\n", i);
         rc = pthread_create(&threads[i], NULL, TaskCode, (void* ) &thread_args[i]);
         assert(0 == rc);
     }
