@@ -1,0 +1,595 @@
+---
+title: Intro to the Application Layer, Web and HTTP
+---
+
+
+## **Overview**
+
+| **Slide** | **Title / Chapter Heading**                              | **Content Covered in This Chapter**                                        |
+| --------- | -------------------------------------------------------- | -------------------------------------------------------------------------- |
+| **1**     | *Title Slide*                                            | Vorlesung N02 – Artur Andrzejak                                            |
+| **2**     | **Protokollschichten und ihre Dienstmodelle** *(Review)* | Motivation for layering, protocol stack overview, encapsulation, OSI model |
+| **11**    | **Das Web und HTTP**                                     | Web as an application, HTTP request/response, URLs, message formats        |
+| **20**    | **HTTP – Fortgeschrittene Konzepte**                     | Persistent connections, cookies, status codes, conditional GET             |
+| **30**    | **Grundlagen von Netzwerkanwendungen**                   | Application architectures (Client-Server, P2P), sockets, addressing        |
+| **37**    | **Zwei Grundlegende Internet-Protokolle**                | TCP and UDP compared: properties, use cases                                |
+| **38**    | *(End of main material)*                                 | Table summarizing example applications and their underlying protocols      |
+
+---
+
+### Visual Flow:
+
+1. **Slides 2–10**: Foundations of the Internet stack (5-layer model), encapsulation, and implementation across hosts/routers.
+2. **Slides 11–19**: Introduction to the **Web and HTTP** — how web clients and servers communicate, HTTP syntax.
+3. **Slides 20–29**: Deeper into HTTP — efficiency issues, cookies, status handling, caching mechanisms.
+4. **Slides 30–36**: What constitutes a **network application** — roles of processes, clients/servers, socket interfaces.
+5. **Slides 37–38**: **TCP vs UDP** — core transport-layer protocols and which applications use them.
+
+---
+
+**Progression**:
+
+* It begins with **protocol layering** as a general framework,
+* Moves to a real-world application: the **Web**,
+* Adds depth by covering **advanced HTTP behavior**,
+* Then generalizes back to all network apps: **architecture, sockets, addressing**,
+* And ends with **transport-level choices** (TCP vs UDP).
+
+
+Absolutely. Below is a more **comprehensive and didactically structured** summary of `vlN02-ibn.pdf`, suitable for integration into your note-taking system. It covers the **main thread** (slides 11–29) and integrates relevant **clarifying detours** for long-term retention.
+
+---
+
+## IBN – Vorlesung 02: HTTP und die Anwendungsschicht
+
+**Source**: `vlN02-ibn.pdf` (slides 11–29)
+**Focus**: Practical introduction to the **Application Layer** of the Internet stack using **HTTP** and the **Web** as central examples.
+
+---
+
+### Context and Approach
+
+You started at **slide 11**, skipping the review of protocol layering (slides 2–10), which was already covered in `vlN01-ibn.pdf`. The lecture introduces how **HTTP** functions as a real-world example of an **application-layer protocol** built on top of **TCP**.
+
+---
+
+
+### Slide 11 – Das Web und HTTP
+
+* The Web is a **distributed application** using the **HTTP protocol**, layered over **TCP**.
+* A single web page typically includes:
+
+  * A main HTML file
+  * Additional embedded resources (images, CSS, JS, etc.)
+
+---
+
+### Slide 12 – Übersicht und Begriffe
+
+* Defines key terms:
+
+  * **Browser**: the HTTP client
+  * **Web server**: provides content via HTTP
+  * **URL**: encodes hostname, protocol, and path to resource
+* HTTP clients usually connect to servers on **port 80**.
+
+---
+
+### Slide 14 – Hypertext Transfer Protocol (HTTP)
+
+* HTTP runs over **TCP** and is a **stateless** protocol.
+* In its basic form (HTTP/1.0), each request requires a **new TCP connection**.
+* Later versions (HTTP/1.1+) support **persistent connections**.
+
+---
+
+### Slide 15 – HTTP-Request (Beispiel)
+
+* Structure of a simple `GET` request:
+
+  ```
+  GET /index.html HTTP/1.1
+  Host: www.example.com
+  User-Agent: ...
+  ```
+* `GET` requests contain **no body**.
+
+---
+
+### Slide 16 – Allgemeines Format der Request-Nachricht
+
+* Every HTTP request consists of:
+
+  * **Request line** (method, path, HTTP version)
+  * **Header fields** (e.g. Host, User-Agent, Content-Length)
+  * Optional **body** (only for `POST`, `PUT`, etc.)
+
+---
+
+### Slide 17 – HTTP-Request-Methoden
+
+* Supported methods:
+
+  * `GET`: parameters in URL
+  * `POST`: parameters in body
+  * `HEAD`: like `GET` but without response body
+  * `PUT`, `DELETE`: less common, used in RESTful APIs
+* HTTP is **semantically extensible**, but the method determines message structure.
+
+---
+
+### Slide 18 – HTTP-Response (Beispiel)
+
+* Response structure includes:
+
+  * **Status line** (e.g., `HTTP/1.1 200 OK`)
+  * **Header fields** (e.g., `Content-Type`, `Content-Length`)
+  * **Optional body** (HTML, image, etc.)
+
+---
+
+### Slide 19 – Allgemeines Format der Response-Nachricht
+
+* Response message layout:
+
+  * **Status line**
+  * **Headers**
+  * Blank line
+  * Optional **entity body**
+
+---
+
+### Slide 21 – HTTP mit Telnet simulieren
+
+* Demonstrates that HTTP is **plain-text based**.
+* You can use `telnet` to manually type HTTP requests.
+* This reinforces the protocol’s **human-readable** structure.
+
+---
+
+### Slide 22 – Statuscodes und Statusnachrichten
+
+* HTTP status line contains:
+
+  * Protocol version
+  * Numeric status code (e.g., 200, 404)
+  * Optional text message (e.g., "OK", "Not Found")
+* Clients should rely on the **numeric code**, not the message text.
+
+---
+
+### Slide 23 – HTTP Verbindungstypen
+
+* Distinguishes between:
+
+  * **Nichtpersistente Verbindungen**: new TCP connection per object (inefficient)
+  * **Persistente Verbindungen**: single TCP connection reused for multiple objects (default in HTTP/1.1)
+
+---
+
+### Slide 24 – Antwortzeit bei nichtpersistenten Verbindungen
+
+* Non-persistent setup incurs at least:
+
+  * **1 RTT** for TCP handshake
+  * **1 RTT** for HTTP request-response
+* This adds up to **2 RTTs + transfer time per object**.
+* For pages with many small resources, the overhead becomes significant.
+
+---
+
+### Slide 25 – Vergleich: Persistente vs. Nichtpersistente Verbindungen
+
+* **Persistent connections** reduce:
+
+  * Latency
+  * Resource usage
+  * Network congestion
+* **Non-persistent connections** introduce repeated setup and teardown.
+
+---
+
+### Slide 26 – Benutzerzustand via Cookies
+
+* HTTP is stateless, but **cookies** allow servers to maintain state.
+* Mechanism:
+
+  * Server sets a cookie via `Set-Cookie` header
+  * Browser stores it and includes it in future requests using the `Cookie` header
+* Enables **sessions**, **user tracking**, and **authentication**
+
+---
+
+#### Related Discussion: Cookies and Logins
+
+* Login systems rely on cookies to associate a **session ID** with a user.
+* The cookie itself does **not contain sensitive data**, only an identifier.
+* The session data lives on the server.
+
+---
+
+### Slide 27 – Beispiel: HTTP und Cookies
+
+* First visit: server sets a cookie (`Set-Cookie: ID=12345`)
+* Second visit: client automatically sends (`Cookie: ID=12345`)
+* Server identifies the session using this ID.
+
+---
+
+### Slide 28 – HTTP: Bedingtes GET
+
+* Introduces the `If-Modified-Since` header:
+
+  * Client asks: *"Has this file changed since `<timestamp>`?"*
+  * If **no change**, server responds with `304 Not Modified` and no body.
+  * Saves bandwidth and improves performance.
+* Basis for **browser caching** and **proxy validation**.
+
+---
+
+### Slide 29 – Internet-Protokollstapel
+
+* Overview of the **5-layer Internet protocol stack**:
+
+| Layer             | Example Protocols     | Function                                      |
+| ----------------- | --------------------- | --------------------------------------------- |
+| Application Layer | HTTP, FTP, SMTP       | Network applications                          |
+| Transport Layer   | TCP, UDP              | Reliable or best-effort process communication |
+| Network Layer     | IP, Routing Protocols | Packet forwarding across networks             |
+| Data Link Layer   | Ethernet, PPP         | Local frame delivery between adjacent nodes   |
+| Physical Layer    | (depends on medium)   | Bit transmission over hardware links          |
+
+* Emphasizes **modularity** and **encapsulation**.
+
+
+
+### Slide 30 – Abschnittsübergang: Grundlagen von Netzwerkanwendungen
+
+*Title slide*:
+
+> **Grundlagen von Netzwerkanwendungen**
+> *(Architekturen, Sockets, Protokolle)*
+
+#### Function:
+
+* Marks the **transition** from a concrete case study (HTTP) to **general concepts** in the application layer.
+* Sets the stage for understanding **how any application-level protocol is built**, not just HTTP.
+
+---
+
+### Slide 31 – Netzwerkanwendungen sind …
+
+#### Core Insight:
+
+* Network applications consist of **processes** (not just hosts) that **exchange messages**.
+* These processes run at the **end systems** only — routers and switches do **not** participate in the application logic.
+
+#### Architecture View:
+
+* Application logic exists **only at the network edges** (hosts), reinforcing the **end-to-end principle**.
+* Routers forward packets; they **do not run web servers or browsers**.
+
+---
+
+### Slide 32 – Prozesskommunikation
+
+#### Key Idea:
+
+> “It’s not the computers, but the **processes** that communicate.”
+
+* On the same host → **Interprocess Communication (IPC)**
+* Across hosts → **Message exchange over TCP or UDP**
+* Processes use **sockets** to communicate via the transport layer.
+
+#### Terminology:
+
+* **Application process** communicates over a socket.
+* **Socket** is the OS-provided API to send/receive messages across the network.
+
+---
+
+### Slide 33 – Architektur: Client-Server vs. Peer-to-Peer (P2P)
+
+#### Client-Server:
+
+* Central server, always on, often with a fixed IP.
+* Clients initiate communication.
+* Examples: HTTP, SMTP, FTP
+
+#### Peer-to-Peer:
+
+* No central server; every peer can be both client and server.
+* More scalable, but more complex (NAT traversal, coordination).
+* Examples: BitTorrent, VoIP (classic Skype)
+
+---
+
+### Slide 34 – Prozesse: Client und Server
+
+#### Roles defined by behavior:
+
+* **Client**: initiates communication
+* **Server**: waits to be contacted
+
+#### Important:
+
+* These are **roles**, not hardware definitions.
+* In P2P, a node can act as **client in one interaction, server in another**.
+
+---
+
+### Slide 35 – Sockets: Schnittstellen
+
+#### Sockets:
+
+* The **programming interface** between the application process and the transport layer.
+* A socket is like a **door** through which the process sends/receives data.
+
+#### OS abstraction:
+
+* OS handles TCP/UDP details.
+* Application uses `send()`, `recv()`, or `read()/write()` on the socket.
+
+---
+
+### Slide 36 – Addressieren von Prozessen
+
+#### Problem:
+
+* IP address identifies a **host**, not a **specific process**.
+
+#### Solution:
+
+* Use `(IP address, Port number)` to identify a process.
+* Known ports (e.g. `80` for HTTP, `443` for HTTPS) identify standard services.
+
+---
+
+### Slide 37 – Zwei grundlegende Internet-Protokolle: TCP und UDP
+
+| Feature            | TCP                   | UDP                  |
+| ------------------ | --------------------- | -------------------- |
+| Connection setup   | Yes (3-way handshake) | No                   |
+| Reliability        | Yes                   | No                   |
+| Ordering           | Guaranteed            | No                   |
+| Congestion control | Yes                   | No                   |
+| Use case examples  | HTTP, FTP, email      | DNS, VoIP, streaming |
+
+* TCP is used when **reliability and ordering** matter.
+* UDP is used when **speed and simplicity** are more important than reliability.
+
+---
+
+### Slide 38 – Beispiele für Anwendungen
+
+#### Protocol usage by application:
+
+| Application         | Protocol |
+| ------------------- | -------- |
+| HTTP, FTP, SMTP     | TCP      |
+| DNS (queries)       | UDP      |
+| DNS (zone transfer) | TCP      |
+| VoIP, video stream  | UDP      |
+
+* Some apps use **both**, depending on use case (e.g. DNS).
+
+---
+
+
+## Clarifying Detours and Triggers
+
+### 1. **“Do HTTP servers need to know the client’s IP address?”**
+
+**Triggered by**: slide 35 (Sockets)
+**Clarification**:
+
+* No, not usually. The OS handles delivery.
+* The server can access the client IP via `accept()` if needed, but it's optional.
+
+### 2. **“Is it realistic to build your own HTTP server?”**
+
+**Triggered by**: understanding sockets in slide 35
+**Discussion**:
+
+* Yes — very realistic.
+* A minimal HTTP server can be written in under 50 lines of Python using just the socket API.
+* Focus is on parsing requests, forming responses, serving files, and handling concurrency.
+
+### 3. **“Why do Apache and Nginx exist if HTTP is simple?”**
+
+**Triggered by**: realization that building a server is feasible
+**Clarification**:
+
+* Industrial servers are engineered for performance, security, flexibility, and scaling.
+* They handle advanced features like TLS, compression, load balancing, and dynamic routing.
+
+### 4. **“Can an HTTP server listen on multiple ports?”**
+
+**Triggered by**: slide 36 (port numbers)
+**Clarification**:
+
+* Yes — it's technically trivial (e.g. `bind()` on multiple sockets).
+* Often done for development (`8080`), reverse proxies, or alternate services.
+
+### 5. **“Do P2P applications prefer UDP over TCP?”**
+
+**Triggered by**: slide 33 (P2P architectures)
+**Clarification**:
+
+* Many do prefer UDP due to NAT traversal, lower latency, and flexible retransmission control.
+* But some, like BitTorrent, still use TCP for reliability.
+
+---
+
+
+### **Practical Experiment**
+
+You tested this on your **Quarto preview server** (`localhost:3475`) and used `telnet` to manually send a `GET /` request. The server responded with:
+
+```
+HTTP/1.1 200 OK
+Content-Type: text/html
+Content-Length: ...
+```
+
+This confirmed:
+
+* HTTP is **text-based**
+* The Quarto server is a **fully functional HTTP server**
+* The response body was a real HTML document rendered by the browser
+
+---
+
+### **1. Chunking and Large Files**
+
+**What initiated it:**
+Slide 18 showed a large HTML response. You asked:
+
+> “If the file is large, is it split into multiple HTTP messages?”
+
+**What we explored:**
+
+* HTTP responses are **not split** at the application level
+* **TCP handles segmentation**
+* **Chunked transfer encoding** exists for streaming, but still within one HTTP response
+
+---
+
+### **2. Opening Local HTML Files in Browser**
+
+**What initiated it:**
+You asked how browsers handle local `.html` files opened by double-clicking.
+
+**What we explored:**
+
+* If all resources (CSS, JS) are **embedded**, the file renders correctly
+* If external files are **fetched via HTTP**, they fail unless a **local server is running**
+* Browsers block `fetch()` from `file://` for security
+
+---
+
+### **3. What is an SPA (Single Page Application)?**
+
+**What initiated it:**
+You observed that SPAs avoid reloading full HTML pages and instead dynamically update content.
+
+**What we explored:**
+
+* SPAs load one HTML file and update the DOM using JavaScript
+* No page reloads = smoother experience
+* Commonly powered by frameworks like **React**, **Vue**, etc.
+
+---
+
+### **4. JSON, REST, and GraphQL**
+
+**What initiated it:**
+You asked how SPAs fetch data and render views without loading new HTML pages.
+
+**What we explored:**
+
+* SPAs fetch **JSON** from the server
+* REST APIs expose fixed endpoints (`/api/posts`)
+* GraphQL allows flexible, structured queries (`{ post { title } }`)
+* Backend sends **data**, not HTML
+
+---
+
+### **5. Role of PostgreSQL and Backend**
+
+**What initiated it:**
+You asked how GraphQL or REST interfaces connect to a **PostgreSQL database**.
+
+**What we explored:**
+
+* The **backend server** receives GraphQL or REST requests
+* It queries **PostgreSQL** for data
+* Responds with JSON to the frontend
+
+---
+
+### **6. Authentication and Password Handling**
+
+**What initiated it:**
+You asked how user login works — and whether passwords are visible to the server.
+
+**What we explored:**
+
+* Passwords are hashed using **bcrypt** and stored in the database
+* Only hashed values are stored; plain passwords are never saved
+* After login, the server issues:
+
+  * A **session cookie**, or
+  * A **JWT** (JSON Web Token)
+* The frontend uses the token to authenticate future requests
+
+---
+
+### **7. HTTPS and Security**
+
+**What initiated it:**
+You noticed the password is sent in plain text within the HTTP body.
+
+**What we explored:**
+
+* Without HTTPS, this is dangerous — passwords can be intercepted
+* HTTPS encrypts the entire transmission (headers + body)
+* Modern login flows **require HTTPS** for secure password handling
+
+---
+
+### **8. Final Integration: Full-Stack SPA Project**
+
+**What initiated it:**
+You asked whether this could be integrated into a learning project.
+
+**What we designed:**
+
+* A minimal blog platform (**MiniPost**) with:
+
+  * SPA frontend (React or Svelte)
+  * GraphQL backend (Node.js)
+  * PostgreSQL database
+  * Login/authentication (JWT + bcrypt)
+* Designed as a hands-on way to tie everything together
+
+---
+
+### 1. What is a TCP segment?
+
+* A **TCP segment = TCP header + data payload**
+* Sent over IP; reassembled on the receiving side using SEQ/ACK numbers
+
+### 2. What is a byte stream?
+
+* TCP provides a **reliable, ordered byte stream**
+* No inherent message boundaries — just a flow of bytes
+* Contrast with message-oriented protocols like UDP
+
+### 3. How does TCP know transmission is over?
+
+* Sender signals with a **FIN** segment
+* Connection is closed using a **4-step FIN/ACK handshake**
+
+### 4. What does "contiguous bytes received" mean?
+
+* TCP only acknowledges data that has been received **in order**, without gaps
+* If segments arrive out of order, ACK does **not advance** until missing parts are filled in
+
+### 5. Duplicate segment handling
+
+* If the same segment arrives twice (e.g. delayed + retransmitted), TCP detects overlap using SEQ numbers and **silently discards** duplicates
+
+### 6. Do segments usually arrive in order?
+
+* Yes, most of the time — but TCP is built to tolerate:
+
+  * **Moderate reordering**
+  * **Delayed or duplicate segments**
+
+### 7. When and how retransmission occurs
+
+* **Fast Retransmit** is triggered by **3 duplicate ACKs**
+* **Timeout-based retransmission (RTO)** occurs when ACKs don’t arrive
+* Fast retransmit is called “fast” because it reacts quicker than waiting for RTO
+
