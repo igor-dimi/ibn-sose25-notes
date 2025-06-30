@@ -1,0 +1,1464 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.31">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>4&nbsp; Intro to the Application Layer, Web and HTTP – Operating Systems and Networks SoSe 25 Notes</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./networks-intro.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-e1a5c8363afafaef2c763b6775fbf3ca.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-d558773541b75318fdba2db46f940219.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-sidebar floating quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./networks-intro.html">Networks</a></li><li class="breadcrumb-item"><a href="./application-layer.html"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Intro to the Application Layer, Web and HTTP</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">Operating Systems and Networks SoSe 25 Notes</a> 
+        <div class="sidebar-tools-main">
+    <a href="./Operating-Systems-and-Networks-SoSe-25-Notes.pdf" title="Download PDF" class="quarto-navigation-tool px-1" aria-label="Download PDF"><i class="bi bi-file-pdf"></i></a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Operating Systems</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./process.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Process Management</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./memory.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Memory Management</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true">
+ <span class="menu-text">Networks</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./networks-intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Network Fundamentals - Summary of Slides 1 - 45</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./application-layer.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Intro to the Application Layer, Web and HTTP</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#overview" id="toc-overview" class="nav-link active" data-scroll-target="#overview"><strong>Overview</strong></a>
+  <ul>
+  <li><a href="#visual-flow" id="toc-visual-flow" class="nav-link" data-scroll-target="#visual-flow">Visual Flow:</a></li>
+  </ul></li>
+  <li><a href="#ibn-vorlesung-02-http-und-die-anwendungsschicht" id="toc-ibn-vorlesung-02-http-und-die-anwendungsschicht" class="nav-link" data-scroll-target="#ibn-vorlesung-02-http-und-die-anwendungsschicht">IBN – Vorlesung 02: HTTP und die Anwendungsschicht</a>
+  <ul>
+  <li><a href="#context-and-approach" id="toc-context-and-approach" class="nav-link" data-scroll-target="#context-and-approach">Context and Approach</a></li>
+  <li><a href="#slide-11-das-web-und-http" id="toc-slide-11-das-web-und-http" class="nav-link" data-scroll-target="#slide-11-das-web-und-http">Slide 11 – Das Web und HTTP</a></li>
+  <li><a href="#slide-12-übersicht-und-begriffe" id="toc-slide-12-übersicht-und-begriffe" class="nav-link" data-scroll-target="#slide-12-übersicht-und-begriffe">Slide 12 – Übersicht und Begriffe</a></li>
+  <li><a href="#slide-14-hypertext-transfer-protocol-http" id="toc-slide-14-hypertext-transfer-protocol-http" class="nav-link" data-scroll-target="#slide-14-hypertext-transfer-protocol-http">Slide 14 – Hypertext Transfer Protocol (HTTP)</a></li>
+  <li><a href="#slide-15-http-request-beispiel" id="toc-slide-15-http-request-beispiel" class="nav-link" data-scroll-target="#slide-15-http-request-beispiel">Slide 15 – HTTP-Request (Beispiel)</a></li>
+  <li><a href="#slide-16-allgemeines-format-der-request-nachricht" id="toc-slide-16-allgemeines-format-der-request-nachricht" class="nav-link" data-scroll-target="#slide-16-allgemeines-format-der-request-nachricht">Slide 16 – Allgemeines Format der Request-Nachricht</a></li>
+  <li><a href="#slide-17-http-request-methoden" id="toc-slide-17-http-request-methoden" class="nav-link" data-scroll-target="#slide-17-http-request-methoden">Slide 17 – HTTP-Request-Methoden</a></li>
+  <li><a href="#slide-18-http-response-beispiel" id="toc-slide-18-http-response-beispiel" class="nav-link" data-scroll-target="#slide-18-http-response-beispiel">Slide 18 – HTTP-Response (Beispiel)</a></li>
+  <li><a href="#slide-19-allgemeines-format-der-response-nachricht" id="toc-slide-19-allgemeines-format-der-response-nachricht" class="nav-link" data-scroll-target="#slide-19-allgemeines-format-der-response-nachricht">Slide 19 – Allgemeines Format der Response-Nachricht</a></li>
+  <li><a href="#slide-21-http-mit-telnet-simulieren" id="toc-slide-21-http-mit-telnet-simulieren" class="nav-link" data-scroll-target="#slide-21-http-mit-telnet-simulieren">Slide 21 – HTTP mit Telnet simulieren</a></li>
+  <li><a href="#slide-22-statuscodes-und-statusnachrichten" id="toc-slide-22-statuscodes-und-statusnachrichten" class="nav-link" data-scroll-target="#slide-22-statuscodes-und-statusnachrichten">Slide 22 – Statuscodes und Statusnachrichten</a></li>
+  <li><a href="#slide-23-http-verbindungstypen" id="toc-slide-23-http-verbindungstypen" class="nav-link" data-scroll-target="#slide-23-http-verbindungstypen">Slide 23 – HTTP Verbindungstypen</a></li>
+  <li><a href="#slide-24-antwortzeit-bei-nichtpersistenten-verbindungen" id="toc-slide-24-antwortzeit-bei-nichtpersistenten-verbindungen" class="nav-link" data-scroll-target="#slide-24-antwortzeit-bei-nichtpersistenten-verbindungen">Slide 24 – Antwortzeit bei nichtpersistenten Verbindungen</a></li>
+  <li><a href="#slide-25-vergleich-persistente-vs.-nichtpersistente-verbindungen" id="toc-slide-25-vergleich-persistente-vs.-nichtpersistente-verbindungen" class="nav-link" data-scroll-target="#slide-25-vergleich-persistente-vs.-nichtpersistente-verbindungen">Slide 25 – Vergleich: Persistente vs.&nbsp;Nichtpersistente Verbindungen</a></li>
+  <li><a href="#slide-26-benutzerzustand-via-cookies" id="toc-slide-26-benutzerzustand-via-cookies" class="nav-link" data-scroll-target="#slide-26-benutzerzustand-via-cookies">Slide 26 – Benutzerzustand via Cookies</a>
+  <ul>
+  <li><a href="#related-discussion-cookies-and-logins" id="toc-related-discussion-cookies-and-logins" class="nav-link" data-scroll-target="#related-discussion-cookies-and-logins">Related Discussion: Cookies and Logins</a></li>
+  </ul></li>
+  <li><a href="#slide-27-beispiel-http-und-cookies" id="toc-slide-27-beispiel-http-und-cookies" class="nav-link" data-scroll-target="#slide-27-beispiel-http-und-cookies">Slide 27 – Beispiel: HTTP und Cookies</a></li>
+  <li><a href="#slide-28-http-bedingtes-get" id="toc-slide-28-http-bedingtes-get" class="nav-link" data-scroll-target="#slide-28-http-bedingtes-get">Slide 28 – HTTP: Bedingtes GET</a></li>
+  <li><a href="#slide-29-internet-protokollstapel" id="toc-slide-29-internet-protokollstapel" class="nav-link" data-scroll-target="#slide-29-internet-protokollstapel">Slide 29 – Internet-Protokollstapel</a></li>
+  <li><a href="#slide-30-abschnittsübergang-grundlagen-von-netzwerkanwendungen" id="toc-slide-30-abschnittsübergang-grundlagen-von-netzwerkanwendungen" class="nav-link" data-scroll-target="#slide-30-abschnittsübergang-grundlagen-von-netzwerkanwendungen">Slide 30 – Abschnittsübergang: Grundlagen von Netzwerkanwendungen</a>
+  <ul>
+  <li><a href="#function" id="toc-function" class="nav-link" data-scroll-target="#function">Function:</a></li>
+  </ul></li>
+  <li><a href="#slide-31-netzwerkanwendungen-sind" id="toc-slide-31-netzwerkanwendungen-sind" class="nav-link" data-scroll-target="#slide-31-netzwerkanwendungen-sind">Slide 31 – Netzwerkanwendungen sind …</a>
+  <ul>
+  <li><a href="#core-insight" id="toc-core-insight" class="nav-link" data-scroll-target="#core-insight">Core Insight:</a></li>
+  <li><a href="#architecture-view" id="toc-architecture-view" class="nav-link" data-scroll-target="#architecture-view">Architecture View:</a></li>
+  </ul></li>
+  <li><a href="#slide-32-prozesskommunikation" id="toc-slide-32-prozesskommunikation" class="nav-link" data-scroll-target="#slide-32-prozesskommunikation">Slide 32 – Prozesskommunikation</a>
+  <ul>
+  <li><a href="#key-idea" id="toc-key-idea" class="nav-link" data-scroll-target="#key-idea">Key Idea:</a></li>
+  <li><a href="#terminology" id="toc-terminology" class="nav-link" data-scroll-target="#terminology">Terminology:</a></li>
+  </ul></li>
+  <li><a href="#slide-33-architektur-client-server-vs.-peer-to-peer-p2p" id="toc-slide-33-architektur-client-server-vs.-peer-to-peer-p2p" class="nav-link" data-scroll-target="#slide-33-architektur-client-server-vs.-peer-to-peer-p2p">Slide 33 – Architektur: Client-Server vs.&nbsp;Peer-to-Peer (P2P)</a>
+  <ul>
+  <li><a href="#client-server" id="toc-client-server" class="nav-link" data-scroll-target="#client-server">Client-Server:</a></li>
+  <li><a href="#peer-to-peer" id="toc-peer-to-peer" class="nav-link" data-scroll-target="#peer-to-peer">Peer-to-Peer:</a></li>
+  </ul></li>
+  <li><a href="#slide-34-prozesse-client-und-server" id="toc-slide-34-prozesse-client-und-server" class="nav-link" data-scroll-target="#slide-34-prozesse-client-und-server">Slide 34 – Prozesse: Client und Server</a>
+  <ul>
+  <li><a href="#roles-defined-by-behavior" id="toc-roles-defined-by-behavior" class="nav-link" data-scroll-target="#roles-defined-by-behavior">Roles defined by behavior:</a></li>
+  <li><a href="#important" id="toc-important" class="nav-link" data-scroll-target="#important">Important:</a></li>
+  </ul></li>
+  <li><a href="#slide-35-sockets-schnittstellen" id="toc-slide-35-sockets-schnittstellen" class="nav-link" data-scroll-target="#slide-35-sockets-schnittstellen">Slide 35 – Sockets: Schnittstellen</a>
+  <ul>
+  <li><a href="#sockets" id="toc-sockets" class="nav-link" data-scroll-target="#sockets">Sockets:</a></li>
+  <li><a href="#os-abstraction" id="toc-os-abstraction" class="nav-link" data-scroll-target="#os-abstraction">OS abstraction:</a></li>
+  </ul></li>
+  <li><a href="#slide-36-addressieren-von-prozessen" id="toc-slide-36-addressieren-von-prozessen" class="nav-link" data-scroll-target="#slide-36-addressieren-von-prozessen">Slide 36 – Addressieren von Prozessen</a>
+  <ul>
+  <li><a href="#problem" id="toc-problem" class="nav-link" data-scroll-target="#problem">Problem:</a></li>
+  <li><a href="#solution" id="toc-solution" class="nav-link" data-scroll-target="#solution">Solution:</a></li>
+  </ul></li>
+  <li><a href="#slide-37-zwei-grundlegende-internet-protokolle-tcp-und-udp" id="toc-slide-37-zwei-grundlegende-internet-protokolle-tcp-und-udp" class="nav-link" data-scroll-target="#slide-37-zwei-grundlegende-internet-protokolle-tcp-und-udp">Slide 37 – Zwei grundlegende Internet-Protokolle: TCP und UDP</a></li>
+  <li><a href="#slide-38-beispiele-für-anwendungen" id="toc-slide-38-beispiele-für-anwendungen" class="nav-link" data-scroll-target="#slide-38-beispiele-für-anwendungen">Slide 38 – Beispiele für Anwendungen</a>
+  <ul>
+  <li><a href="#protocol-usage-by-application" id="toc-protocol-usage-by-application" class="nav-link" data-scroll-target="#protocol-usage-by-application">Protocol usage by application:</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#clarifying-detours-and-triggers" id="toc-clarifying-detours-and-triggers" class="nav-link" data-scroll-target="#clarifying-detours-and-triggers">Clarifying Detours and Triggers</a>
+  <ul>
+  <li><a href="#do-http-servers-need-to-know-the-clients-ip-address" id="toc-do-http-servers-need-to-know-the-clients-ip-address" class="nav-link" data-scroll-target="#do-http-servers-need-to-know-the-clients-ip-address">1. <strong>“Do HTTP servers need to know the client’s IP address?”</strong></a></li>
+  <li><a href="#is-it-realistic-to-build-your-own-http-server" id="toc-is-it-realistic-to-build-your-own-http-server" class="nav-link" data-scroll-target="#is-it-realistic-to-build-your-own-http-server">2. <strong>“Is it realistic to build your own HTTP server?”</strong></a></li>
+  <li><a href="#why-do-apache-and-nginx-exist-if-http-is-simple" id="toc-why-do-apache-and-nginx-exist-if-http-is-simple" class="nav-link" data-scroll-target="#why-do-apache-and-nginx-exist-if-http-is-simple">3. <strong>“Why do Apache and Nginx exist if HTTP is simple?”</strong></a></li>
+  <li><a href="#can-an-http-server-listen-on-multiple-ports" id="toc-can-an-http-server-listen-on-multiple-ports" class="nav-link" data-scroll-target="#can-an-http-server-listen-on-multiple-ports">4. <strong>“Can an HTTP server listen on multiple ports?”</strong></a></li>
+  <li><a href="#do-p2p-applications-prefer-udp-over-tcp" id="toc-do-p2p-applications-prefer-udp-over-tcp" class="nav-link" data-scroll-target="#do-p2p-applications-prefer-udp-over-tcp">5. <strong>“Do P2P applications prefer UDP over TCP?”</strong></a></li>
+  <li><a href="#practical-experiment" id="toc-practical-experiment" class="nav-link" data-scroll-target="#practical-experiment"><strong>Practical Experiment</strong></a></li>
+  <li><a href="#chunking-and-large-files" id="toc-chunking-and-large-files" class="nav-link" data-scroll-target="#chunking-and-large-files"><strong>1. Chunking and Large Files</strong></a></li>
+  <li><a href="#opening-local-html-files-in-browser" id="toc-opening-local-html-files-in-browser" class="nav-link" data-scroll-target="#opening-local-html-files-in-browser"><strong>2. Opening Local HTML Files in Browser</strong></a></li>
+  <li><a href="#what-is-an-spa-single-page-application" id="toc-what-is-an-spa-single-page-application" class="nav-link" data-scroll-target="#what-is-an-spa-single-page-application"><strong>3. What is an SPA (Single Page Application)?</strong></a></li>
+  <li><a href="#json-rest-and-graphql" id="toc-json-rest-and-graphql" class="nav-link" data-scroll-target="#json-rest-and-graphql"><strong>4. JSON, REST, and GraphQL</strong></a></li>
+  <li><a href="#role-of-postgresql-and-backend" id="toc-role-of-postgresql-and-backend" class="nav-link" data-scroll-target="#role-of-postgresql-and-backend"><strong>5. Role of PostgreSQL and Backend</strong></a></li>
+  <li><a href="#authentication-and-password-handling" id="toc-authentication-and-password-handling" class="nav-link" data-scroll-target="#authentication-and-password-handling"><strong>6. Authentication and Password Handling</strong></a></li>
+  <li><a href="#https-and-security" id="toc-https-and-security" class="nav-link" data-scroll-target="#https-and-security"><strong>7. HTTPS and Security</strong></a></li>
+  <li><a href="#final-integration-full-stack-spa-project" id="toc-final-integration-full-stack-spa-project" class="nav-link" data-scroll-target="#final-integration-full-stack-spa-project"><strong>8. Final Integration: Full-Stack SPA Project</strong></a></li>
+  <li><a href="#what-is-a-tcp-segment" id="toc-what-is-a-tcp-segment" class="nav-link" data-scroll-target="#what-is-a-tcp-segment">1. What is a TCP segment?</a></li>
+  <li><a href="#what-is-a-byte-stream" id="toc-what-is-a-byte-stream" class="nav-link" data-scroll-target="#what-is-a-byte-stream">2. What is a byte stream?</a></li>
+  <li><a href="#how-does-tcp-know-transmission-is-over" id="toc-how-does-tcp-know-transmission-is-over" class="nav-link" data-scroll-target="#how-does-tcp-know-transmission-is-over">3. How does TCP know transmission is over?</a></li>
+  <li><a href="#what-does-contiguous-bytes-received-mean" id="toc-what-does-contiguous-bytes-received-mean" class="nav-link" data-scroll-target="#what-does-contiguous-bytes-received-mean">4. What does “contiguous bytes received” mean?</a></li>
+  <li><a href="#duplicate-segment-handling" id="toc-duplicate-segment-handling" class="nav-link" data-scroll-target="#duplicate-segment-handling">5. Duplicate segment handling</a></li>
+  <li><a href="#do-segments-usually-arrive-in-order" id="toc-do-segments-usually-arrive-in-order" class="nav-link" data-scroll-target="#do-segments-usually-arrive-in-order">6. Do segments usually arrive in order?</a></li>
+  <li><a href="#when-and-how-retransmission-occurs" id="toc-when-and-how-retransmission-occurs" class="nav-link" data-scroll-target="#when-and-how-retransmission-occurs">7. When and how retransmission occurs</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./networks-intro.html">Networks</a></li><li class="breadcrumb-item"><a href="./application-layer.html"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Intro to the Application Layer, Web and HTTP</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Intro to the Application Layer, Web and HTTP</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="overview" class="level2">
+<h2 class="anchored" data-anchor-id="overview"><strong>Overview</strong></h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 6%">
+<col style="width: 40%">
+<col style="width: 53%">
+</colgroup>
+<thead>
+<tr class="header">
+<th><strong>Slide</strong></th>
+<th><strong>Title / Chapter Heading</strong></th>
+<th><strong>Content Covered in This Chapter</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>1</strong></td>
+<td><em>Title Slide</em></td>
+<td>Vorlesung N02 – Artur Andrzejak</td>
+</tr>
+<tr class="even">
+<td><strong>2</strong></td>
+<td><strong>Protokollschichten und ihre Dienstmodelle</strong> <em>(Review)</em></td>
+<td>Motivation for layering, protocol stack overview, encapsulation, OSI model</td>
+</tr>
+<tr class="odd">
+<td><strong>11</strong></td>
+<td><strong>Das Web und HTTP</strong></td>
+<td>Web as an application, HTTP request/response, URLs, message formats</td>
+</tr>
+<tr class="even">
+<td><strong>20</strong></td>
+<td><strong>HTTP – Fortgeschrittene Konzepte</strong></td>
+<td>Persistent connections, cookies, status codes, conditional GET</td>
+</tr>
+<tr class="odd">
+<td><strong>30</strong></td>
+<td><strong>Grundlagen von Netzwerkanwendungen</strong></td>
+<td>Application architectures (Client-Server, P2P), sockets, addressing</td>
+</tr>
+<tr class="even">
+<td><strong>37</strong></td>
+<td><strong>Zwei Grundlegende Internet-Protokolle</strong></td>
+<td>TCP and UDP compared: properties, use cases</td>
+</tr>
+<tr class="odd">
+<td><strong>38</strong></td>
+<td><em>(End of main material)</em></td>
+<td>Table summarizing example applications and their underlying protocols</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<section id="visual-flow" class="level3">
+<h3 class="anchored" data-anchor-id="visual-flow">Visual Flow:</h3>
+<ol type="1">
+<li><strong>Slides 2–10</strong>: Foundations of the Internet stack (5-layer model), encapsulation, and implementation across hosts/routers.</li>
+<li><strong>Slides 11–19</strong>: Introduction to the <strong>Web and HTTP</strong> — how web clients and servers communicate, HTTP syntax.</li>
+<li><strong>Slides 20–29</strong>: Deeper into HTTP — efficiency issues, cookies, status handling, caching mechanisms.</li>
+<li><strong>Slides 30–36</strong>: What constitutes a <strong>network application</strong> — roles of processes, clients/servers, socket interfaces.</li>
+<li><strong>Slides 37–38</strong>: <strong>TCP vs UDP</strong> — core transport-layer protocols and which applications use them.</li>
+</ol>
+<hr>
+<p><strong>Progression</strong>:</p>
+<ul>
+<li>It begins with <strong>protocol layering</strong> as a general framework,</li>
+<li>Moves to a real-world application: the <strong>Web</strong>,</li>
+<li>Adds depth by covering <strong>advanced HTTP behavior</strong>,</li>
+<li>Then generalizes back to all network apps: <strong>architecture, sockets, addressing</strong>,</li>
+<li>And ends with <strong>transport-level choices</strong> (TCP vs UDP).</li>
+</ul>
+<p>Absolutely. Below is a more <strong>comprehensive and didactically structured</strong> summary of <code>vlN02-ibn.pdf</code>, suitable for integration into your note-taking system. It covers the <strong>main thread</strong> (slides 11–29) and integrates relevant <strong>clarifying detours</strong> for long-term retention.</p>
+<hr>
+</section>
+</section>
+<section id="ibn-vorlesung-02-http-und-die-anwendungsschicht" class="level2">
+<h2 class="anchored" data-anchor-id="ibn-vorlesung-02-http-und-die-anwendungsschicht">IBN – Vorlesung 02: HTTP und die Anwendungsschicht</h2>
+<p><strong>Source</strong>: <code>vlN02-ibn.pdf</code> (slides 11–29) <strong>Focus</strong>: Practical introduction to the <strong>Application Layer</strong> of the Internet stack using <strong>HTTP</strong> and the <strong>Web</strong> as central examples.</p>
+<hr>
+<section id="context-and-approach" class="level3">
+<h3 class="anchored" data-anchor-id="context-and-approach">Context and Approach</h3>
+<p>You started at <strong>slide 11</strong>, skipping the review of protocol layering (slides 2–10), which was already covered in <code>vlN01-ibn.pdf</code>. The lecture introduces how <strong>HTTP</strong> functions as a real-world example of an <strong>application-layer protocol</strong> built on top of <strong>TCP</strong>.</p>
+<hr>
+</section>
+<section id="slide-11-das-web-und-http" class="level3">
+<h3 class="anchored" data-anchor-id="slide-11-das-web-und-http">Slide 11 – Das Web und HTTP</h3>
+<ul>
+<li><p>The Web is a <strong>distributed application</strong> using the <strong>HTTP protocol</strong>, layered over <strong>TCP</strong>.</p></li>
+<li><p>A single web page typically includes:</p>
+<ul>
+<li>A main HTML file</li>
+<li>Additional embedded resources (images, CSS, JS, etc.)</li>
+</ul></li>
+</ul>
+<hr>
+</section>
+<section id="slide-12-übersicht-und-begriffe" class="level3">
+<h3 class="anchored" data-anchor-id="slide-12-übersicht-und-begriffe">Slide 12 – Übersicht und Begriffe</h3>
+<ul>
+<li><p>Defines key terms:</p>
+<ul>
+<li><strong>Browser</strong>: the HTTP client</li>
+<li><strong>Web server</strong>: provides content via HTTP</li>
+<li><strong>URL</strong>: encodes hostname, protocol, and path to resource</li>
+</ul></li>
+<li><p>HTTP clients usually connect to servers on <strong>port 80</strong>.</p></li>
+</ul>
+<hr>
+</section>
+<section id="slide-14-hypertext-transfer-protocol-http" class="level3">
+<h3 class="anchored" data-anchor-id="slide-14-hypertext-transfer-protocol-http">Slide 14 – Hypertext Transfer Protocol (HTTP)</h3>
+<ul>
+<li>HTTP runs over <strong>TCP</strong> and is a <strong>stateless</strong> protocol.</li>
+<li>In its basic form (HTTP/1.0), each request requires a <strong>new TCP connection</strong>.</li>
+<li>Later versions (HTTP/1.1+) support <strong>persistent connections</strong>.</li>
+</ul>
+<hr>
+</section>
+<section id="slide-15-http-request-beispiel" class="level3">
+<h3 class="anchored" data-anchor-id="slide-15-http-request-beispiel">Slide 15 – HTTP-Request (Beispiel)</h3>
+<ul>
+<li><p>Structure of a simple <code>GET</code> request:</p>
+<pre><code>GET /index.html HTTP/1.1
+Host: www.example.com
+User-Agent: ...</code></pre></li>
+<li><p><code>GET</code> requests contain <strong>no body</strong>.</p></li>
+</ul>
+<hr>
+</section>
+<section id="slide-16-allgemeines-format-der-request-nachricht" class="level3">
+<h3 class="anchored" data-anchor-id="slide-16-allgemeines-format-der-request-nachricht">Slide 16 – Allgemeines Format der Request-Nachricht</h3>
+<ul>
+<li><p>Every HTTP request consists of:</p>
+<ul>
+<li><strong>Request line</strong> (method, path, HTTP version)</li>
+<li><strong>Header fields</strong> (e.g.&nbsp;Host, User-Agent, Content-Length)</li>
+<li>Optional <strong>body</strong> (only for <code>POST</code>, <code>PUT</code>, etc.)</li>
+</ul></li>
+</ul>
+<hr>
+</section>
+<section id="slide-17-http-request-methoden" class="level3">
+<h3 class="anchored" data-anchor-id="slide-17-http-request-methoden">Slide 17 – HTTP-Request-Methoden</h3>
+<ul>
+<li><p>Supported methods:</p>
+<ul>
+<li><code>GET</code>: parameters in URL</li>
+<li><code>POST</code>: parameters in body</li>
+<li><code>HEAD</code>: like <code>GET</code> but without response body</li>
+<li><code>PUT</code>, <code>DELETE</code>: less common, used in RESTful APIs</li>
+</ul></li>
+<li><p>HTTP is <strong>semantically extensible</strong>, but the method determines message structure.</p></li>
+</ul>
+<hr>
+</section>
+<section id="slide-18-http-response-beispiel" class="level3">
+<h3 class="anchored" data-anchor-id="slide-18-http-response-beispiel">Slide 18 – HTTP-Response (Beispiel)</h3>
+<ul>
+<li><p>Response structure includes:</p>
+<ul>
+<li><strong>Status line</strong> (e.g., <code>HTTP/1.1 200 OK</code>)</li>
+<li><strong>Header fields</strong> (e.g., <code>Content-Type</code>, <code>Content-Length</code>)</li>
+<li><strong>Optional body</strong> (HTML, image, etc.)</li>
+</ul></li>
+</ul>
+<hr>
+</section>
+<section id="slide-19-allgemeines-format-der-response-nachricht" class="level3">
+<h3 class="anchored" data-anchor-id="slide-19-allgemeines-format-der-response-nachricht">Slide 19 – Allgemeines Format der Response-Nachricht</h3>
+<ul>
+<li><p>Response message layout:</p>
+<ul>
+<li><strong>Status line</strong></li>
+<li><strong>Headers</strong></li>
+<li>Blank line</li>
+<li>Optional <strong>entity body</strong></li>
+</ul></li>
+</ul>
+<hr>
+</section>
+<section id="slide-21-http-mit-telnet-simulieren" class="level3">
+<h3 class="anchored" data-anchor-id="slide-21-http-mit-telnet-simulieren">Slide 21 – HTTP mit Telnet simulieren</h3>
+<ul>
+<li>Demonstrates that HTTP is <strong>plain-text based</strong>.</li>
+<li>You can use <code>telnet</code> to manually type HTTP requests.</li>
+<li>This reinforces the protocol’s <strong>human-readable</strong> structure.</li>
+</ul>
+<hr>
+</section>
+<section id="slide-22-statuscodes-und-statusnachrichten" class="level3">
+<h3 class="anchored" data-anchor-id="slide-22-statuscodes-und-statusnachrichten">Slide 22 – Statuscodes und Statusnachrichten</h3>
+<ul>
+<li><p>HTTP status line contains:</p>
+<ul>
+<li>Protocol version</li>
+<li>Numeric status code (e.g., 200, 404)</li>
+<li>Optional text message (e.g., “OK”, “Not Found”)</li>
+</ul></li>
+<li><p>Clients should rely on the <strong>numeric code</strong>, not the message text.</p></li>
+</ul>
+<hr>
+</section>
+<section id="slide-23-http-verbindungstypen" class="level3">
+<h3 class="anchored" data-anchor-id="slide-23-http-verbindungstypen">Slide 23 – HTTP Verbindungstypen</h3>
+<ul>
+<li><p>Distinguishes between:</p>
+<ul>
+<li><strong>Nichtpersistente Verbindungen</strong>: new TCP connection per object (inefficient)</li>
+<li><strong>Persistente Verbindungen</strong>: single TCP connection reused for multiple objects (default in HTTP/1.1)</li>
+</ul></li>
+</ul>
+<hr>
+</section>
+<section id="slide-24-antwortzeit-bei-nichtpersistenten-verbindungen" class="level3">
+<h3 class="anchored" data-anchor-id="slide-24-antwortzeit-bei-nichtpersistenten-verbindungen">Slide 24 – Antwortzeit bei nichtpersistenten Verbindungen</h3>
+<ul>
+<li><p>Non-persistent setup incurs at least:</p>
+<ul>
+<li><strong>1 RTT</strong> for TCP handshake</li>
+<li><strong>1 RTT</strong> for HTTP request-response</li>
+</ul></li>
+<li><p>This adds up to <strong>2 RTTs + transfer time per object</strong>.</p></li>
+<li><p>For pages with many small resources, the overhead becomes significant.</p></li>
+</ul>
+<hr>
+</section>
+<section id="slide-25-vergleich-persistente-vs.-nichtpersistente-verbindungen" class="level3">
+<h3 class="anchored" data-anchor-id="slide-25-vergleich-persistente-vs.-nichtpersistente-verbindungen">Slide 25 – Vergleich: Persistente vs.&nbsp;Nichtpersistente Verbindungen</h3>
+<ul>
+<li><p><strong>Persistent connections</strong> reduce:</p>
+<ul>
+<li>Latency</li>
+<li>Resource usage</li>
+<li>Network congestion</li>
+</ul></li>
+<li><p><strong>Non-persistent connections</strong> introduce repeated setup and teardown.</p></li>
+</ul>
+<hr>
+</section>
+<section id="slide-26-benutzerzustand-via-cookies" class="level3">
+<h3 class="anchored" data-anchor-id="slide-26-benutzerzustand-via-cookies">Slide 26 – Benutzerzustand via Cookies</h3>
+<ul>
+<li><p>HTTP is stateless, but <strong>cookies</strong> allow servers to maintain state.</p></li>
+<li><p>Mechanism:</p>
+<ul>
+<li>Server sets a cookie via <code>Set-Cookie</code> header</li>
+<li>Browser stores it and includes it in future requests using the <code>Cookie</code> header</li>
+</ul></li>
+<li><p>Enables <strong>sessions</strong>, <strong>user tracking</strong>, and <strong>authentication</strong></p></li>
+</ul>
+<hr>
+<section id="related-discussion-cookies-and-logins" class="level4">
+<h4 class="anchored" data-anchor-id="related-discussion-cookies-and-logins">Related Discussion: Cookies and Logins</h4>
+<ul>
+<li>Login systems rely on cookies to associate a <strong>session ID</strong> with a user.</li>
+<li>The cookie itself does <strong>not contain sensitive data</strong>, only an identifier.</li>
+<li>The session data lives on the server.</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="slide-27-beispiel-http-und-cookies" class="level3">
+<h3 class="anchored" data-anchor-id="slide-27-beispiel-http-und-cookies">Slide 27 – Beispiel: HTTP und Cookies</h3>
+<ul>
+<li>First visit: server sets a cookie (<code>Set-Cookie: ID=12345</code>)</li>
+<li>Second visit: client automatically sends (<code>Cookie: ID=12345</code>)</li>
+<li>Server identifies the session using this ID.</li>
+</ul>
+<hr>
+</section>
+<section id="slide-28-http-bedingtes-get" class="level3">
+<h3 class="anchored" data-anchor-id="slide-28-http-bedingtes-get">Slide 28 – HTTP: Bedingtes GET</h3>
+<ul>
+<li><p>Introduces the <code>If-Modified-Since</code> header:</p>
+<ul>
+<li>Client asks: <em>“Has this file changed since <code>&lt;timestamp&gt;</code>?”</em></li>
+<li>If <strong>no change</strong>, server responds with <code>304 Not Modified</code> and no body.</li>
+<li>Saves bandwidth and improves performance.</li>
+</ul></li>
+<li><p>Basis for <strong>browser caching</strong> and <strong>proxy validation</strong>.</p></li>
+</ul>
+<hr>
+</section>
+<section id="slide-29-internet-protokollstapel" class="level3">
+<h3 class="anchored" data-anchor-id="slide-29-internet-protokollstapel">Slide 29 – Internet-Protokollstapel</h3>
+<ul>
+<li>Overview of the <strong>5-layer Internet protocol stack</strong>:</li>
+</ul>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 25%">
+<col style="width: 54%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Layer</th>
+<th>Example Protocols</th>
+<th>Function</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Application Layer</td>
+<td>HTTP, FTP, SMTP</td>
+<td>Network applications</td>
+</tr>
+<tr class="even">
+<td>Transport Layer</td>
+<td>TCP, UDP</td>
+<td>Reliable or best-effort process communication</td>
+</tr>
+<tr class="odd">
+<td>Network Layer</td>
+<td>IP, Routing Protocols</td>
+<td>Packet forwarding across networks</td>
+</tr>
+<tr class="even">
+<td>Data Link Layer</td>
+<td>Ethernet, PPP</td>
+<td>Local frame delivery between adjacent nodes</td>
+</tr>
+<tr class="odd">
+<td>Physical Layer</td>
+<td>(depends on medium)</td>
+<td>Bit transmission over hardware links</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Emphasizes <strong>modularity</strong> and <strong>encapsulation</strong>.</li>
+</ul>
+</section>
+<section id="slide-30-abschnittsübergang-grundlagen-von-netzwerkanwendungen" class="level3">
+<h3 class="anchored" data-anchor-id="slide-30-abschnittsübergang-grundlagen-von-netzwerkanwendungen">Slide 30 – Abschnittsübergang: Grundlagen von Netzwerkanwendungen</h3>
+<p><em>Title slide</em>:</p>
+<blockquote class="blockquote">
+<p><strong>Grundlagen von Netzwerkanwendungen</strong> <em>(Architekturen, Sockets, Protokolle)</em></p>
+</blockquote>
+<section id="function" class="level4">
+<h4 class="anchored" data-anchor-id="function">Function:</h4>
+<ul>
+<li>Marks the <strong>transition</strong> from a concrete case study (HTTP) to <strong>general concepts</strong> in the application layer.</li>
+<li>Sets the stage for understanding <strong>how any application-level protocol is built</strong>, not just HTTP.</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="slide-31-netzwerkanwendungen-sind" class="level3">
+<h3 class="anchored" data-anchor-id="slide-31-netzwerkanwendungen-sind">Slide 31 – Netzwerkanwendungen sind …</h3>
+<section id="core-insight" class="level4">
+<h4 class="anchored" data-anchor-id="core-insight">Core Insight:</h4>
+<ul>
+<li>Network applications consist of <strong>processes</strong> (not just hosts) that <strong>exchange messages</strong>.</li>
+<li>These processes run at the <strong>end systems</strong> only — routers and switches do <strong>not</strong> participate in the application logic.</li>
+</ul>
+</section>
+<section id="architecture-view" class="level4">
+<h4 class="anchored" data-anchor-id="architecture-view">Architecture View:</h4>
+<ul>
+<li>Application logic exists <strong>only at the network edges</strong> (hosts), reinforcing the <strong>end-to-end principle</strong>.</li>
+<li>Routers forward packets; they <strong>do not run web servers or browsers</strong>.</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="slide-32-prozesskommunikation" class="level3">
+<h3 class="anchored" data-anchor-id="slide-32-prozesskommunikation">Slide 32 – Prozesskommunikation</h3>
+<section id="key-idea" class="level4">
+<h4 class="anchored" data-anchor-id="key-idea">Key Idea:</h4>
+<blockquote class="blockquote">
+<p>“It’s not the computers, but the <strong>processes</strong> that communicate.”</p>
+</blockquote>
+<ul>
+<li>On the same host → <strong>Interprocess Communication (IPC)</strong></li>
+<li>Across hosts → <strong>Message exchange over TCP or UDP</strong></li>
+<li>Processes use <strong>sockets</strong> to communicate via the transport layer.</li>
+</ul>
+</section>
+<section id="terminology" class="level4">
+<h4 class="anchored" data-anchor-id="terminology">Terminology:</h4>
+<ul>
+<li><strong>Application process</strong> communicates over a socket.</li>
+<li><strong>Socket</strong> is the OS-provided API to send/receive messages across the network.</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="slide-33-architektur-client-server-vs.-peer-to-peer-p2p" class="level3">
+<h3 class="anchored" data-anchor-id="slide-33-architektur-client-server-vs.-peer-to-peer-p2p">Slide 33 – Architektur: Client-Server vs.&nbsp;Peer-to-Peer (P2P)</h3>
+<section id="client-server" class="level4">
+<h4 class="anchored" data-anchor-id="client-server">Client-Server:</h4>
+<ul>
+<li>Central server, always on, often with a fixed IP.</li>
+<li>Clients initiate communication.</li>
+<li>Examples: HTTP, SMTP, FTP</li>
+</ul>
+</section>
+<section id="peer-to-peer" class="level4">
+<h4 class="anchored" data-anchor-id="peer-to-peer">Peer-to-Peer:</h4>
+<ul>
+<li>No central server; every peer can be both client and server.</li>
+<li>More scalable, but more complex (NAT traversal, coordination).</li>
+<li>Examples: BitTorrent, VoIP (classic Skype)</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="slide-34-prozesse-client-und-server" class="level3">
+<h3 class="anchored" data-anchor-id="slide-34-prozesse-client-und-server">Slide 34 – Prozesse: Client und Server</h3>
+<section id="roles-defined-by-behavior" class="level4">
+<h4 class="anchored" data-anchor-id="roles-defined-by-behavior">Roles defined by behavior:</h4>
+<ul>
+<li><strong>Client</strong>: initiates communication</li>
+<li><strong>Server</strong>: waits to be contacted</li>
+</ul>
+</section>
+<section id="important" class="level4">
+<h4 class="anchored" data-anchor-id="important">Important:</h4>
+<ul>
+<li>These are <strong>roles</strong>, not hardware definitions.</li>
+<li>In P2P, a node can act as <strong>client in one interaction, server in another</strong>.</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="slide-35-sockets-schnittstellen" class="level3">
+<h3 class="anchored" data-anchor-id="slide-35-sockets-schnittstellen">Slide 35 – Sockets: Schnittstellen</h3>
+<section id="sockets" class="level4">
+<h4 class="anchored" data-anchor-id="sockets">Sockets:</h4>
+<ul>
+<li>The <strong>programming interface</strong> between the application process and the transport layer.</li>
+<li>A socket is like a <strong>door</strong> through which the process sends/receives data.</li>
+</ul>
+</section>
+<section id="os-abstraction" class="level4">
+<h4 class="anchored" data-anchor-id="os-abstraction">OS abstraction:</h4>
+<ul>
+<li>OS handles TCP/UDP details.</li>
+<li>Application uses <code>send()</code>, <code>recv()</code>, or <code>read()/write()</code> on the socket.</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="slide-36-addressieren-von-prozessen" class="level3">
+<h3 class="anchored" data-anchor-id="slide-36-addressieren-von-prozessen">Slide 36 – Addressieren von Prozessen</h3>
+<section id="problem" class="level4">
+<h4 class="anchored" data-anchor-id="problem">Problem:</h4>
+<ul>
+<li>IP address identifies a <strong>host</strong>, not a <strong>specific process</strong>.</li>
+</ul>
+</section>
+<section id="solution" class="level4">
+<h4 class="anchored" data-anchor-id="solution">Solution:</h4>
+<ul>
+<li>Use <code>(IP address, Port number)</code> to identify a process.</li>
+<li>Known ports (e.g.&nbsp;<code>80</code> for HTTP, <code>443</code> for HTTPS) identify standard services.</li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="slide-37-zwei-grundlegende-internet-protokolle-tcp-und-udp" class="level3">
+<h3 class="anchored" data-anchor-id="slide-37-zwei-grundlegende-internet-protokolle-tcp-und-udp">Slide 37 – Zwei grundlegende Internet-Protokolle: TCP und UDP</h3>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Feature</th>
+<th>TCP</th>
+<th>UDP</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Connection setup</td>
+<td>Yes (3-way handshake)</td>
+<td>No</td>
+</tr>
+<tr class="even">
+<td>Reliability</td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr class="odd">
+<td>Ordering</td>
+<td>Guaranteed</td>
+<td>No</td>
+</tr>
+<tr class="even">
+<td>Congestion control</td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr class="odd">
+<td>Use case examples</td>
+<td>HTTP, FTP, email</td>
+<td>DNS, VoIP, streaming</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>TCP is used when <strong>reliability and ordering</strong> matter.</li>
+<li>UDP is used when <strong>speed and simplicity</strong> are more important than reliability.</li>
+</ul>
+<hr>
+</section>
+<section id="slide-38-beispiele-für-anwendungen" class="level3">
+<h3 class="anchored" data-anchor-id="slide-38-beispiele-für-anwendungen">Slide 38 – Beispiele für Anwendungen</h3>
+<section id="protocol-usage-by-application" class="level4">
+<h4 class="anchored" data-anchor-id="protocol-usage-by-application">Protocol usage by application:</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Application</th>
+<th>Protocol</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>HTTP, FTP, SMTP</td>
+<td>TCP</td>
+</tr>
+<tr class="even">
+<td>DNS (queries)</td>
+<td>UDP</td>
+</tr>
+<tr class="odd">
+<td>DNS (zone transfer)</td>
+<td>TCP</td>
+</tr>
+<tr class="even">
+<td>VoIP, video stream</td>
+<td>UDP</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Some apps use <strong>both</strong>, depending on use case (e.g.&nbsp;DNS).</li>
+</ul>
+<hr>
+</section>
+</section>
+</section>
+<section id="clarifying-detours-and-triggers" class="level2">
+<h2 class="anchored" data-anchor-id="clarifying-detours-and-triggers">Clarifying Detours and Triggers</h2>
+<section id="do-http-servers-need-to-know-the-clients-ip-address" class="level3">
+<h3 class="anchored" data-anchor-id="do-http-servers-need-to-know-the-clients-ip-address">1. <strong>“Do HTTP servers need to know the client’s IP address?”</strong></h3>
+<p><strong>Triggered by</strong>: slide 35 (Sockets) <strong>Clarification</strong>:</p>
+<ul>
+<li>No, not usually. The OS handles delivery.</li>
+<li>The server can access the client IP via <code>accept()</code> if needed, but it’s optional.</li>
+</ul>
+</section>
+<section id="is-it-realistic-to-build-your-own-http-server" class="level3">
+<h3 class="anchored" data-anchor-id="is-it-realistic-to-build-your-own-http-server">2. <strong>“Is it realistic to build your own HTTP server?”</strong></h3>
+<p><strong>Triggered by</strong>: understanding sockets in slide 35 <strong>Discussion</strong>:</p>
+<ul>
+<li>Yes — very realistic.</li>
+<li>A minimal HTTP server can be written in under 50 lines of Python using just the socket API.</li>
+<li>Focus is on parsing requests, forming responses, serving files, and handling concurrency.</li>
+</ul>
+</section>
+<section id="why-do-apache-and-nginx-exist-if-http-is-simple" class="level3">
+<h3 class="anchored" data-anchor-id="why-do-apache-and-nginx-exist-if-http-is-simple">3. <strong>“Why do Apache and Nginx exist if HTTP is simple?”</strong></h3>
+<p><strong>Triggered by</strong>: realization that building a server is feasible <strong>Clarification</strong>:</p>
+<ul>
+<li>Industrial servers are engineered for performance, security, flexibility, and scaling.</li>
+<li>They handle advanced features like TLS, compression, load balancing, and dynamic routing.</li>
+</ul>
+</section>
+<section id="can-an-http-server-listen-on-multiple-ports" class="level3">
+<h3 class="anchored" data-anchor-id="can-an-http-server-listen-on-multiple-ports">4. <strong>“Can an HTTP server listen on multiple ports?”</strong></h3>
+<p><strong>Triggered by</strong>: slide 36 (port numbers) <strong>Clarification</strong>:</p>
+<ul>
+<li>Yes — it’s technically trivial (e.g.&nbsp;<code>bind()</code> on multiple sockets).</li>
+<li>Often done for development (<code>8080</code>), reverse proxies, or alternate services.</li>
+</ul>
+</section>
+<section id="do-p2p-applications-prefer-udp-over-tcp" class="level3">
+<h3 class="anchored" data-anchor-id="do-p2p-applications-prefer-udp-over-tcp">5. <strong>“Do P2P applications prefer UDP over TCP?”</strong></h3>
+<p><strong>Triggered by</strong>: slide 33 (P2P architectures) <strong>Clarification</strong>:</p>
+<ul>
+<li>Many do prefer UDP due to NAT traversal, lower latency, and flexible retransmission control.</li>
+<li>But some, like BitTorrent, still use TCP for reliability.</li>
+</ul>
+<hr>
+</section>
+<section id="practical-experiment" class="level3">
+<h3 class="anchored" data-anchor-id="practical-experiment"><strong>Practical Experiment</strong></h3>
+<p>You tested this on your <strong>Quarto preview server</strong> (<code>localhost:3475</code>) and used <code>telnet</code> to manually send a <code>GET /</code> request. The server responded with:</p>
+<pre><code>HTTP/1.1 200 OK
+Content-Type: text/html
+Content-Length: ...</code></pre>
+<p>This confirmed:</p>
+<ul>
+<li>HTTP is <strong>text-based</strong></li>
+<li>The Quarto server is a <strong>fully functional HTTP server</strong></li>
+<li>The response body was a real HTML document rendered by the browser</li>
+</ul>
+<hr>
+</section>
+<section id="chunking-and-large-files" class="level3">
+<h3 class="anchored" data-anchor-id="chunking-and-large-files"><strong>1. Chunking and Large Files</strong></h3>
+<p><strong>What initiated it:</strong> Slide 18 showed a large HTML response. You asked:</p>
+<blockquote class="blockquote">
+<p>“If the file is large, is it split into multiple HTTP messages?”</p>
+</blockquote>
+<p><strong>What we explored:</strong></p>
+<ul>
+<li>HTTP responses are <strong>not split</strong> at the application level</li>
+<li><strong>TCP handles segmentation</strong></li>
+<li><strong>Chunked transfer encoding</strong> exists for streaming, but still within one HTTP response</li>
+</ul>
+<hr>
+</section>
+<section id="opening-local-html-files-in-browser" class="level3">
+<h3 class="anchored" data-anchor-id="opening-local-html-files-in-browser"><strong>2. Opening Local HTML Files in Browser</strong></h3>
+<p><strong>What initiated it:</strong> You asked how browsers handle local <code>.html</code> files opened by double-clicking.</p>
+<p><strong>What we explored:</strong></p>
+<ul>
+<li>If all resources (CSS, JS) are <strong>embedded</strong>, the file renders correctly</li>
+<li>If external files are <strong>fetched via HTTP</strong>, they fail unless a <strong>local server is running</strong></li>
+<li>Browsers block <code>fetch()</code> from <code>file://</code> for security</li>
+</ul>
+<hr>
+</section>
+<section id="what-is-an-spa-single-page-application" class="level3">
+<h3 class="anchored" data-anchor-id="what-is-an-spa-single-page-application"><strong>3. What is an SPA (Single Page Application)?</strong></h3>
+<p><strong>What initiated it:</strong> You observed that SPAs avoid reloading full HTML pages and instead dynamically update content.</p>
+<p><strong>What we explored:</strong></p>
+<ul>
+<li>SPAs load one HTML file and update the DOM using JavaScript</li>
+<li>No page reloads = smoother experience</li>
+<li>Commonly powered by frameworks like <strong>React</strong>, <strong>Vue</strong>, etc.</li>
+</ul>
+<hr>
+</section>
+<section id="json-rest-and-graphql" class="level3">
+<h3 class="anchored" data-anchor-id="json-rest-and-graphql"><strong>4. JSON, REST, and GraphQL</strong></h3>
+<p><strong>What initiated it:</strong> You asked how SPAs fetch data and render views without loading new HTML pages.</p>
+<p><strong>What we explored:</strong></p>
+<ul>
+<li>SPAs fetch <strong>JSON</strong> from the server</li>
+<li>REST APIs expose fixed endpoints (<code>/api/posts</code>)</li>
+<li>GraphQL allows flexible, structured queries (<code>{ post { title } }</code>)</li>
+<li>Backend sends <strong>data</strong>, not HTML</li>
+</ul>
+<hr>
+</section>
+<section id="role-of-postgresql-and-backend" class="level3">
+<h3 class="anchored" data-anchor-id="role-of-postgresql-and-backend"><strong>5. Role of PostgreSQL and Backend</strong></h3>
+<p><strong>What initiated it:</strong> You asked how GraphQL or REST interfaces connect to a <strong>PostgreSQL database</strong>.</p>
+<p><strong>What we explored:</strong></p>
+<ul>
+<li>The <strong>backend server</strong> receives GraphQL or REST requests</li>
+<li>It queries <strong>PostgreSQL</strong> for data</li>
+<li>Responds with JSON to the frontend</li>
+</ul>
+<hr>
+</section>
+<section id="authentication-and-password-handling" class="level3">
+<h3 class="anchored" data-anchor-id="authentication-and-password-handling"><strong>6. Authentication and Password Handling</strong></h3>
+<p><strong>What initiated it:</strong> You asked how user login works — and whether passwords are visible to the server.</p>
+<p><strong>What we explored:</strong></p>
+<ul>
+<li><p>Passwords are hashed using <strong>bcrypt</strong> and stored in the database</p></li>
+<li><p>Only hashed values are stored; plain passwords are never saved</p></li>
+<li><p>After login, the server issues:</p>
+<ul>
+<li>A <strong>session cookie</strong>, or</li>
+<li>A <strong>JWT</strong> (JSON Web Token)</li>
+</ul></li>
+<li><p>The frontend uses the token to authenticate future requests</p></li>
+</ul>
+<hr>
+</section>
+<section id="https-and-security" class="level3">
+<h3 class="anchored" data-anchor-id="https-and-security"><strong>7. HTTPS and Security</strong></h3>
+<p><strong>What initiated it:</strong> You noticed the password is sent in plain text within the HTTP body.</p>
+<p><strong>What we explored:</strong></p>
+<ul>
+<li>Without HTTPS, this is dangerous — passwords can be intercepted</li>
+<li>HTTPS encrypts the entire transmission (headers + body)</li>
+<li>Modern login flows <strong>require HTTPS</strong> for secure password handling</li>
+</ul>
+<hr>
+</section>
+<section id="final-integration-full-stack-spa-project" class="level3">
+<h3 class="anchored" data-anchor-id="final-integration-full-stack-spa-project"><strong>8. Final Integration: Full-Stack SPA Project</strong></h3>
+<p><strong>What initiated it:</strong> You asked whether this could be integrated into a learning project.</p>
+<p><strong>What we designed:</strong></p>
+<ul>
+<li><p>A minimal blog platform (<strong>MiniPost</strong>) with:</p>
+<ul>
+<li>SPA frontend (React or Svelte)</li>
+<li>GraphQL backend (Node.js)</li>
+<li>PostgreSQL database</li>
+<li>Login/authentication (JWT + bcrypt)</li>
+</ul></li>
+<li><p>Designed as a hands-on way to tie everything together</p></li>
+</ul>
+<hr>
+</section>
+<section id="what-is-a-tcp-segment" class="level3">
+<h3 class="anchored" data-anchor-id="what-is-a-tcp-segment">1. What is a TCP segment?</h3>
+<ul>
+<li>A <strong>TCP segment = TCP header + data payload</strong></li>
+<li>Sent over IP; reassembled on the receiving side using SEQ/ACK numbers</li>
+</ul>
+</section>
+<section id="what-is-a-byte-stream" class="level3">
+<h3 class="anchored" data-anchor-id="what-is-a-byte-stream">2. What is a byte stream?</h3>
+<ul>
+<li>TCP provides a <strong>reliable, ordered byte stream</strong></li>
+<li>No inherent message boundaries — just a flow of bytes</li>
+<li>Contrast with message-oriented protocols like UDP</li>
+</ul>
+</section>
+<section id="how-does-tcp-know-transmission-is-over" class="level3">
+<h3 class="anchored" data-anchor-id="how-does-tcp-know-transmission-is-over">3. How does TCP know transmission is over?</h3>
+<ul>
+<li>Sender signals with a <strong>FIN</strong> segment</li>
+<li>Connection is closed using a <strong>4-step FIN/ACK handshake</strong></li>
+</ul>
+</section>
+<section id="what-does-contiguous-bytes-received-mean" class="level3">
+<h3 class="anchored" data-anchor-id="what-does-contiguous-bytes-received-mean">4. What does “contiguous bytes received” mean?</h3>
+<ul>
+<li>TCP only acknowledges data that has been received <strong>in order</strong>, without gaps</li>
+<li>If segments arrive out of order, ACK does <strong>not advance</strong> until missing parts are filled in</li>
+</ul>
+</section>
+<section id="duplicate-segment-handling" class="level3">
+<h3 class="anchored" data-anchor-id="duplicate-segment-handling">5. Duplicate segment handling</h3>
+<ul>
+<li>If the same segment arrives twice (e.g.&nbsp;delayed + retransmitted), TCP detects overlap using SEQ numbers and <strong>silently discards</strong> duplicates</li>
+</ul>
+</section>
+<section id="do-segments-usually-arrive-in-order" class="level3">
+<h3 class="anchored" data-anchor-id="do-segments-usually-arrive-in-order">6. Do segments usually arrive in order?</h3>
+<ul>
+<li><p>Yes, most of the time — but TCP is built to tolerate:</p>
+<ul>
+<li><strong>Moderate reordering</strong></li>
+<li><strong>Delayed or duplicate segments</strong></li>
+</ul></li>
+</ul>
+</section>
+<section id="when-and-how-retransmission-occurs" class="level3">
+<h3 class="anchored" data-anchor-id="when-and-how-retransmission-occurs">7. When and how retransmission occurs</h3>
+<ul>
+<li><strong>Fast Retransmit</strong> is triggered by <strong>3 duplicate ACKs</strong></li>
+<li><strong>Timeout-based retransmission (RTO)</strong> occurs when ACKs don’t arrive</li>
+<li>Fast retransmit is called “fast” because it reacts quicker than waiting for RTO</li>
+</ul>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./networks-intro.html" class="pagination-link" aria-label="Network Fundamentals - Summary of Slides 1 - 45">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Network Fundamentals - Summary of Slides 1 - 45</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
