@@ -15,6 +15,7 @@ book:
       chapters:
       - networks-intro.qmd
       - application-layer.qmd
+      - ip-layer-subnetting.qmd
   downloads: ["pdf"]
   page-navigation: true
 
