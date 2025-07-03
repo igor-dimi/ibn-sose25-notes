@@ -7,7 +7,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Operating Systems and Networks SoSe 25 Notes - 3&nbsp; Network Fundamentals - Summary of Slides 1 - 45</title>
+<title>Operating Systems and Networks SoSe 25 Notes - 3&nbsp; Networking</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -30,7 +30,6 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./application-layer.html" rel="next">
 <link href="./memory.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
@@ -110,7 +109,7 @@ window.Quarto = {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./networks-intro.html">Networks</a></li><li class="breadcrumb-item"><a href="./networks-intro.html"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Network Fundamentals - Summary of Slides 1 - 45</span></a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./networks.html">Networks</a></li><li class="breadcrumb-item"><a href="./networks.html"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Networking</span></a></li></ol></nav>
         <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
@@ -178,20 +177,8 @@ window.Quarto = {
       <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./networks-intro.html" class="sidebar-item-text sidebar-link active">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Network Fundamentals - Summary of Slides 1 - 45</span></span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./application-layer.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Intro to the Application Layer, Web and HTTP</span></span></a>
-  </div>
-</li>
-          <li class="sidebar-item">
-  <div class="sidebar-item-container"> 
-  <a href="./ip-layer-subnetting.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">IP Layer &amp; Subnetting</span></span></a>
+  <a href="./networks.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Networking</span></span></a>
   </div>
 </li>
       </ul>
@@ -206,7 +193,9 @@ window.Quarto = {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#overview" id="toc-overview" class="nav-link active" data-scroll-target="#overview">Overview</a></li>
+  <li><a href="#network-fundamentals-summary-of-slides-145" id="toc-network-fundamentals-summary-of-slides-145" class="nav-link active" data-scroll-target="#network-fundamentals-summary-of-slides-145">Network Fundamentals — Summary of Slides 1–45</a>
+  <ul>
+  <li><a href="#overview" id="toc-overview" class="nav-link" data-scroll-target="#overview">Overview</a></li>
   <li><a href="#historical-background-and-internet-foundations-slides-116" id="toc-historical-background-and-internet-foundations-slides-116" class="nav-link" data-scroll-target="#historical-background-and-internet-foundations-slides-116">Historical Background and Internet Foundations (Slides 1–16)</a></li>
   <li><a href="#transmission-media-and-infrastructure-slides-1620" id="toc-transmission-media-and-infrastructure-slides-1620" class="nav-link" data-scroll-target="#transmission-media-and-infrastructure-slides-1620">Transmission Media and Infrastructure (Slides 16–20)</a></li>
   <li><a href="#circuit-switching-vs.-packet-switching-slides-1823" id="toc-circuit-switching-vs.-packet-switching-slides-1823" class="nav-link" data-scroll-target="#circuit-switching-vs.-packet-switching-slides-1823">Circuit Switching vs.&nbsp;Packet Switching (Slides 18–23)</a></li>
@@ -233,15 +222,16 @@ window.Quarto = {
   <li><a href="#osi-model-slide-44" id="toc-osi-model-slide-44" class="nav-link" data-scroll-target="#osi-model-slide-44">OSI Model (Slide 44)</a></li>
   </ul></li>
   <li><a href="#unified-protocoll-stack-overview" id="toc-unified-protocoll-stack-overview" class="nav-link" data-scroll-target="#unified-protocoll-stack-overview">Unified Protocoll Stack Overview</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./networks-intro.html">Networks</a></li><li class="breadcrumb-item"><a href="./networks-intro.html"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Network Fundamentals - Summary of Slides 1 - 45</span></a></li></ol></nav>
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./networks.html">Networks</a></li><li class="breadcrumb-item"><a href="./networks.html"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Networking</span></a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Network Fundamentals - Summary of Slides 1 - 45</span></h1>
+<h1 class="title"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Networking</span></h1>
 </div>
 
 
@@ -258,8 +248,10 @@ window.Quarto = {
 </header>
 
 
-<section id="overview" class="level2">
-<h2 class="anchored" data-anchor-id="overview">Overview</h2>
+<section id="network-fundamentals-summary-of-slides-145" class="level2">
+<h2 class="anchored" data-anchor-id="network-fundamentals-summary-of-slides-145">Network Fundamentals — Summary of Slides 1–45</h2>
+<section id="overview" class="level3">
+<h3 class="anchored" data-anchor-id="overview">Overview</h3>
 <table class="table">
 <colgroup>
 <col style="width: 35%">
@@ -297,8 +289,8 @@ window.Quarto = {
 </tbody>
 </table>
 </section>
-<section id="historical-background-and-internet-foundations-slides-116" class="level2">
-<h2 class="anchored" data-anchor-id="historical-background-and-internet-foundations-slides-116">Historical Background and Internet Foundations (Slides 1–16)</h2>
+<section id="historical-background-and-internet-foundations-slides-116" class="level3">
+<h3 class="anchored" data-anchor-id="historical-background-and-internet-foundations-slides-116">Historical Background and Internet Foundations (Slides 1–16)</h3>
 <ul>
 <li><p>Early developments: ARPANET, Cyclades, and ALOHANet pioneered <strong>packet switching</strong>.</p></li>
 <li><p>The <strong>Internet</strong> emerged as a global interconnection of autonomous systems using the <strong>TCP/IP protocol suite</strong>.</p></li>
@@ -312,8 +304,8 @@ window.Quarto = {
 <li><p>The <strong>stateless nature of HTTP</strong> means each request is handled independently — servers do not retain memory of previous interactions.</p></li>
 </ul>
 </section>
-<section id="transmission-media-and-infrastructure-slides-1620" class="level2">
-<h2 class="anchored" data-anchor-id="transmission-media-and-infrastructure-slides-1620">Transmission Media and Infrastructure (Slides 16–20)</h2>
+<section id="transmission-media-and-infrastructure-slides-1620" class="level3">
+<h3 class="anchored" data-anchor-id="transmission-media-and-infrastructure-slides-1620">Transmission Media and Infrastructure (Slides 16–20)</h3>
 <ul>
 <li><p>Data transmission can occur over:</p>
 <ul>
@@ -326,8 +318,8 @@ window.Quarto = {
 <li><p>Real-world systems combine many media and technologies in layered infrastructure.</p></li>
 </ul>
 </section>
-<section id="circuit-switching-vs.-packet-switching-slides-1823" class="level2">
-<h2 class="anchored" data-anchor-id="circuit-switching-vs.-packet-switching-slides-1823">Circuit Switching vs.&nbsp;Packet Switching (Slides 18–23)</h2>
+<section id="circuit-switching-vs.-packet-switching-slides-1823" class="level3">
+<h3 class="anchored" data-anchor-id="circuit-switching-vs.-packet-switching-slides-1823">Circuit Switching vs.&nbsp;Packet Switching (Slides 18–23)</h3>
 <ul>
 <li><p><strong>Circuit switching</strong>: fixed, reserved paths (e.g.&nbsp;telephony)</p>
 <ul>
@@ -345,10 +337,10 @@ window.Quarto = {
 </ul></li>
 </ul>
 </section>
-<section id="network-performance-metrics-slides-2432" class="level2">
-<h2 class="anchored" data-anchor-id="network-performance-metrics-slides-2432">Network Performance Metrics (Slides 24–32)</h2>
-<section id="four-types-of-delay" class="level3">
-<h3 class="anchored" data-anchor-id="four-types-of-delay">Four types of delay:</h3>
+<section id="network-performance-metrics-slides-2432" class="level3">
+<h3 class="anchored" data-anchor-id="network-performance-metrics-slides-2432">Network Performance Metrics (Slides 24–32)</h3>
+<section id="four-types-of-delay" class="level4">
+<h4 class="anchored" data-anchor-id="four-types-of-delay">Four types of delay:</h4>
 <ol type="1">
 <li><p><strong>Processing delay</strong>: time to examine packet header and perform checks</p></li>
 <li><p><strong>Queueing delay</strong>: time waiting in the router buffer</p></li>
@@ -372,14 +364,14 @@ d_{\text{prop}} = \frac{d}{s}
 </ul></li>
 </ol>
 </section>
-<section id="total-node-delay" class="level3">
-<h3 class="anchored" data-anchor-id="total-node-delay">Total node delay:</h3>
+<section id="total-node-delay" class="level4">
+<h4 class="anchored" data-anchor-id="total-node-delay">Total node delay:</h4>
 <p><span class="math display">\[
 d_{\text{nodal}} = d_{\text{proc}} + d_{\text{queue}} + d_{\text{trans}} + d_{\text{prop}}
 \]</span></p>
 </section>
-<section id="traffic-intensity-and-queue-behavior" class="level3">
-<h3 class="anchored" data-anchor-id="traffic-intensity-and-queue-behavior">Traffic intensity and queue behavior:</h3>
+<section id="traffic-intensity-and-queue-behavior" class="level4">
+<h4 class="anchored" data-anchor-id="traffic-intensity-and-queue-behavior">Traffic intensity and queue behavior:</h4>
 <p>Let:</p>
 <ul>
 <li><span class="math inline">\(a\)</span>: average packet arrival rate (packets/sec)</li>
@@ -396,15 +388,15 @@ d_{\text{nodal}} = d_{\text{proc}} + d_{\text{queue}} + d_{\text{trans}} + d_{\t
 <li>As <span class="math inline">\(\frac{aL}{R} \rightarrow 1\)</span>: delay increases sharply</li>
 </ul>
 </section>
-<section id="end-to-end-delay-over-multiple-hops" class="level3">
-<h3 class="anchored" data-anchor-id="end-to-end-delay-over-multiple-hops">End-to-end delay over multiple hops:</h3>
+<section id="end-to-end-delay-over-multiple-hops" class="level4">
+<h4 class="anchored" data-anchor-id="end-to-end-delay-over-multiple-hops">End-to-end delay over multiple hops:</h4>
 <p><span class="math display">\[
 d_{\text{end-to-end}} = \sum_{i=1}^N (d_{\text{proc},i} + d_{\text{queue},i} + d_{\text{trans},i} + d_{\text{prop},i})
 \]</span></p>
 <p>where <span class="math inline">\(N\)</span> is the number of routers.</p>
 </section>
-<section id="traceroute" class="level3">
-<h3 class="anchored" data-anchor-id="traceroute">Traceroute:</h3>
+<section id="traceroute" class="level4">
+<h4 class="anchored" data-anchor-id="traceroute">Traceroute:</h4>
 <ul>
 <li>Uses IP TTL (Time-To-Live) field to probe each hop</li>
 <li>When TTL reaches zero, routers send an ICMP “Time Exceeded” message</li>
@@ -413,13 +405,13 @@ d_{\text{end-to-end}} = \sum_{i=1}^N (d_{\text{proc},i} + d_{\text{queue},i} + d
 <hr>
 </section>
 </section>
-<section id="throughput-slides-3335" class="level2">
-<h2 class="anchored" data-anchor-id="throughput-slides-3335">Throughput (Slides 33–35)</h2>
+<section id="throughput-slides-3335" class="level3">
+<h3 class="anchored" data-anchor-id="throughput-slides-3335">Throughput (Slides 33–35)</h3>
 <ul>
 <li><strong>Throughput</strong>: the rate at which data is successfully delivered (bps)</li>
 </ul>
-<section id="two-cases-slide-34" class="level3">
-<h3 class="anchored" data-anchor-id="two-cases-slide-34">Two cases (Slide 34):</h3>
+<section id="two-cases-slide-34" class="level4">
+<h4 class="anchored" data-anchor-id="two-cases-slide-34">Two cases (Slide 34):</h4>
 <p>If:</p>
 <ul>
 <li><span class="math inline">\(R_S\)</span>: server’s sending rate</li>
@@ -434,8 +426,8 @@ d_{\text{end-to-end}} = \sum_{i=1}^N (d_{\text{proc},i} + d_{\text{queue},i} + d
 \text{Throughput} = \min(R_S, R_C)
 \]</span></p>
 </section>
-<section id="multi-user-sharing-slide-35" class="level3">
-<h3 class="anchored" data-anchor-id="multi-user-sharing-slide-35">Multi-user sharing (Slide 35):</h3>
+<section id="multi-user-sharing-slide-35" class="level4">
+<h4 class="anchored" data-anchor-id="multi-user-sharing-slide-35">Multi-user sharing (Slide 35):</h4>
 <p>If 10 users share a backbone link of rate <span class="math inline">\(R\)</span>, and each has:</p>
 <ul>
 <li>Sender link: <span class="math inline">\(R_s\)</span></li>
@@ -451,13 +443,13 @@ d_{\text{end-to-end}} = \sum_{i=1}^N (d_{\text{proc},i} + d_{\text{queue},i} + d
 <hr>
 </section>
 </section>
-<section id="summary-protokollschichten-und-ihre-dienstmodelle-slides-36---45" class="level2">
-<h2 class="anchored" data-anchor-id="summary-protokollschichten-und-ihre-dienstmodelle-slides-36---45">Summary: Protokollschichten und ihre Dienstmodelle (Slides 36 - 45)</h2>
+<section id="summary-protokollschichten-und-ihre-dienstmodelle-slides-36---45" class="level3">
+<h3 class="anchored" data-anchor-id="summary-protokollschichten-und-ihre-dienstmodelle-slides-36---45">Summary: Protokollschichten und ihre Dienstmodelle (Slides 36 - 45)</h3>
 <p><em>(Slides 36–44)</em></p>
 <p>This final chapter introduces the <strong>layered architecture of the Internet</strong>. It explains how each protocol layer serves the one above and relies on the one below, and how encapsulation enables structured communication.</p>
 <hr>
-<section id="layering-motivation-slide-3637" class="level3">
-<h3 class="anchored" data-anchor-id="layering-motivation-slide-3637">Layering Motivation (Slide 36–37)</h3>
+<section id="layering-motivation-slide-3637" class="level4">
+<h4 class="anchored" data-anchor-id="layering-motivation-slide-3637">Layering Motivation (Slide 36–37)</h4>
 <ul>
 <li>Networks are complex (hosts, routers, media, apps).</li>
 <li>Solution: <strong>Schichtenarchitektur</strong> for modular design.</li>
@@ -465,8 +457,8 @@ d_{\text{end-to-end}} = \sum_{i=1}^N (d_{\text{proc},i} + d_{\text{queue},i} + d
 </ul>
 <hr>
 </section>
-<section id="protocol-layering-foundations-slides-3638" class="level3">
-<h3 class="anchored" data-anchor-id="protocol-layering-foundations-slides-3638">Protocol Layering: Foundations (Slides 36–38)</h3>
+<section id="protocol-layering-foundations-slides-3638" class="level4">
+<h4 class="anchored" data-anchor-id="protocol-layering-foundations-slides-3638">Protocol Layering: Foundations (Slides 36–38)</h4>
 <ul>
 <li><p>Due to network complexity, functionality is divided into <strong>layers</strong>, each with clear responsibilities.</p></li>
 <li><p>A layer <span class="math inline">\(k\)</span> uses only the services of layer <span class="math inline">\(k-1\)</span>:</p>
@@ -483,8 +475,8 @@ d_{\text{end-to-end}} = \sum_{i=1}^N (d_{\text{proc},i} + d_{\text{queue},i} + d
 </ul></li>
 </ul>
 </section>
-<section id="the-internet-stack-slide-3839" class="level3">
-<h3 class="anchored" data-anchor-id="the-internet-stack-slide-3839">The Internet Stack (Slide 38–39)</h3>
+<section id="the-internet-stack-slide-3839" class="level4">
+<h4 class="anchored" data-anchor-id="the-internet-stack-slide-3839">The Internet Stack (Slide 38–39)</h4>
 <table class="table">
 <colgroup>
 <col style="width: 16%">
@@ -532,8 +524,8 @@ d_{\text{end-to-end}} = \sum_{i=1}^N (d_{\text{proc},i} + d_{\text{queue},i} + d
 </ul>
 <hr>
 </section>
-<section id="protocol-scope-by-device-slide-40" class="level3">
-<h3 class="anchored" data-anchor-id="protocol-scope-by-device-slide-40">Protocol Scope by Device (Slide 40)</h3>
+<section id="protocol-scope-by-device-slide-40" class="level4">
+<h4 class="anchored" data-anchor-id="protocol-scope-by-device-slide-40">Protocol Scope by Device (Slide 40)</h4>
 <table class="table">
 <thead>
 <tr class="header">
@@ -558,8 +550,8 @@ d_{\text{end-to-end}} = \sum_{i=1}^N (d_{\text{proc},i} + d_{\text{queue},i} + d
 </table>
 <hr>
 </section>
-<section id="encapsulation-slides-4143" class="level3">
-<h3 class="anchored" data-anchor-id="encapsulation-slides-4143">Encapsulation (Slides 41–43)</h3>
+<section id="encapsulation-slides-4143" class="level4">
+<h4 class="anchored" data-anchor-id="encapsulation-slides-4143">Encapsulation (Slides 41–43)</h4>
 <p>Each layer adds its own header (and possibly trailer). The result:</p>
 <pre><code>Frame = [Data Link hdr] + [IP hdr] + [TCP hdr] + Message + [Trailer]</code></pre>
 <p>At the receiver, each layer removes its own header.</p>
@@ -569,8 +561,8 @@ d_{\text{end-to-end}} = \sum_{i=1}^N (d_{\text{proc},i} + d_{\text{queue},i} + d
 <li><strong>Switches</strong> forward based on MAC addresses.</li>
 </ul>
 </section>
-<section id="osi-model-slide-44" class="level3">
-<h3 class="anchored" data-anchor-id="osi-model-slide-44">OSI Model (Slide 44)</h3>
+<section id="osi-model-slide-44" class="level4">
+<h4 class="anchored" data-anchor-id="osi-model-slide-44">OSI Model (Slide 44)</h4>
 <p>A 7-layer reference model defined by ISO, used mostly for conceptual clarity.</p>
 <table class="table">
 <thead>
@@ -606,8 +598,8 @@ d_{\text{end-to-end}} = \sum_{i=1}^N (d_{\text{proc},i} + d_{\text{queue},i} + d
 <p>Would you like it exported to markdown or added to your ongoing Quarto notes?</p>
 </section>
 </section>
-<section id="unified-protocoll-stack-overview" class="level2">
-<h2 class="anchored" data-anchor-id="unified-protocoll-stack-overview">Unified Protocoll Stack Overview</h2>
+<section id="unified-protocoll-stack-overview" class="level3">
+<h3 class="anchored" data-anchor-id="unified-protocoll-stack-overview">Unified Protocoll Stack Overview</h3>
 <table class="table">
 <colgroup>
 <col style="width: 8%">
@@ -679,6 +671,7 @@ d_{\text{end-to-end}} = \sum_{i=1}^N (d_{\text{proc},i} + d_{\text{queue},i} + d
 </table>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->
@@ -1098,9 +1091,6 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./application-layer.html" class="pagination-link" aria-label="Intro to the Application Layer, Web and HTTP">
-        <span class="nav-page-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Intro to the Application Layer, Web and HTTP</span></span> <i class="bi bi-arrow-right-short"></i>
-      </a>
   </div>
 </nav>
 </div> <!-- /content -->

@@ -6,10 +6,8 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="author" content="Igor Dimitrov">
-<meta name="dcterms.date" content="2024-12-18">
 
-<title>Operating Systems and Networks SoSe 25 Notes</title>
+<title>Operating Systems and Networks SoSe 25 Notes - 5&nbsp; IP Layer &amp; Subnetting</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -32,7 +30,7 @@ ul.task-list li input[type="checkbox"] {
 <script src="site_libs/quarto-search/fuse.min.js"></script>
 <script src="site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="./">
-<link href="./process.html" rel="next">
+<link href="./application-layer.html" rel="prev">
 <script src="site_libs/quarto-html/quarto.js"></script>
 <script src="site_libs/quarto-html/popper.min.js"></script>
 <script src="site_libs/quarto-html/tippy.umd.min.js"></script>
@@ -82,7 +80,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html">Preface</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./networks-intro.html">Networks</a></li><li class="breadcrumb-item"><a href="./ip-layer-subnetting.html"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">IP Layer &amp; Subnetting</span></a></li></ol></nav>
         <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
@@ -112,7 +110,7 @@ ul.task-list li input[type="checkbox"] {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./index.html" class="sidebar-item-text sidebar-link active">
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Preface</span></a>
   </div>
 </li>
@@ -162,7 +160,7 @@ ul.task-list li input[type="checkbox"] {
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./ip-layer-subnetting.html" class="sidebar-item-text sidebar-link">
+  <a href="./ip-layer-subnetting.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">IP Layer &amp; Subnetting</span></span></a>
   </div>
 </li>
@@ -178,35 +176,60 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#preface" id="toc-preface" class="nav-link active" data-scroll-target="#preface">Preface</a></li>
+  <li><a href="#summary-of-vln03-internet-protocol-and-addressing-slides-317" id="toc-summary-of-vln03-internet-protocol-and-addressing-slides-317" class="nav-link active" data-scroll-target="#summary-of-vln03-internet-protocol-and-addressing-slides-317">Summary of VLN03 – Internet Protocol and Addressing (Slides 3–17)</a>
+  <ul>
+  <li><a href="#overview" id="toc-overview" class="nav-link" data-scroll-target="#overview">Overview</a></li>
+  <li><a href="#http-traffic-and-wireshark-slides-37" id="toc-http-traffic-and-wireshark-slides-37" class="nav-link" data-scroll-target="#http-traffic-and-wireshark-slides-37">1. HTTP Traffic and Wireshark (Slides 3–7)</a>
+  <ul>
+  <li><a href="#key-points" id="toc-key-points" class="nav-link" data-scroll-target="#key-points">Key points:</a></li>
+  <li><a href="#reassembly-in-wireshark" id="toc-reassembly-in-wireshark" class="nav-link" data-scroll-target="#reassembly-in-wireshark">Reassembly in Wireshark:</a></li>
+  <li><a href="#key-term-pdu-protocol-data-unit" id="toc-key-term-pdu-protocol-data-unit" class="nav-link" data-scroll-target="#key-term-pdu-protocol-data-unit">Key term: PDU (Protocol Data Unit)</a></li>
+  </ul></li>
+  <li><a href="#introduction-to-the-ip-layer-slides-810" id="toc-introduction-to-the-ip-layer-slides-810" class="nav-link" data-scroll-target="#introduction-to-the-ip-layer-slides-810">2. Introduction to the IP Layer (Slides 8–10)</a>
+  <ul>
+  <li><a href="#main-components-of-the-network-layer" id="toc-main-components-of-the-network-layer" class="nav-link" data-scroll-target="#main-components-of-the-network-layer">Main components of the network layer:</a></li>
+  <li><a href="#key-term-datagram" id="toc-key-term-datagram" class="nav-link" data-scroll-target="#key-term-datagram">Key term: Datagram</a></li>
+  </ul></li>
+  <li><a href="#structure-of-an-ip-datagram-slide-11" id="toc-structure-of-an-ip-datagram-slide-11" class="nav-link" data-scroll-target="#structure-of-an-ip-datagram-slide-11">3. Structure of an IP Datagram (Slide 11)</a>
+  <ul>
+  <li><a href="#ip-header-fields-simplified" id="toc-ip-header-fields-simplified" class="nav-link" data-scroll-target="#ip-header-fields-simplified">IP Header Fields (simplified):</a></li>
+  </ul></li>
+  <li><a href="#ip-fragmentation-slides-1213" id="toc-ip-fragmentation-slides-1213" class="nav-link" data-scroll-target="#ip-fragmentation-slides-1213">4. IP Fragmentation (Slides 12–13)</a>
+  <ul>
+  <li><a href="#why-fragmentation-exists" id="toc-why-fragmentation-exists" class="nav-link" data-scroll-target="#why-fragmentation-exists">Why fragmentation exists:</a></li>
+  <li><a href="#fragmentation-fields" id="toc-fragmentation-fields" class="nav-link" data-scroll-target="#fragmentation-fields">Fragmentation fields:</a></li>
+  <li><a href="#example-simplified" id="toc-example-simplified" class="nav-link" data-scroll-target="#example-simplified">Example (simplified):</a></li>
+  </ul></li>
+  <li><a href="#interfaces-and-addressing-slides-1415" id="toc-interfaces-and-addressing-slides-1415" class="nav-link" data-scroll-target="#interfaces-and-addressing-slides-1415">5. Interfaces and Addressing (Slides 14–15)</a>
+  <ul>
+  <li><a href="#key-concepts" id="toc-key-concepts" class="nav-link" data-scroll-target="#key-concepts">Key concepts:</a></li>
+  <li><a href="#reference-network-diagram-from-slide-15" id="toc-reference-network-diagram-from-slide-15" class="nav-link" data-scroll-target="#reference-network-diagram-from-slide-15">Reference network diagram from slide 15:</a></li>
+  </ul></li>
+  <li><a href="#lans-wlans-and-subnets-discussion-and-detours" id="toc-lans-wlans-and-subnets-discussion-and-detours" class="nav-link" data-scroll-target="#lans-wlans-and-subnets-discussion-and-detours">6. LANs, WLANs, and Subnets (Discussion and Detours)</a>
+  <ul>
+  <li><a href="#clarifications" id="toc-clarifications" class="nav-link" data-scroll-target="#clarifications">Clarifications:</a></li>
+  <li><a href="#key-term-arp-address-resolution-protocol" id="toc-key-term-arp-address-resolution-protocol" class="nav-link" data-scroll-target="#key-term-arp-address-resolution-protocol">Key term: ARP (Address Resolution Protocol)</a></li>
+  <li><a href="#arp-spoofing" id="toc-arp-spoofing" class="nav-link" data-scroll-target="#arp-spoofing">ARP Spoofing</a></li>
+  </ul></li>
+  <li><a href="#dorm-network-architecture-applied-detour" id="toc-dorm-network-architecture-applied-detour" class="nav-link" data-scroll-target="#dorm-network-architecture-applied-detour">7. Dorm Network Architecture (Applied Detour)</a></li>
+  <li><a href="#subnet-hardware-definition-slide-17" id="toc-subnet-hardware-definition-slide-17" class="nav-link" data-scroll-target="#subnet-hardware-definition-slide-17">8. Subnet Hardware Definition (Slide 17)</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default">
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./networks-intro.html">Networks</a></li><li class="breadcrumb-item"><a href="./ip-layer-subnetting.html"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">IP Layer &amp; Subnetting</span></a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title">Operating Systems and Networks SoSe 25 Notes</h1>
+<h1 class="title"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">IP Layer &amp; Subnetting</span></h1>
 </div>
 
 
 
 <div class="quarto-title-meta">
 
-    <div>
-    <div class="quarto-title-meta-heading">Author</div>
-    <div class="quarto-title-meta-contents">
-             <p>Igor Dimitrov </p>
-          </div>
-  </div>
     
-    <div>
-    <div class="quarto-title-meta-heading">Published</div>
-    <div class="quarto-title-meta-contents">
-      <p class="date">December 18, 2024</p>
-    </div>
-  </div>
   
     
   </div>
@@ -216,10 +239,373 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<section id="preface" class="level1 unnumbered">
-<h1 class="unnumbered">Preface</h1>
+<section id="summary-of-vln03-internet-protocol-and-addressing-slides-317" class="level2">
+<h2 class="anchored" data-anchor-id="summary-of-vln03-internet-protocol-and-addressing-slides-317">Summary of VLN03 – Internet Protocol and Addressing (Slides 3–17)</h2>
+<section id="overview" class="level3">
+<h3 class="anchored" data-anchor-id="overview">Overview</h3>
+<p>This lecture begins the deep dive into the <strong>Network Layer</strong> of the Internet stack — specifically the <strong>Internet Protocol (IP)</strong>. We analyze how data is transmitted between hosts across networks, how datagrams are structured, and how IP addresses define logical and physical boundaries within networks.</p>
+<p>Several <strong>side explorations</strong> were included to clarify underlying technologies (e.g.&nbsp;ARP, DHCP, NAT) and real-world applications (e.g.&nbsp;dormitory network issues, personal Wi-Fi routing).</p>
+<hr>
+</section>
+<section id="http-traffic-and-wireshark-slides-37" class="level3">
+<h3 class="anchored" data-anchor-id="http-traffic-and-wireshark-slides-37">1. HTTP Traffic and Wireshark (Slides 3–7)</h3>
+<p>Wireshark is used to capture and inspect real HTTP traffic.</p>
+<section id="key-points" class="level4">
+<h4 class="anchored" data-anchor-id="key-points">Key points:</h4>
+<ul>
+<li>HTTP messages are captured and decoded by Wireshark.</li>
+<li>These are transported over <strong>TCP</strong>, which is encapsulated in <strong>IP</strong>, which is wrapped in <strong>Ethernet frames</strong>.</li>
+</ul>
+</section>
+<section id="reassembly-in-wireshark" class="level4">
+<h4 class="anchored" data-anchor-id="reassembly-in-wireshark">Reassembly in Wireshark:</h4>
+<p>Wireshark reconstructs <strong>complete HTTP messages</strong> from <strong>multiple TCP segments</strong> using internal state tracking.</p>
+<hr>
+</section>
+<section id="key-term-pdu-protocol-data-unit" class="level4">
+<h4 class="anchored" data-anchor-id="key-term-pdu-protocol-data-unit">Key term: PDU (Protocol Data Unit)</h4>
+<p>A PDU is the <strong>unit of data</strong> defined at a specific protocol layer.</p>
+<table class="table">
+<colgroup>
+<col style="width: 26%">
+<col style="width: 28%">
+<col style="width: 45%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Layer</th>
+<th>PDU Name</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Application Layer</td>
+<td>Message</td>
+<td>HTTP request or response</td>
+</tr>
+<tr class="even">
+<td>Transport Layer</td>
+<td>Segment / Datagram</td>
+<td>TCP segment, UDP datagram</td>
+</tr>
+<tr class="odd">
+<td>Network Layer</td>
+<td>Datagram</td>
+<td>IP packet</td>
+</tr>
+<tr class="even">
+<td>Link Layer</td>
+<td>Frame</td>
+<td>Ethernet frame</td>
+</tr>
+<tr class="odd">
+<td>Physical Layer</td>
+<td>Bits</td>
+<td>Electrical or optical signals</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+</section>
+<section id="introduction-to-the-ip-layer-slides-810" class="level3">
+<h3 class="anchored" data-anchor-id="introduction-to-the-ip-layer-slides-810">2. Introduction to the IP Layer (Slides 8–10)</h3>
+<p>We zoom into the <strong>Network Layer</strong> of the Internet stack.</p>
+<section id="main-components-of-the-network-layer" class="level4">
+<h4 class="anchored" data-anchor-id="main-components-of-the-network-layer">Main components of the network layer:</h4>
+<ol type="1">
+<li><p><strong>IP protocol</strong>:</p>
+<ul>
+<li>Packet format, addressing, and forwarding</li>
+<li>Stateless, best-effort delivery</li>
+</ul></li>
+<li><p><strong>Routing protocols</strong>:</p>
+<ul>
+<li>Determine forwarding tables (e.g.&nbsp;RIP, OSPF, BGP)</li>
+</ul></li>
+<li><p><strong>ICMP</strong>:</p>
+<ul>
+<li>Used for diagnostics (e.g.&nbsp;<code>ping</code>, <code>traceroute</code>)</li>
+</ul></li>
+</ol>
+<hr>
+</section>
+<section id="key-term-datagram" class="level4">
+<h4 class="anchored" data-anchor-id="key-term-datagram">Key term: Datagram</h4>
+<p>A <strong>datagram</strong> is a self-contained, independently routed network-layer packet. In IP networks, it refers to an <strong>IP packet</strong> that includes both header and payload.</p>
+<ul>
+<li>Connectionless</li>
+<li>May be fragmented</li>
+<li>Carries no session state</li>
+</ul>
+<blockquote class="blockquote">
+<p>IP packets = IP datagrams (used interchangeably)</p>
+</blockquote>
+<hr>
+</section>
+</section>
+<section id="structure-of-an-ip-datagram-slide-11" class="level3">
+<h3 class="anchored" data-anchor-id="structure-of-an-ip-datagram-slide-11">3. Structure of an IP Datagram (Slide 11)</h3>
+<p>We study the fields of the IPv4 header.</p>
+<section id="ip-header-fields-simplified" class="level4">
+<h4 class="anchored" data-anchor-id="ip-header-fields-simplified">IP Header Fields (simplified):</h4>
+<table class="table">
+<colgroup>
+<col style="width: 27%">
+<col style="width: 16%">
+<col style="width: 55%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Field</th>
+<th>Size (bits)</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Version</td>
+<td>4</td>
+<td>IP version (usually 4)</td>
+</tr>
+<tr class="even">
+<td>Header Length</td>
+<td>4</td>
+<td>In 32-bit words</td>
+</tr>
+<tr class="odd">
+<td>DS/ECN</td>
+<td>8</td>
+<td>Differentiated Services / Congestion</td>
+</tr>
+<tr class="even">
+<td>Total Length</td>
+<td>16</td>
+<td>Header + payload length</td>
+</tr>
+<tr class="odd">
+<td>Identification</td>
+<td>16</td>
+<td>Fragmentation ID</td>
+</tr>
+<tr class="even">
+<td>Flags</td>
+<td>3</td>
+<td>Fragment control</td>
+</tr>
+<tr class="odd">
+<td>Fragment Offset</td>
+<td>13</td>
+<td>Position of fragment</td>
+</tr>
+<tr class="even">
+<td>TTL</td>
+<td>8</td>
+<td>Time to live</td>
+</tr>
+<tr class="odd">
+<td>Protocol</td>
+<td>8</td>
+<td>Higher-layer protocol (e.g.&nbsp;TCP = 6)</td>
+</tr>
+<tr class="even">
+<td>Header Checksum</td>
+<td>16</td>
+<td>Detects corruption in header</td>
+</tr>
+<tr class="odd">
+<td>Source IP</td>
+<td>32</td>
+<td>IP of sender</td>
+</tr>
+<tr class="even">
+<td>Destination IP</td>
+<td>32</td>
+<td>IP of receiver</td>
+</tr>
+<tr class="odd">
+<td>Options (optional)</td>
+<td>variable</td>
+<td>Rarely used</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+</section>
+<section id="ip-fragmentation-slides-1213" class="level3">
+<h3 class="anchored" data-anchor-id="ip-fragmentation-slides-1213">4. IP Fragmentation (Slides 12–13)</h3>
+<section id="why-fragmentation-exists" class="level4">
+<h4 class="anchored" data-anchor-id="why-fragmentation-exists">Why fragmentation exists:</h4>
+<ul>
+<li>Ethernet and other link-layer technologies impose an <strong>MTU (Maximum Transmission Unit)</strong>.</li>
+<li>IP allows a large datagram to be split into smaller <strong>fragments</strong> if the MTU is too small.</li>
+</ul>
+</section>
+<section id="fragmentation-fields" class="level4">
+<h4 class="anchored" data-anchor-id="fragmentation-fields">Fragmentation fields:</h4>
+<ul>
+<li><strong>Identification</strong>: Shared across all fragments of a datagram</li>
+<li><strong>Fragment Offset</strong>: Position (in 8-byte units)</li>
+<li><strong>MF (More Fragments)</strong>: Flag set to 1 for all fragments except the last</li>
+</ul>
+<blockquote class="blockquote">
+<p>Only the <strong>destination host</strong> reassembles fragments. Routers never do.</p>
+</blockquote>
+</section>
+<section id="example-simplified" class="level4">
+<h4 class="anchored" data-anchor-id="example-simplified">Example (simplified):</h4>
+<p>A 3072-byte datagram sent over a 1200-byte MTU link:</p>
+<table class="table">
+<thead>
+<tr class="header">
+<th>Fragment</th>
+<th>Offset</th>
+<th>MF</th>
+<th>Data bytes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>0</td>
+<td>1</td>
+<td>960</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>120</td>
+<td>1</td>
+<td>960</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>240</td>
+<td>0</td>
+<td>1020</td>
+</tr>
+</tbody>
+</table>
+<hr>
+</section>
+</section>
+<section id="interfaces-and-addressing-slides-1415" class="level3">
+<h3 class="anchored" data-anchor-id="interfaces-and-addressing-slides-1415">5. Interfaces and Addressing (Slides 14–15)</h3>
+<section id="key-concepts" class="level4">
+<h4 class="anchored" data-anchor-id="key-concepts">Key concepts:</h4>
+<ul>
+<li><strong>An IP address is assigned to a network interface</strong>, not the host as a whole.</li>
+<li>A <strong>router has multiple interfaces</strong>, each on a different subnet.</li>
+<li>A <strong>host usually has one IP</strong>.</li>
+<li>Devices in the same subnet share the same <strong>address prefix</strong>.</li>
+</ul>
+</section>
+<section id="reference-network-diagram-from-slide-15" class="level4">
+<h4 class="anchored" data-anchor-id="reference-network-diagram-from-slide-15">Reference network diagram from slide 15:</h4>
+<ul>
+<li><p><strong>Router interfaces</strong>:</p>
+<ul>
+<li><code>223.1.1.4</code> (Subnet A, left)</li>
+<li><code>223.1.2.9</code> (Subnet B, right)</li>
+<li><code>223.1.3.27</code> (Subnet C, bottom)</li>
+</ul></li>
+<li><p><strong>Subnets and hosts</strong>:</p></li>
+</ul>
+<table class="table">
+<thead>
+<tr class="header">
+<th>Subnet</th>
+<th>Hosts</th>
+<th>Router IP</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>A</td>
+<td>223.1.1.1 – 1.3</td>
+<td>223.1.1.4</td>
+</tr>
+<tr class="even">
+<td>B</td>
+<td>223.1.2.1 – 2.2</td>
+<td>223.1.2.9</td>
+</tr>
+<tr class="odd">
+<td>C</td>
+<td>223.1.3.1 – 3.2</td>
+<td>223.1.3.27</td>
+</tr>
+</tbody>
+</table>
+<p>All IPs within a subnet share the same <code>/24</code> prefix.</p>
+<hr>
+</section>
+</section>
+<section id="lans-wlans-and-subnets-discussion-and-detours" class="level3">
+<h3 class="anchored" data-anchor-id="lans-wlans-and-subnets-discussion-and-detours">6. LANs, WLANs, and Subnets (Discussion and Detours)</h3>
+<p><strong>Triggered by slide 15</strong> and related questions.</p>
+<section id="clarifications" class="level4">
+<h4 class="anchored" data-anchor-id="clarifications">Clarifications:</h4>
+<ul>
+<li>A <strong>LAN</strong> is a link-layer broadcast domain (Ethernet, WLAN).</li>
+<li>A <strong>subnet</strong> is a logical grouping of IPs — typically matches a LAN, but not always.</li>
+<li>A <strong>WLAN</strong> is a type of LAN using wireless physical media.</li>
+</ul>
+<hr>
+</section>
+<section id="key-term-arp-address-resolution-protocol" class="level4">
+<h4 class="anchored" data-anchor-id="key-term-arp-address-resolution-protocol">Key term: ARP (Address Resolution Protocol)</h4>
+<p>ARP resolves IP addresses to MAC addresses on a LAN.</p>
+<ul>
+<li><p>A device sends a broadcast:</p>
+<pre><code>Who has 192.168.1.5?</code></pre></li>
+<li><p>The target replies with its MAC address.</p></li>
+<li><p>The result is cached in the <strong>ARP table</strong>.</p></li>
+</ul>
+<blockquote class="blockquote">
+<p>Without ARP, IP-based communication over Ethernet is impossible.</p>
+</blockquote>
+<hr>
+</section>
+<section id="arp-spoofing" class="level4">
+<h4 class="anchored" data-anchor-id="arp-spoofing">ARP Spoofing</h4>
+<p>A malicious device sends fake ARP replies:</p>
+<ul>
+<li>“I am 192.168.1.1 — here’s my MAC”</li>
+<li>Can hijack traffic (man-in-the-middle)</li>
+</ul>
+<p>This only works on <strong>shared LANs</strong> without port isolation.</p>
+<hr>
+</section>
+</section>
+<section id="dorm-network-architecture-applied-detour" class="level3">
+<h3 class="anchored" data-anchor-id="dorm-network-architecture-applied-detour">7. Dorm Network Architecture (Applied Detour)</h3>
+<p><strong>Triggered by IP addressing and subnet questions</strong></p>
+<ul>
+<li>Dorm connections are likely per-port VLANs</li>
+<li>Ethernet switch: exposes multiple MACs/IPs to Nexabit</li>
+<li>Wi-Fi AP (with NAT): hides multiple devices behind one IP</li>
+<li>Nexabit bans switches/APs due to fragility, not inherent danger</li>
+</ul>
+<blockquote class="blockquote">
+<p>Your dorm disconnection incident may have occurred due to multiple devices behind a dumb switch overwhelming fragile infrastructure — not misuse on your part.</p>
+</blockquote>
+<hr>
+</section>
+<section id="subnet-hardware-definition-slide-17" class="level3">
+<h3 class="anchored" data-anchor-id="subnet-hardware-definition-slide-17">8. Subnet Hardware Definition (Slide 17)</h3>
+<p>A subnet consists of <strong>all interfaces</strong> connected to the <strong>same physical link-layer medium</strong>, excluding routers.</p>
+<p>Visual trick: if you “cut away” each router’s interfaces, the <strong>remaining connected islands</strong> are subnetworks.</p>
+<p>In the slide:</p>
+<ul>
+<li>Regions 1–3: LAN subnets (hosts + router)</li>
+<li>Regions 4–6: router-router links (point-to-point subnets)</li>
+</ul>
+<hr>
 
 
+</section>
 </section>
 
 </main> <!-- /main -->
@@ -634,11 +1020,11 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
+      <a href="./application-layer.html" class="pagination-link" aria-label="Intro to the Application Layer, Web and HTTP">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Intro to the Application Layer, Web and HTTP</span></span>
+      </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./process.html" class="pagination-link" aria-label="Process Management">
-        <span class="nav-page-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Process Management</span></span> <i class="bi bi-arrow-right-short"></i>
-      </a>
   </div>
 </nav>
 </div> <!-- /content -->
