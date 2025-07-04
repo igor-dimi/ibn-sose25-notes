@@ -311,22 +311,22 @@ Certainly — here is the same answer, reformatted according to your project’s
 
 ---
 
-# Summary of VLN03 — Slides 24–38
+## Summary of VLN03 — Slides 24–38
 
 *(From classless addressing to routing and network segmentation at Uni Heidelberg)*
 
 ---
 
-## 1. From Classful to Classless Addressing (Slides 24–25)
+### 1. From Classful to Classless Addressing (Slides 24–25)
 
-### Problems with classful addressing
+#### Problems with classful addressing
 
 * Waste of addresses: e.g. a Class B allocation (65k addresses) for an org needing only a few hundred
 * No aggregation: every network required a separate route — routing tables became large and unscalable
 * Chaotic distribution: no topological coherence; blocks were allocated sequentially
 * Frequent updates: every new network affected global routing tables
 
-### Solution: CIDR (Classless Inter-Domain Routing)
+#### Solution: CIDR (Classless Inter-Domain Routing)
 
 CIDR was introduced in 1993 to allow arbitrary prefix lengths:
 
@@ -344,20 +344,20 @@ CIDR enables:
 
 ---
 
-## 2. Routing hierarchy and subnetting (Slides 26–28)
+### 2. Routing hierarchy and subnetting (Slides 26–28)
 
-### Hierarchical routing
+#### Hierarchical routing
 
 * Global routers (ISPs) see only top-level blocks (e.g. /16)
 * Institutional routers handle internal subnetting and distribution
 * Local routers (e.g. in buildings) know the details of subnet-to-interface mapping
 
-### Subnetting strategy
+#### Subnetting strategy
 
 From a CIDR block (e.g. /16), an institution can create multiple smaller subnets (/24, /22, etc.)
 Bits from the HostID are borrowed to form a SubnetID.
 
-### Address structure with subnetting
+#### Address structure with subnetting
 
 | Field    | Bit Count | Description                             |
 | -------- | --------- | --------------------------------------- |
@@ -370,21 +370,21 @@ NetID = 129.206, SubnetID = 78, HostID = 42
 
 ---
 
-## 3. Subnet masks and CIDR application (Slides 29–31)
+### 3. Subnet masks and CIDR application (Slides 29–31)
 
-### What is a subnet mask?
+#### What is a subnet mask?
 
 A 32-bit value used to separate:
 
 * Network + Subnet part (leftmost bits)
 * Host part (remaining bits)
 
-### Notation
+#### Notation
 
 * CIDR: `/x`, where `x` = number of 1s in mask
 * Dotted decimal: `255.255.255.0` ≡ `/24`
 
-### Example calculation
+#### Example calculation
 
 ```
 IP address:      134.155.48.10
@@ -392,21 +392,21 @@ Subnet mask:     255.255.255.0 (/24)
 → Subnet base:   134.155.48.0
 ```
 
-### Use case
+#### Use case
 
 Hosts check if another IP is in the same subnet using a bitwise AND with the subnet mask.
 If not → packet forwarded to default gateway.
 
 ---
 
-## 4. Visibility and internal routing (Slides 32–33)
+### 4. Visibility and internal routing (Slides 32–33)
 
-### SubnetID is local
+#### SubnetID is local
 
 Only the top-level prefix (e.g. 129.206.0.0/16) is visible globally.
 Internal subnet structure (e.g. .78.0/24, .61.0/24) is managed inside the university.
 
-### Example from Uni Heidelberg
+#### Example from Uni Heidelberg
 
 * Public /16 blocks:
 
@@ -431,7 +431,7 @@ Internal subnet structure (e.g. .78.0/24, .61.0/24) is managed inside the univer
 
 ---
 
-## 5. Physical topology of the Mathematikon (Slides 34–35)
+### 5. Physical topology of the Mathematikon (Slides 34–35)
 
 * Two routers in the basement act as:
 
@@ -444,9 +444,9 @@ Internal subnet structure (e.g. .78.0/24, .61.0/24) is managed inside the univer
 
 ---
 
-## 6. VLANs and subnet spanning (Slide 36)
+### 6. VLANs and subnet spanning (Slide 36)
 
-### VLAN (Virtual LAN)
+#### VLAN (Virtual LAN)
 
 A VLAN is a logically segmented subnet that can span multiple physical switches.
 
@@ -461,22 +461,22 @@ VLANs allow centralized IP and subnet control across a distributed physical envi
 
 ---
 
-## 7. End of subnetting discussion (Slide 37)
+### 7. End of subnetting discussion (Slide 37)
 
 This slide links to a video:
 **Cisco Router Training 101**, starting at 16:30 — reviewing subnet masks and routing behavior.
 
 ---
 
-## 8. Transition to routing (Slide 38)
+### 8. Transition to routing (Slide 38)
 
 The final slide begins the topic of **packet forwarding and routing tables**, continued in VLN04.
 
 ---
 
-# Detours and enrichments
+### Detours and enrichments
 
-## How a packet reaches a subnet host
+#### How a packet reaches a subnet host
 
 **Prompted by**: Slide 28 — internal subnet structure
 
@@ -488,7 +488,7 @@ We analyzed:
 
 ---
 
-## Do routers use MAC addresses?
+#### Do routers use MAC addresses?
 
 **Prompted by**: Routing behavior
 
@@ -499,7 +499,7 @@ Clarified:
 
 ---
 
-## Reverse proxies and ngrok
+#### Reverse proxies and ngrok
 
 **Prompted by**: Slide 33 — public IPs in Informatik
 
@@ -511,7 +511,7 @@ We discussed:
 
 ---
 
-## Why research groups might get public IPs
+#### Why research groups might get public IPs
 
 **Prompted by**: Slide 33 — “meiner AG wurden 24 Adressen zugeteilt”
 
@@ -523,7 +523,7 @@ We explored:
 
 ---
 
-## What is ARP?
+#### What is ARP?
 
 **Prompted by**: Final packet delivery on LAN
 
