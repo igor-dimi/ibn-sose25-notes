@@ -68,6 +68,35 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
@@ -213,6 +242,64 @@ ul.task-list li input[type="checkbox"] {
   </ul></li>
   <li><a href="#dorm-network-architecture-applied-detour" id="toc-dorm-network-architecture-applied-detour" class="nav-link" data-scroll-target="#dorm-network-architecture-applied-detour">7. Dorm Network Architecture (Applied Detour)</a></li>
   <li><a href="#subnet-hardware-definition-slide-17" id="toc-subnet-hardware-definition-slide-17" class="nav-link" data-scroll-target="#subnet-hardware-definition-slide-17">8. Subnet Hardware Definition (Slide 17)</a></li>
+  </ul></li>
+  <li><a href="#summary-of-vln03-slides-1823" id="toc-summary-of-vln03-slides-1823" class="nav-link" data-scroll-target="#summary-of-vln03-slides-1823">Summary of VLN03 — Slides 18–23</a>
+  <ul>
+  <li><a href="#subnets-and-minimal-address-blocks" id="toc-subnets-and-minimal-address-blocks" class="nav-link" data-scroll-target="#subnets-and-minimal-address-blocks">Subnets and Minimal Address Blocks</a></li>
+  <li><a href="#netid-and-hostid-structure" id="toc-netid-and-hostid-structure" class="nav-link" data-scroll-target="#netid-and-hostid-structure">NetID and HostID Structure</a></li>
+  <li><a href="#address-allocation-and-prefix-sizing" id="toc-address-allocation-and-prefix-sizing" class="nav-link" data-scroll-target="#address-allocation-and-prefix-sizing">Address Allocation and Prefix Sizing</a></li>
+  <li><a href="#classful-addressing" id="toc-classful-addressing" class="nav-link" data-scroll-target="#classful-addressing">Classful Addressing</a></li>
+  <li><a href="#detours-and-clarifications" id="toc-detours-and-clarifications" class="nav-link" data-scroll-target="#detours-and-clarifications">Detours and Clarifications</a>
+  <ul>
+  <li><a href="#what-is-a-cidr-aligned-block" id="toc-what-is-a-cidr-aligned-block" class="nav-link" data-scroll-target="#what-is-a-cidr-aligned-block">What is a CIDR-aligned block?</a></li>
+  <li><a href="#what-is-x.x.x.xy-notation" id="toc-what-is-x.x.x.xy-notation" class="nav-link" data-scroll-target="#what-is-x.x.x.xy-notation">What is <code>x.x.x.x/y</code> notation?</a></li>
+  <li><a href="#why-longest-prefix-match" id="toc-why-longest-prefix-match" class="nav-link" data-scroll-target="#why-longest-prefix-match">Why longest prefix match?</a></li>
+  <li><a href="#how-does-a-packet-reach-the-final-host" id="toc-how-does-a-packet-reach-the-final-host" class="nav-link" data-scroll-target="#how-does-a-packet-reach-the-final-host">How does a packet reach the final host?</a></li>
+  <li><a href="#what-happens-on-a-shared-medium-without-a-switch" id="toc-what-happens-on-a-shared-medium-without-a-switch" class="nav-link" data-scroll-target="#what-happens-on-a-shared-medium-without-a-switch">What happens on a shared medium without a switch?</a></li>
+  <li><a href="#does-each-netid-correspond-to-a-single-subnet" id="toc-does-each-netid-correspond-to-a-single-subnet" class="nav-link" data-scroll-target="#does-each-netid-correspond-to-a-single-subnet">Does each NetID correspond to a single subnet?</a></li>
+  <li><a href="#could-organizations-subnet-class-based-address-blocks" id="toc-could-organizations-subnet-class-based-address-blocks" class="nav-link" data-scroll-target="#could-organizations-subnet-class-based-address-blocks">Could organizations subnet class-based address blocks?</a></li>
+  </ul></li>
+  </ul></li>
+  <li><a href="#summary-of-vln03-slides-2438" id="toc-summary-of-vln03-slides-2438" class="nav-link" data-scroll-target="#summary-of-vln03-slides-2438"><span class="header-section-number">6</span> Summary of VLN03 — Slides 24–38</a>
+  <ul>
+  <li><a href="#from-classful-to-classless-addressing-slides-2425" id="toc-from-classful-to-classless-addressing-slides-2425" class="nav-link" data-scroll-target="#from-classful-to-classless-addressing-slides-2425">1. From Classful to Classless Addressing (Slides 24–25)</a>
+  <ul>
+  <li><a href="#problems-with-classful-addressing" id="toc-problems-with-classful-addressing" class="nav-link" data-scroll-target="#problems-with-classful-addressing">Problems with classful addressing</a></li>
+  <li><a href="#solution-cidr-classless-inter-domain-routing" id="toc-solution-cidr-classless-inter-domain-routing" class="nav-link" data-scroll-target="#solution-cidr-classless-inter-domain-routing">Solution: CIDR (Classless Inter-Domain Routing)</a></li>
+  </ul></li>
+  <li><a href="#routing-hierarchy-and-subnetting-slides-2628" id="toc-routing-hierarchy-and-subnetting-slides-2628" class="nav-link" data-scroll-target="#routing-hierarchy-and-subnetting-slides-2628">2. Routing hierarchy and subnetting (Slides 26–28)</a>
+  <ul>
+  <li><a href="#hierarchical-routing" id="toc-hierarchical-routing" class="nav-link" data-scroll-target="#hierarchical-routing">Hierarchical routing</a></li>
+  <li><a href="#subnetting-strategy" id="toc-subnetting-strategy" class="nav-link" data-scroll-target="#subnetting-strategy">Subnetting strategy</a></li>
+  <li><a href="#address-structure-with-subnetting" id="toc-address-structure-with-subnetting" class="nav-link" data-scroll-target="#address-structure-with-subnetting">Address structure with subnetting</a></li>
+  </ul></li>
+  <li><a href="#subnet-masks-and-cidr-application-slides-2931" id="toc-subnet-masks-and-cidr-application-slides-2931" class="nav-link" data-scroll-target="#subnet-masks-and-cidr-application-slides-2931">3. Subnet masks and CIDR application (Slides 29–31)</a>
+  <ul>
+  <li><a href="#what-is-a-subnet-mask" id="toc-what-is-a-subnet-mask" class="nav-link" data-scroll-target="#what-is-a-subnet-mask">What is a subnet mask?</a></li>
+  <li><a href="#notation" id="toc-notation" class="nav-link" data-scroll-target="#notation">Notation</a></li>
+  <li><a href="#example-calculation" id="toc-example-calculation" class="nav-link" data-scroll-target="#example-calculation">Example calculation</a></li>
+  <li><a href="#use-case" id="toc-use-case" class="nav-link" data-scroll-target="#use-case">Use case</a></li>
+  </ul></li>
+  <li><a href="#visibility-and-internal-routing-slides-3233" id="toc-visibility-and-internal-routing-slides-3233" class="nav-link" data-scroll-target="#visibility-and-internal-routing-slides-3233">4. Visibility and internal routing (Slides 32–33)</a>
+  <ul>
+  <li><a href="#subnetid-is-local" id="toc-subnetid-is-local" class="nav-link" data-scroll-target="#subnetid-is-local">SubnetID is local</a></li>
+  <li><a href="#example-from-uni-heidelberg" id="toc-example-from-uni-heidelberg" class="nav-link" data-scroll-target="#example-from-uni-heidelberg">Example from Uni Heidelberg</a></li>
+  </ul></li>
+  <li><a href="#physical-topology-of-the-mathematikon-slides-3435" id="toc-physical-topology-of-the-mathematikon-slides-3435" class="nav-link" data-scroll-target="#physical-topology-of-the-mathematikon-slides-3435">5. Physical topology of the Mathematikon (Slides 34–35)</a></li>
+  <li><a href="#vlans-and-subnet-spanning-slide-36" id="toc-vlans-and-subnet-spanning-slide-36" class="nav-link" data-scroll-target="#vlans-and-subnet-spanning-slide-36">6. VLANs and subnet spanning (Slide 36)</a>
+  <ul>
+  <li><a href="#vlan-virtual-lan" id="toc-vlan-virtual-lan" class="nav-link" data-scroll-target="#vlan-virtual-lan">VLAN (Virtual LAN)</a></li>
+  </ul></li>
+  <li><a href="#end-of-subnetting-discussion-slide-37" id="toc-end-of-subnetting-discussion-slide-37" class="nav-link" data-scroll-target="#end-of-subnetting-discussion-slide-37">7. End of subnetting discussion (Slide 37)</a></li>
+  <li><a href="#transition-to-routing-slide-38" id="toc-transition-to-routing-slide-38" class="nav-link" data-scroll-target="#transition-to-routing-slide-38">8. Transition to routing (Slide 38)</a></li>
+  </ul></li>
+  <li><a href="#detours-and-enrichments" id="toc-detours-and-enrichments" class="nav-link" data-scroll-target="#detours-and-enrichments"><span class="header-section-number">7</span> Detours and enrichments</a>
+  <ul>
+  <li><a href="#how-a-packet-reaches-a-subnet-host" id="toc-how-a-packet-reaches-a-subnet-host" class="nav-link" data-scroll-target="#how-a-packet-reaches-a-subnet-host">How a packet reaches a subnet host</a></li>
+  <li><a href="#do-routers-use-mac-addresses" id="toc-do-routers-use-mac-addresses" class="nav-link" data-scroll-target="#do-routers-use-mac-addresses">Do routers use MAC addresses?</a></li>
+  <li><a href="#reverse-proxies-and-ngrok" id="toc-reverse-proxies-and-ngrok" class="nav-link" data-scroll-target="#reverse-proxies-and-ngrok">Reverse proxies and ngrok</a></li>
+  <li><a href="#why-research-groups-might-get-public-ips" id="toc-why-research-groups-might-get-public-ips" class="nav-link" data-scroll-target="#why-research-groups-might-get-public-ips">Why research groups might get public IPs</a></li>
+  <li><a href="#what-is-arp" id="toc-what-is-arp" class="nav-link" data-scroll-target="#what-is-arp">What is ARP?</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -602,7 +689,383 @@ ul.task-list li input[type="checkbox"] {
 <li>Regions 1–3: LAN subnets (hosts + router)</li>
 <li>Regions 4–6: router-router links (point-to-point subnets)</li>
 </ul>
+</section>
+</section>
+<section id="summary-of-vln03-slides-1823" class="level2">
+<h2 class="anchored" data-anchor-id="summary-of-vln03-slides-1823">Summary of VLN03 — Slides 18–23</h2>
+<p><em>(IP Address Blocks, Subnets, and Classful Addressing)</em></p>
+<section id="subnets-and-minimal-address-blocks" class="level3">
+<h3 class="anchored" data-anchor-id="subnets-and-minimal-address-blocks">Subnets and Minimal Address Blocks</h3>
+<p>We revisit the subnet diagram from slide 15 and ask: <strong>What is the minimal CIDR block that covers all required IPs for Subnet A and B?</strong></p>
+<p>Although it might seem sufficient to use the numerical range of required IPs (e.g.&nbsp;<code>.1–.4</code>), IP subnets must follow strict rules:</p>
+<ul>
+<li>A subnet must be a <strong>CIDR-aligned block</strong>: its size must be a power of two, and its starting address must be divisible by that size.</li>
+<li>Therefore, to include <code>223.1.1.4</code>, Subnet A requires a <code>/29</code> block: <code>223.1.1.0 – 223.1.1.7</code></li>
+<li>To include <code>223.1.2.9</code>, Subnet B requires a <code>/28</code> block: <code>223.1.2.0 – 223.1.2.15</code></li>
+</ul>
+<p>These blocks ensure binary-aligned network prefixes suitable for routing.</p>
+</section>
+<section id="netid-and-hostid-structure" class="level3">
+<h3 class="anchored" data-anchor-id="netid-and-hostid-structure">NetID and HostID Structure</h3>
+<p>An IP address is logically split into:</p>
+<ul>
+<li><strong>NetID</strong> — determines the network or subnet</li>
+<li><strong>HostID</strong> — identifies a host within that network</li>
+</ul>
+<p>The boundary is defined by the CIDR prefix (e.g.&nbsp;<code>/24</code>), where the first <code>n</code> bits are the NetID, and the remaining <code>32−n</code> bits are the HostID.</p>
+<p>This structure enables:</p>
+<ul>
+<li><strong>Scalable routing</strong> — routers forward based only on the NetID</li>
+<li><strong>Local autonomy</strong> — host addresses are managed internally</li>
+</ul>
+<p>Routing efficiency increases because routers don’t need entries for individual hosts — only for the networks.</p>
+</section>
+<section id="address-allocation-and-prefix-sizing" class="level3">
+<h3 class="anchored" data-anchor-id="address-allocation-and-prefix-sizing">Address Allocation and Prefix Sizing</h3>
+<p>How long should the NetID be? It depends on the use case:</p>
+<ul>
+<li>A <strong>long NetID</strong> (e.g.&nbsp;<code>/27</code>) allows many networks with few hosts</li>
+<li>A <strong>short NetID</strong> (e.g.&nbsp;<code>/16</code>) allows fewer networks but many hosts per network</li>
+</ul>
+<p>This trade-off determines how many subnets or hosts fit in a given address block. Organizations receiving a larger block (e.g.&nbsp;<code>/16</code>) can internally create finer subdivisions using longer prefixes (<code>/24</code>, <code>/28</code>, etc.).</p>
+</section>
+<section id="classful-addressing" class="level3">
+<h3 class="anchored" data-anchor-id="classful-addressing">Classful Addressing</h3>
+<p>Historically, IP addresses were divided into rigid <strong>classes</strong>, which defined fixed NetID/HostID splits:</p>
+<table class="table">
+<colgroup>
+<col style="width: 7%">
+<col style="width: 15%">
+<col style="width: 16%">
+<col style="width: 44%">
+<col style="width: 15%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Class</th>
+<th>NetID Bits</th>
+<th>HostID Bits</th>
+<th>Address Range</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>A</td>
+<td>8</td>
+<td>24</td>
+<td><code>1.0.0.0 – 126.255.255.255</code></td>
+<td>Large orgs</td>
+</tr>
+<tr class="even">
+<td>B</td>
+<td>16</td>
+<td>16</td>
+<td><code>128.0.0.0 – 191.255.255.255</code></td>
+<td>Mid-size</td>
+</tr>
+<tr class="odd">
+<td>C</td>
+<td>24</td>
+<td>8</td>
+<td><code>192.0.0.0 – 223.255.255.255</code></td>
+<td>Small orgs</td>
+</tr>
+<tr class="even">
+<td>D</td>
+<td>—</td>
+<td>—</td>
+<td><code>224.0.0.0 – 239.255.255.255</code></td>
+<td>Multicast</td>
+</tr>
+</tbody>
+</table>
+<p>This system was easy for routers to interpret (based on the first few bits), but led to massive address waste. For example, a company needing 500 IPs couldn’t use a <code>/24</code> (too small), so it had to request a <code>/16</code> block — wasting over 60,000 addresses.</p>
 <hr>
+</section>
+<section id="detours-and-clarifications" class="level3">
+<h3 class="anchored" data-anchor-id="detours-and-clarifications">Detours and Clarifications</h3>
+<section id="what-is-a-cidr-aligned-block" class="level4">
+<h4 class="anchored" data-anchor-id="what-is-a-cidr-aligned-block">What is a CIDR-aligned block?</h4>
+<p>A block of size <span class="math inline">\(2^k\)</span> must begin at an address divisible by <span class="math inline">\(2^k\)</span> and span exactly that many addresses. Arbitrary ranges like <code>.1–.4</code> are not valid subnet definitions.</p>
+</section>
+<section id="what-is-x.x.x.xy-notation" class="level4">
+<h4 class="anchored" data-anchor-id="what-is-x.x.x.xy-notation">What is <code>x.x.x.x/y</code> notation?</h4>
+<p>CIDR notation explicitly states the NetID length. <code>/24</code> means 24 bits of network, 8 bits of host. The prefix length determines both address block size and routing behavior.</p>
+</section>
+<section id="why-longest-prefix-match" class="level4">
+<h4 class="anchored" data-anchor-id="why-longest-prefix-match">Why longest prefix match?</h4>
+<p>When multiple routing entries match a destination, routers choose the one with the <strong>longest (most specific) prefix</strong>. This ensures fine-grained routing within larger aggregate blocks.</p>
+</section>
+<section id="how-does-a-packet-reach-the-final-host" class="level4">
+<h4 class="anchored" data-anchor-id="how-does-a-packet-reach-the-final-host">How does a packet reach the final host?</h4>
+<p>When a packet reaches the destination subnet, the router uses <strong>ARP</strong> to resolve the destination IP to a MAC address, then sends the packet as an Ethernet frame. The target host accepts the frame based on MAC address filtering.</p>
+</section>
+<section id="what-happens-on-a-shared-medium-without-a-switch" class="level4">
+<h4 class="anchored" data-anchor-id="what-happens-on-a-shared-medium-without-a-switch">What happens on a shared medium without a switch?</h4>
+<p>On a shared Ethernet or Wi-Fi network, all hosts receive all frames. Only the device whose NIC matches the destination MAC address accepts the packet; the rest discard it silently.</p>
+</section>
+<section id="does-each-netid-correspond-to-a-single-subnet" class="level4">
+<h4 class="anchored" data-anchor-id="does-each-netid-correspond-to-a-single-subnet">Does each NetID correspond to a single subnet?</h4>
+<p>Not necessarily. A large NetID (e.g.&nbsp;<code>/16</code>) can be internally <strong>subnetted</strong> into multiple smaller blocks (<code>/24</code>, <code>/27</code>, etc.). Subnetting is hierarchical and flexible under CIDR.</p>
+</section>
+<section id="could-organizations-subnet-class-based-address-blocks" class="level4">
+<h4 class="anchored" data-anchor-id="could-organizations-subnet-class-based-address-blocks">Could organizations subnet class-based address blocks?</h4>
+<p>Yes. Even under the old class-based system, organizations could <strong>borrow bits from the HostID portion</strong> to create subnets internally. For example, a Class B <code>/16</code> block could be subnetted into 256 <code>/24</code> blocks using a subnet mask like <code>255.255.255.0</code>. This allowed structured internal networks despite the rigidity of the external class system.</p>
+<p>Certainly — here is the same answer, reformatted according to your project’s preferences (no boldface in headings, clean structure, sparing emphasis in body text).</p>
+<hr>
+</section>
+</section>
+</section>
+<section id="summary-of-vln03-slides-2438" class="level1" data-number="6">
+<h1 data-number="6"><span class="header-section-number">6</span> Summary of VLN03 — Slides 24–38</h1>
+<p><em>(From classless addressing to routing and network segmentation at Uni Heidelberg)</em></p>
+<hr>
+<section id="from-classful-to-classless-addressing-slides-2425" class="level2">
+<h2 class="anchored" data-anchor-id="from-classful-to-classless-addressing-slides-2425">1. From Classful to Classless Addressing (Slides 24–25)</h2>
+<section id="problems-with-classful-addressing" class="level3">
+<h3 class="anchored" data-anchor-id="problems-with-classful-addressing">Problems with classful addressing</h3>
+<ul>
+<li>Waste of addresses: e.g.&nbsp;a Class B allocation (65k addresses) for an org needing only a few hundred</li>
+<li>No aggregation: every network required a separate route — routing tables became large and unscalable</li>
+<li>Chaotic distribution: no topological coherence; blocks were allocated sequentially</li>
+<li>Frequent updates: every new network affected global routing tables</li>
+</ul>
+</section>
+<section id="solution-cidr-classless-inter-domain-routing" class="level3">
+<h3 class="anchored" data-anchor-id="solution-cidr-classless-inter-domain-routing">Solution: CIDR (Classless Inter-Domain Routing)</h3>
+<p>CIDR was introduced in 1993 to allow arbitrary prefix lengths:</p>
+<pre><code>a.b.c.d/x   →  x = number of NetID bits</code></pre>
+<p>CIDR enables:</p>
+<ul>
+<li><p>Fine-grained allocation (e.g.&nbsp;/23, /26, /30)</p></li>
+<li><p>Route aggregation in global routing tables:</p>
+<ul>
+<li>e.g.&nbsp;192.168.0.0/22 covers 4 contiguous /24 networks</li>
+</ul></li>
+<li><p>Scalable design: organizations get only what they need; global tables remain compact</p></li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="routing-hierarchy-and-subnetting-slides-2628" class="level2">
+<h2 class="anchored" data-anchor-id="routing-hierarchy-and-subnetting-slides-2628">2. Routing hierarchy and subnetting (Slides 26–28)</h2>
+<section id="hierarchical-routing" class="level3">
+<h3 class="anchored" data-anchor-id="hierarchical-routing">Hierarchical routing</h3>
+<ul>
+<li>Global routers (ISPs) see only top-level blocks (e.g.&nbsp;/16)</li>
+<li>Institutional routers handle internal subnetting and distribution</li>
+<li>Local routers (e.g.&nbsp;in buildings) know the details of subnet-to-interface mapping</li>
+</ul>
+</section>
+<section id="subnetting-strategy" class="level3">
+<h3 class="anchored" data-anchor-id="subnetting-strategy">Subnetting strategy</h3>
+<p>From a CIDR block (e.g.&nbsp;/16), an institution can create multiple smaller subnets (/24, /22, etc.) Bits from the HostID are borrowed to form a SubnetID.</p>
+</section>
+<section id="address-structure-with-subnetting" class="level3">
+<h3 class="anchored" data-anchor-id="address-structure-with-subnetting">Address structure with subnetting</h3>
+<table class="table">
+<thead>
+<tr class="header">
+<th>Field</th>
+<th>Bit Count</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>NetID</td>
+<td>e.g.&nbsp;16</td>
+<td>Assigned by provider (e.g.&nbsp;129.206)</td>
+</tr>
+<tr class="even">
+<td>SubnetID</td>
+<td>e.g.&nbsp;8</td>
+<td>Internal routing (e.g.&nbsp;Informatik = 78)</td>
+</tr>
+<tr class="odd">
+<td>HostID</td>
+<td>e.g.&nbsp;8</td>
+<td>Host within the subnet (e.g.&nbsp;.42)</td>
+</tr>
+</tbody>
+</table>
+<p>Example: <code>129.206.78.42</code> NetID = 129.206, SubnetID = 78, HostID = 42</p>
+<hr>
+</section>
+</section>
+<section id="subnet-masks-and-cidr-application-slides-2931" class="level2">
+<h2 class="anchored" data-anchor-id="subnet-masks-and-cidr-application-slides-2931">3. Subnet masks and CIDR application (Slides 29–31)</h2>
+<section id="what-is-a-subnet-mask" class="level3">
+<h3 class="anchored" data-anchor-id="what-is-a-subnet-mask">What is a subnet mask?</h3>
+<p>A 32-bit value used to separate:</p>
+<ul>
+<li>Network + Subnet part (leftmost bits)</li>
+<li>Host part (remaining bits)</li>
+</ul>
+</section>
+<section id="notation" class="level3">
+<h3 class="anchored" data-anchor-id="notation">Notation</h3>
+<ul>
+<li>CIDR: <code>/x</code>, where <code>x</code> = number of 1s in mask</li>
+<li>Dotted decimal: <code>255.255.255.0</code> ≡ <code>/24</code></li>
+</ul>
+</section>
+<section id="example-calculation" class="level3">
+<h3 class="anchored" data-anchor-id="example-calculation">Example calculation</h3>
+<pre><code>IP address:      134.155.48.10
+Subnet mask:     255.255.255.0 (/24)
+→ Subnet base:   134.155.48.0</code></pre>
+</section>
+<section id="use-case" class="level3">
+<h3 class="anchored" data-anchor-id="use-case">Use case</h3>
+<p>Hosts check if another IP is in the same subnet using a bitwise AND with the subnet mask. If not → packet forwarded to default gateway.</p>
+<hr>
+</section>
+</section>
+<section id="visibility-and-internal-routing-slides-3233" class="level2">
+<h2 class="anchored" data-anchor-id="visibility-and-internal-routing-slides-3233">4. Visibility and internal routing (Slides 32–33)</h2>
+<section id="subnetid-is-local" class="level3">
+<h3 class="anchored" data-anchor-id="subnetid-is-local">SubnetID is local</h3>
+<p>Only the top-level prefix (e.g.&nbsp;129.206.0.0/16) is visible globally. Internal subnet structure (e.g.&nbsp;.78.0/24, .61.0/24) is managed inside the university.</p>
+</section>
+<section id="example-from-uni-heidelberg" class="level3">
+<h3 class="anchored" data-anchor-id="example-from-uni-heidelberg">Example from Uni Heidelberg</h3>
+<ul>
+<li><p>Public /16 blocks:</p>
+<ul>
+<li>129.206.0.0/16 (north of Neckar)</li>
+<li>147.142.0.0/16 (south of Neckar incl.&nbsp;Mathematikon)</li>
+</ul></li>
+<li><p>Subnet allocations:</p></li>
+</ul>
+<table class="table">
+<thead>
+<tr class="header">
+<th>Department</th>
+<th>Subnet</th>
+<th>Size</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Medizin</td>
+<td>/18</td>
+<td>16,384 IPs</td>
+</tr>
+<tr class="even">
+<td>Physik</td>
+<td>/18</td>
+<td>16,384 IPs</td>
+</tr>
+<tr class="odd">
+<td>Informatik</td>
+<td>/22</td>
+<td>1,024 IPs</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><p>One AG (research group) was assigned:</p>
+<pre><code>129.206.61.39 – 129.206.61.63</code></pre>
+<p>→ 24 usable public IPs, not a full subnet, but a carved-out range from the /24</p></li>
+</ul>
+<hr>
+</section>
+</section>
+<section id="physical-topology-of-the-mathematikon-slides-3435" class="level2">
+<h2 class="anchored" data-anchor-id="physical-topology-of-the-mathematikon-slides-3435">5. Physical topology of the Mathematikon (Slides 34–35)</h2>
+<ul>
+<li><p>Two routers in the basement act as:</p>
+<ul>
+<li>Gateways to the university backbone</li>
+<li>Entry points to the building network</li>
+</ul></li>
+<li><p>IPs of routers: .1 in each subnet (e.g.&nbsp;129.206.78.1)</p></li>
+<li><p>13 CISCO Catalyst 4500 switches across floors</p></li>
+<li><p>Connected via fiber → act as one logical switching fabric</p></li>
+<li><p>Enables VLANs to span all floors</p></li>
+</ul>
+<hr>
+</section>
+<section id="vlans-and-subnet-spanning-slide-36" class="level2">
+<h2 class="anchored" data-anchor-id="vlans-and-subnet-spanning-slide-36">6. VLANs and subnet spanning (Slide 36)</h2>
+<section id="vlan-virtual-lan" class="level3">
+<h3 class="anchored" data-anchor-id="vlan-virtual-lan">VLAN (Virtual LAN)</h3>
+<p>A VLAN is a logically segmented subnet that can span multiple physical switches.</p>
+<ul>
+<li><p>Switch ports are assigned to VLANs (e.g.&nbsp;VLAN 78 → 129.206.78.0/24)</p></li>
+<li><p>Provides:</p>
+<ul>
+<li>Traffic isolation</li>
+<li>Security</li>
+<li>Flexibility: any office on any floor can be part of the same subnet</li>
+</ul></li>
+</ul>
+<p>VLANs allow centralized IP and subnet control across a distributed physical environment.</p>
+<hr>
+</section>
+</section>
+<section id="end-of-subnetting-discussion-slide-37" class="level2">
+<h2 class="anchored" data-anchor-id="end-of-subnetting-discussion-slide-37">7. End of subnetting discussion (Slide 37)</h2>
+<p>This slide links to a video: <strong>Cisco Router Training 101</strong>, starting at 16:30 — reviewing subnet masks and routing behavior.</p>
+<hr>
+</section>
+<section id="transition-to-routing-slide-38" class="level2">
+<h2 class="anchored" data-anchor-id="transition-to-routing-slide-38">8. Transition to routing (Slide 38)</h2>
+<p>The final slide begins the topic of <strong>packet forwarding and routing tables</strong>, continued in VLN04.</p>
+<hr>
+</section>
+</section>
+<section id="detours-and-enrichments" class="level1" data-number="7">
+<h1 data-number="7"><span class="header-section-number">7</span> Detours and enrichments</h1>
+<section id="how-a-packet-reaches-a-subnet-host" class="level2">
+<h2 class="anchored" data-anchor-id="how-a-packet-reaches-a-subnet-host">How a packet reaches a subnet host</h2>
+<p><strong>Prompted by</strong>: Slide 28 — internal subnet structure</p>
+<p>We analyzed:</p>
+<ul>
+<li>Global routing to <code>/16</code> block</li>
+<li>Internal forwarding to subnet router</li>
+<li>Final delivery via ARP and Ethernet to the destination host</li>
+</ul>
+<hr>
+</section>
+<section id="do-routers-use-mac-addresses" class="level2">
+<h2 class="anchored" data-anchor-id="do-routers-use-mac-addresses">Do routers use MAC addresses?</h2>
+<p><strong>Prompted by</strong>: Routing behavior</p>
+<p>Clarified:</p>
+<ul>
+<li>Routers have MAC addresses on each interface</li>
+<li>MAC addresses are rewritten per hop (layer 2), while IP stays constant (layer 3)</li>
+</ul>
+<hr>
+</section>
+<section id="reverse-proxies-and-ngrok" class="level2">
+<h2 class="anchored" data-anchor-id="reverse-proxies-and-ngrok">Reverse proxies and ngrok</h2>
+<p><strong>Prompted by</strong>: Slide 33 — public IPs in Informatik</p>
+<p>We discussed:</p>
+<ul>
+<li>Reverse proxies (nginx, Apache, etc.) forward requests from clients to internal servers</li>
+<li>ngrok acts like a hosted reverse HTTP proxy using a tunnel to expose local services</li>
+<li>Differences between public IP access and NAT + proxy setups</li>
+</ul>
+<hr>
+</section>
+<section id="why-research-groups-might-get-public-ips" class="level2">
+<h2 class="anchored" data-anchor-id="why-research-groups-might-get-public-ips">Why research groups might get public IPs</h2>
+<p><strong>Prompted by</strong>: Slide 33 — “meiner AG wurden 24 Adressen zugeteilt”</p>
+<p>We explored:</p>
+<ul>
+<li>Universities with large legacy blocks can afford to assign public IPs directly</li>
+<li>Benefits: easy incoming connections, public DNS mapping, no NAT hassle</li>
+<li>Risk: requires strong firewall policies</li>
+</ul>
+<hr>
+</section>
+<section id="what-is-arp" class="level2">
+<h2 class="anchored" data-anchor-id="what-is-arp">What is ARP?</h2>
+<p><strong>Prompted by</strong>: Final packet delivery on LAN</p>
+<p>Defined ARP as the Address Resolution Protocol — maps IP to MAC within a subnet using broadcast, enabling packet delivery at layer 2.</p>
 
 
 </section>

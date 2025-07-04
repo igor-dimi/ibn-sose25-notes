@@ -228,5 +228,159 @@
       "Networks",
       "<span class='chapter-number'>5</span>  <span class='chapter-title'>IP Layer & Subnetting</span>"
     ]
+  },
+  {
+    "objectID": "ip-layer-subnetting.html#summary-of-vln03-slides-1823",
+    "href": "ip-layer-subnetting.html#summary-of-vln03-slides-1823",
+    "title": "5  IP Layer & Subnetting",
+    "section": "Summary of VLN03 — Slides 18–23",
+    "text": "Summary of VLN03 — Slides 18–23\n(IP Address Blocks, Subnets, and Classful Addressing)\n\nSubnets and Minimal Address Blocks\nWe revisit the subnet diagram from slide 15 and ask: What is the minimal CIDR block that covers all required IPs for Subnet A and B?\nAlthough it might seem sufficient to use the numerical range of required IPs (e.g. .1–.4), IP subnets must follow strict rules:\n\nA subnet must be a CIDR-aligned block: its size must be a power of two, and its starting address must be divisible by that size.\nTherefore, to include 223.1.1.4, Subnet A requires a /29 block: 223.1.1.0 – 223.1.1.7\nTo include 223.1.2.9, Subnet B requires a /28 block: 223.1.2.0 – 223.1.2.15\n\nThese blocks ensure binary-aligned network prefixes suitable for routing.\n\n\nNetID and HostID Structure\nAn IP address is logically split into:\n\nNetID — determines the network or subnet\nHostID — identifies a host within that network\n\nThe boundary is defined by the CIDR prefix (e.g. /24), where the first n bits are the NetID, and the remaining 32−n bits are the HostID.\nThis structure enables:\n\nScalable routing — routers forward based only on the NetID\nLocal autonomy — host addresses are managed internally\n\nRouting efficiency increases because routers don’t need entries for individual hosts — only for the networks.\n\n\nAddress Allocation and Prefix Sizing\nHow long should the NetID be? It depends on the use case:\n\nA long NetID (e.g. /27) allows many networks with few hosts\nA short NetID (e.g. /16) allows fewer networks but many hosts per network\n\nThis trade-off determines how many subnets or hosts fit in a given address block. Organizations receiving a larger block (e.g. /16) can internally create finer subdivisions using longer prefixes (/24, /28, etc.).\n\n\nClassful Addressing\nHistorically, IP addresses were divided into rigid classes, which defined fixed NetID/HostID splits:\n\n\n\n\n\n\n\n\n\n\nClass\nNetID Bits\nHostID Bits\nAddress Range\nNotes\n\n\n\n\nA\n8\n24\n1.0.0.0 – 126.255.255.255\nLarge orgs\n\n\nB\n16\n16\n128.0.0.0 – 191.255.255.255\nMid-size\n\n\nC\n24\n8\n192.0.0.0 – 223.255.255.255\nSmall orgs\n\n\nD\n—\n—\n224.0.0.0 – 239.255.255.255\nMulticast\n\n\n\nThis system was easy for routers to interpret (based on the first few bits), but led to massive address waste. For example, a company needing 500 IPs couldn’t use a /24 (too small), so it had to request a /16 block — wasting over 60,000 addresses.\n\n\n\nDetours and Clarifications\n\nWhat is a CIDR-aligned block?\nA block of size \\(2^k\\) must begin at an address divisible by \\(2^k\\) and span exactly that many addresses. Arbitrary ranges like .1–.4 are not valid subnet definitions.\n\n\nWhat is x.x.x.x/y notation?\nCIDR notation explicitly states the NetID length. /24 means 24 bits of network, 8 bits of host. The prefix length determines both address block size and routing behavior.\n\n\nWhy longest prefix match?\nWhen multiple routing entries match a destination, routers choose the one with the longest (most specific) prefix. This ensures fine-grained routing within larger aggregate blocks.\n\n\nHow does a packet reach the final host?\nWhen a packet reaches the destination subnet, the router uses ARP to resolve the destination IP to a MAC address, then sends the packet as an Ethernet frame. The target host accepts the frame based on MAC address filtering.\n\n\nWhat happens on a shared medium without a switch?\nOn a shared Ethernet or Wi-Fi network, all hosts receive all frames. Only the device whose NIC matches the destination MAC address accepts the packet; the rest discard it silently.\n\n\nDoes each NetID correspond to a single subnet?\nNot necessarily. A large NetID (e.g. /16) can be internally subnetted into multiple smaller blocks (/24, /27, etc.). Subnetting is hierarchical and flexible under CIDR.\n\n\nCould organizations subnet class-based address blocks?\nYes. Even under the old class-based system, organizations could borrow bits from the HostID portion to create subnets internally. For example, a Class B /16 block could be subnetted into 256 /24 blocks using a subnet mask like 255.255.255.0. This allowed structured internal networks despite the rigidity of the external class system.\nCertainly — here is the same answer, reformatted according to your project’s preferences (no boldface in headings, clean structure, sparing emphasis in body text).",
+    "crumbs": [
+      "Networks",
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>IP Layer & Subnetting</span>"
+    ]
+  },
+  {
+    "objectID": "ip-layer-subnetting.html#from-classful-to-classless-addressing-slides-2425",
+    "href": "ip-layer-subnetting.html#from-classful-to-classless-addressing-slides-2425",
+    "title": "5  IP Layer & Subnetting",
+    "section": "1. From Classful to Classless Addressing (Slides 24–25)",
+    "text": "1. From Classful to Classless Addressing (Slides 24–25)\n\nProblems with classful addressing\n\nWaste of addresses: e.g. a Class B allocation (65k addresses) for an org needing only a few hundred\nNo aggregation: every network required a separate route — routing tables became large and unscalable\nChaotic distribution: no topological coherence; blocks were allocated sequentially\nFrequent updates: every new network affected global routing tables\n\n\n\nSolution: CIDR (Classless Inter-Domain Routing)\nCIDR was introduced in 1993 to allow arbitrary prefix lengths:\na.b.c.d/x   →  x = number of NetID bits\nCIDR enables:\n\nFine-grained allocation (e.g. /23, /26, /30)\nRoute aggregation in global routing tables:\n\ne.g. 192.168.0.0/22 covers 4 contiguous /24 networks\n\nScalable design: organizations get only what they need; global tables remain compact",
+    "crumbs": [
+      "Networks",
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>IP Layer & Subnetting</span>"
+    ]
+  },
+  {
+    "objectID": "ip-layer-subnetting.html#routing-hierarchy-and-subnetting-slides-2628",
+    "href": "ip-layer-subnetting.html#routing-hierarchy-and-subnetting-slides-2628",
+    "title": "5  IP Layer & Subnetting",
+    "section": "2. Routing hierarchy and subnetting (Slides 26–28)",
+    "text": "2. Routing hierarchy and subnetting (Slides 26–28)\n\nHierarchical routing\n\nGlobal routers (ISPs) see only top-level blocks (e.g. /16)\nInstitutional routers handle internal subnetting and distribution\nLocal routers (e.g. in buildings) know the details of subnet-to-interface mapping\n\n\n\nSubnetting strategy\nFrom a CIDR block (e.g. /16), an institution can create multiple smaller subnets (/24, /22, etc.) Bits from the HostID are borrowed to form a SubnetID.\n\n\nAddress structure with subnetting\n\n\n\nField\nBit Count\nDescription\n\n\n\n\nNetID\ne.g. 16\nAssigned by provider (e.g. 129.206)\n\n\nSubnetID\ne.g. 8\nInternal routing (e.g. Informatik = 78)\n\n\nHostID\ne.g. 8\nHost within the subnet (e.g. .42)\n\n\n\nExample: 129.206.78.42 NetID = 129.206, SubnetID = 78, HostID = 42",
+    "crumbs": [
+      "Networks",
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>IP Layer & Subnetting</span>"
+    ]
+  },
+  {
+    "objectID": "ip-layer-subnetting.html#subnet-masks-and-cidr-application-slides-2931",
+    "href": "ip-layer-subnetting.html#subnet-masks-and-cidr-application-slides-2931",
+    "title": "5  IP Layer & Subnetting",
+    "section": "3. Subnet masks and CIDR application (Slides 29–31)",
+    "text": "3. Subnet masks and CIDR application (Slides 29–31)\n\nWhat is a subnet mask?\nA 32-bit value used to separate:\n\nNetwork + Subnet part (leftmost bits)\nHost part (remaining bits)\n\n\n\nNotation\n\nCIDR: /x, where x = number of 1s in mask\nDotted decimal: 255.255.255.0 ≡ /24\n\n\n\nExample calculation\nIP address:      134.155.48.10\nSubnet mask:     255.255.255.0 (/24)\n→ Subnet base:   134.155.48.0\n\n\nUse case\nHosts check if another IP is in the same subnet using a bitwise AND with the subnet mask. If not → packet forwarded to default gateway.",
+    "crumbs": [
+      "Networks",
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>IP Layer & Subnetting</span>"
+    ]
+  },
+  {
+    "objectID": "ip-layer-subnetting.html#visibility-and-internal-routing-slides-3233",
+    "href": "ip-layer-subnetting.html#visibility-and-internal-routing-slides-3233",
+    "title": "5  IP Layer & Subnetting",
+    "section": "4. Visibility and internal routing (Slides 32–33)",
+    "text": "4. Visibility and internal routing (Slides 32–33)\n\nSubnetID is local\nOnly the top-level prefix (e.g. 129.206.0.0/16) is visible globally. Internal subnet structure (e.g. .78.0/24, .61.0/24) is managed inside the university.\n\n\nExample from Uni Heidelberg\n\nPublic /16 blocks:\n\n129.206.0.0/16 (north of Neckar)\n147.142.0.0/16 (south of Neckar incl. Mathematikon)\n\nSubnet allocations:\n\n\n\n\nDepartment\nSubnet\nSize\n\n\n\n\nMedizin\n/18\n16,384 IPs\n\n\nPhysik\n/18\n16,384 IPs\n\n\nInformatik\n/22\n1,024 IPs\n\n\n\n\nOne AG (research group) was assigned:\n129.206.61.39 – 129.206.61.63\n→ 24 usable public IPs, not a full subnet, but a carved-out range from the /24",
+    "crumbs": [
+      "Networks",
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>IP Layer & Subnetting</span>"
+    ]
+  },
+  {
+    "objectID": "ip-layer-subnetting.html#physical-topology-of-the-mathematikon-slides-3435",
+    "href": "ip-layer-subnetting.html#physical-topology-of-the-mathematikon-slides-3435",
+    "title": "5  IP Layer & Subnetting",
+    "section": "5. Physical topology of the Mathematikon (Slides 34–35)",
+    "text": "5. Physical topology of the Mathematikon (Slides 34–35)\n\nTwo routers in the basement act as:\n\nGateways to the university backbone\nEntry points to the building network\n\nIPs of routers: .1 in each subnet (e.g. 129.206.78.1)\n13 CISCO Catalyst 4500 switches across floors\nConnected via fiber → act as one logical switching fabric\nEnables VLANs to span all floors",
+    "crumbs": [
+      "Networks",
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>IP Layer & Subnetting</span>"
+    ]
+  },
+  {
+    "objectID": "ip-layer-subnetting.html#vlans-and-subnet-spanning-slide-36",
+    "href": "ip-layer-subnetting.html#vlans-and-subnet-spanning-slide-36",
+    "title": "5  IP Layer & Subnetting",
+    "section": "6. VLANs and subnet spanning (Slide 36)",
+    "text": "6. VLANs and subnet spanning (Slide 36)\n\nVLAN (Virtual LAN)\nA VLAN is a logically segmented subnet that can span multiple physical switches.\n\nSwitch ports are assigned to VLANs (e.g. VLAN 78 → 129.206.78.0/24)\nProvides:\n\nTraffic isolation\nSecurity\nFlexibility: any office on any floor can be part of the same subnet\n\n\nVLANs allow centralized IP and subnet control across a distributed physical environment.",
+    "crumbs": [
+      "Networks",
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>IP Layer & Subnetting</span>"
+    ]
+  },
+  {
+    "objectID": "ip-layer-subnetting.html#end-of-subnetting-discussion-slide-37",
+    "href": "ip-layer-subnetting.html#end-of-subnetting-discussion-slide-37",
+    "title": "5  IP Layer & Subnetting",
+    "section": "7. End of subnetting discussion (Slide 37)",
+    "text": "7. End of subnetting discussion (Slide 37)\nThis slide links to a video: Cisco Router Training 101, starting at 16:30 — reviewing subnet masks and routing behavior.",
+    "crumbs": [
+      "Networks",
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>IP Layer & Subnetting</span>"
+    ]
+  },
+  {
+    "objectID": "ip-layer-subnetting.html#transition-to-routing-slide-38",
+    "href": "ip-layer-subnetting.html#transition-to-routing-slide-38",
+    "title": "5  IP Layer & Subnetting",
+    "section": "8. Transition to routing (Slide 38)",
+    "text": "8. Transition to routing (Slide 38)\nThe final slide begins the topic of packet forwarding and routing tables, continued in VLN04.",
+    "crumbs": [
+      "Networks",
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>IP Layer & Subnetting</span>"
+    ]
+  },
+  {
+    "objectID": "ip-layer-subnetting.html#how-a-packet-reaches-a-subnet-host",
+    "href": "ip-layer-subnetting.html#how-a-packet-reaches-a-subnet-host",
+    "title": "5  IP Layer & Subnetting",
+    "section": "How a packet reaches a subnet host",
+    "text": "How a packet reaches a subnet host\nPrompted by: Slide 28 — internal subnet structure\nWe analyzed:\n\nGlobal routing to /16 block\nInternal forwarding to subnet router\nFinal delivery via ARP and Ethernet to the destination host",
+    "crumbs": [
+      "Networks",
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>IP Layer & Subnetting</span>"
+    ]
+  },
+  {
+    "objectID": "ip-layer-subnetting.html#do-routers-use-mac-addresses",
+    "href": "ip-layer-subnetting.html#do-routers-use-mac-addresses",
+    "title": "5  IP Layer & Subnetting",
+    "section": "Do routers use MAC addresses?",
+    "text": "Do routers use MAC addresses?\nPrompted by: Routing behavior\nClarified:\n\nRouters have MAC addresses on each interface\nMAC addresses are rewritten per hop (layer 2), while IP stays constant (layer 3)",
+    "crumbs": [
+      "Networks",
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>IP Layer & Subnetting</span>"
+    ]
+  },
+  {
+    "objectID": "ip-layer-subnetting.html#reverse-proxies-and-ngrok",
+    "href": "ip-layer-subnetting.html#reverse-proxies-and-ngrok",
+    "title": "5  IP Layer & Subnetting",
+    "section": "Reverse proxies and ngrok",
+    "text": "Reverse proxies and ngrok\nPrompted by: Slide 33 — public IPs in Informatik\nWe discussed:\n\nReverse proxies (nginx, Apache, etc.) forward requests from clients to internal servers\nngrok acts like a hosted reverse HTTP proxy using a tunnel to expose local services\nDifferences between public IP access and NAT + proxy setups",
+    "crumbs": [
+      "Networks",
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>IP Layer & Subnetting</span>"
+    ]
+  },
+  {
+    "objectID": "ip-layer-subnetting.html#why-research-groups-might-get-public-ips",
+    "href": "ip-layer-subnetting.html#why-research-groups-might-get-public-ips",
+    "title": "5  IP Layer & Subnetting",
+    "section": "Why research groups might get public IPs",
+    "text": "Why research groups might get public IPs\nPrompted by: Slide 33 — “meiner AG wurden 24 Adressen zugeteilt”\nWe explored:\n\nUniversities with large legacy blocks can afford to assign public IPs directly\nBenefits: easy incoming connections, public DNS mapping, no NAT hassle\nRisk: requires strong firewall policies",
+    "crumbs": [
+      "Networks",
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>IP Layer & Subnetting</span>"
+    ]
+  },
+  {
+    "objectID": "ip-layer-subnetting.html#what-is-arp",
+    "href": "ip-layer-subnetting.html#what-is-arp",
+    "title": "5  IP Layer & Subnetting",
+    "section": "What is ARP?",
+    "text": "What is ARP?\nPrompted by: Final packet delivery on LAN\nDefined ARP as the Address Resolution Protocol — maps IP to MAC within a subnet using broadcast, enabling packet delivery at layer 2.",
+    "crumbs": [
+      "Networks",
+      "<span class='chapter-number'>5</span>  <span class='chapter-title'>IP Layer & Subnetting</span>"
+    ]
   }
 ]
