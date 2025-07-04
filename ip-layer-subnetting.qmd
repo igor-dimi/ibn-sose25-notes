@@ -217,5 +217,315 @@ In the slide:
 * Regions 1–3: LAN subnets (hosts + router)
 * Regions 4–6: router-router links (point-to-point subnets)
 
+
+## Summary of VLN03 — Slides 18–23
+
+*(IP Address Blocks, Subnets, and Classful Addressing)*
+
+### Subnets and Minimal Address Blocks
+
+We revisit the subnet diagram from slide 15 and ask:
+**What is the minimal CIDR block that covers all required IPs for Subnet A and B?**
+
+Although it might seem sufficient to use the numerical range of required IPs (e.g. `.1–.4`), IP subnets must follow strict rules:
+
+* A subnet must be a **CIDR-aligned block**: its size must be a power of two, and its starting address must be divisible by that size.
+* Therefore, to include `223.1.1.4`, Subnet A requires a `/29` block:
+  `223.1.1.0 – 223.1.1.7`
+* To include `223.1.2.9`, Subnet B requires a `/28` block:
+  `223.1.2.0 – 223.1.2.15`
+
+These blocks ensure binary-aligned network prefixes suitable for routing.
+
+### NetID and HostID Structure
+
+An IP address is logically split into:
+
+* **NetID** — determines the network or subnet
+* **HostID** — identifies a host within that network
+
+The boundary is defined by the CIDR prefix (e.g. `/24`), where the first `n` bits are the NetID, and the remaining `32−n` bits are the HostID.
+
+This structure enables:
+
+* **Scalable routing** — routers forward based only on the NetID
+* **Local autonomy** — host addresses are managed internally
+
+Routing efficiency increases because routers don't need entries for individual hosts — only for the networks.
+
+### Address Allocation and Prefix Sizing
+
+How long should the NetID be? It depends on the use case:
+
+* A **long NetID** (e.g. `/27`) allows many networks with few hosts
+* A **short NetID** (e.g. `/16`) allows fewer networks but many hosts per network
+
+This trade-off determines how many subnets or hosts fit in a given address block. Organizations receiving a larger block (e.g. `/16`) can internally create finer subdivisions using longer prefixes (`/24`, `/28`, etc.).
+
+### Classful Addressing
+
+Historically, IP addresses were divided into rigid **classes**, which defined fixed NetID/HostID splits:
+
+| Class | NetID Bits | HostID Bits | Address Range                 | Notes      |
+| ----- | ---------- | ----------- | ----------------------------- | ---------- |
+| A     | 8          | 24          | `1.0.0.0 – 126.255.255.255`   | Large orgs |
+| B     | 16         | 16          | `128.0.0.0 – 191.255.255.255` | Mid-size   |
+| C     | 24         | 8           | `192.0.0.0 – 223.255.255.255` | Small orgs |
+| D     | —          | —           | `224.0.0.0 – 239.255.255.255` | Multicast  |
+
+This system was easy for routers to interpret (based on the first few bits), but led to massive address waste. For example, a company needing 500 IPs couldn't use a `/24` (too small), so it had to request a `/16` block — wasting over 60,000 addresses.
+
 ---
+
+### Detours and Clarifications
+
+#### What is a CIDR-aligned block?
+
+A block of size $2^k$ must begin at an address divisible by $2^k$ and span exactly that many addresses. Arbitrary ranges like `.1–.4` are not valid subnet definitions.
+
+#### What is `x.x.x.x/y` notation?
+
+CIDR notation explicitly states the NetID length. `/24` means 24 bits of network, 8 bits of host. The prefix length determines both address block size and routing behavior.
+
+#### Why longest prefix match?
+
+When multiple routing entries match a destination, routers choose the one with the **longest (most specific) prefix**. This ensures fine-grained routing within larger aggregate blocks.
+
+#### How does a packet reach the final host?
+
+When a packet reaches the destination subnet, the router uses **ARP** to resolve the destination IP to a MAC address, then sends the packet as an Ethernet frame. The target host accepts the frame based on MAC address filtering.
+
+#### What happens on a shared medium without a switch?
+
+On a shared Ethernet or Wi-Fi network, all hosts receive all frames. Only the device whose NIC matches the destination MAC address accepts the packet; the rest discard it silently.
+
+#### Does each NetID correspond to a single subnet?
+
+Not necessarily. A large NetID (e.g. `/16`) can be internally **subnetted** into multiple smaller blocks (`/24`, `/27`, etc.). Subnetting is hierarchical and flexible under CIDR.
+
+#### Could organizations subnet class-based address blocks?
+
+Yes. Even under the old class-based system, organizations could **borrow bits from the HostID portion** to create subnets internally. For example, a Class B `/16` block could be subnetted into 256 `/24` blocks using a subnet mask like `255.255.255.0`. This allowed structured internal networks despite the rigidity of the external class system.
+
+Certainly — here is the same answer, reformatted according to your project’s preferences (no boldface in headings, clean structure, sparing emphasis in body text).
+
+---
+
+# Summary of VLN03 — Slides 24–38
+
+*(From classless addressing to routing and network segmentation at Uni Heidelberg)*
+
+---
+
+## 1. From Classful to Classless Addressing (Slides 24–25)
+
+### Problems with classful addressing
+
+* Waste of addresses: e.g. a Class B allocation (65k addresses) for an org needing only a few hundred
+* No aggregation: every network required a separate route — routing tables became large and unscalable
+* Chaotic distribution: no topological coherence; blocks were allocated sequentially
+* Frequent updates: every new network affected global routing tables
+
+### Solution: CIDR (Classless Inter-Domain Routing)
+
+CIDR was introduced in 1993 to allow arbitrary prefix lengths:
+
+```
+a.b.c.d/x   →  x = number of NetID bits
+```
+
+CIDR enables:
+
+* Fine-grained allocation (e.g. /23, /26, /30)
+* Route aggregation in global routing tables:
+
+  * e.g. 192.168.0.0/22 covers 4 contiguous /24 networks
+* Scalable design: organizations get only what they need; global tables remain compact
+
+---
+
+## 2. Routing hierarchy and subnetting (Slides 26–28)
+
+### Hierarchical routing
+
+* Global routers (ISPs) see only top-level blocks (e.g. /16)
+* Institutional routers handle internal subnetting and distribution
+* Local routers (e.g. in buildings) know the details of subnet-to-interface mapping
+
+### Subnetting strategy
+
+From a CIDR block (e.g. /16), an institution can create multiple smaller subnets (/24, /22, etc.)
+Bits from the HostID are borrowed to form a SubnetID.
+
+### Address structure with subnetting
+
+| Field    | Bit Count | Description                             |
+| -------- | --------- | --------------------------------------- |
+| NetID    | e.g. 16   | Assigned by provider (e.g. 129.206)     |
+| SubnetID | e.g. 8    | Internal routing (e.g. Informatik = 78) |
+| HostID   | e.g. 8    | Host within the subnet (e.g. .42)       |
+
+Example: `129.206.78.42`
+NetID = 129.206, SubnetID = 78, HostID = 42
+
+---
+
+## 3. Subnet masks and CIDR application (Slides 29–31)
+
+### What is a subnet mask?
+
+A 32-bit value used to separate:
+
+* Network + Subnet part (leftmost bits)
+* Host part (remaining bits)
+
+### Notation
+
+* CIDR: `/x`, where `x` = number of 1s in mask
+* Dotted decimal: `255.255.255.0` ≡ `/24`
+
+### Example calculation
+
+```
+IP address:      134.155.48.10
+Subnet mask:     255.255.255.0 (/24)
+→ Subnet base:   134.155.48.0
+```
+
+### Use case
+
+Hosts check if another IP is in the same subnet using a bitwise AND with the subnet mask.
+If not → packet forwarded to default gateway.
+
+---
+
+## 4. Visibility and internal routing (Slides 32–33)
+
+### SubnetID is local
+
+Only the top-level prefix (e.g. 129.206.0.0/16) is visible globally.
+Internal subnet structure (e.g. .78.0/24, .61.0/24) is managed inside the university.
+
+### Example from Uni Heidelberg
+
+* Public /16 blocks:
+
+  * 129.206.0.0/16 (north of Neckar)
+  * 147.142.0.0/16 (south of Neckar incl. Mathematikon)
+
+* Subnet allocations:
+
+| Department | Subnet | Size       |
+| ---------- | ------ | ---------- |
+| Medizin    | /18    | 16,384 IPs |
+| Physik     | /18    | 16,384 IPs |
+| Informatik | /22    | 1,024 IPs  |
+
+* One AG (research group) was assigned:
+
+  ```
+  129.206.61.39 – 129.206.61.63
+  ```
+
+  → 24 usable public IPs, not a full subnet, but a carved-out range from the /24
+
+---
+
+## 5. Physical topology of the Mathematikon (Slides 34–35)
+
+* Two routers in the basement act as:
+
+  * Gateways to the university backbone
+  * Entry points to the building network
+* IPs of routers: .1 in each subnet (e.g. 129.206.78.1)
+* 13 CISCO Catalyst 4500 switches across floors
+* Connected via fiber → act as one logical switching fabric
+* Enables VLANs to span all floors
+
+---
+
+## 6. VLANs and subnet spanning (Slide 36)
+
+### VLAN (Virtual LAN)
+
+A VLAN is a logically segmented subnet that can span multiple physical switches.
+
+* Switch ports are assigned to VLANs (e.g. VLAN 78 → 129.206.78.0/24)
+* Provides:
+
+  * Traffic isolation
+  * Security
+  * Flexibility: any office on any floor can be part of the same subnet
+
+VLANs allow centralized IP and subnet control across a distributed physical environment.
+
+---
+
+## 7. End of subnetting discussion (Slide 37)
+
+This slide links to a video:
+**Cisco Router Training 101**, starting at 16:30 — reviewing subnet masks and routing behavior.
+
+---
+
+## 8. Transition to routing (Slide 38)
+
+The final slide begins the topic of **packet forwarding and routing tables**, continued in VLN04.
+
+---
+
+# Detours and enrichments
+
+## How a packet reaches a subnet host
+
+**Prompted by**: Slide 28 — internal subnet structure
+
+We analyzed:
+
+* Global routing to `/16` block
+* Internal forwarding to subnet router
+* Final delivery via ARP and Ethernet to the destination host
+
+---
+
+## Do routers use MAC addresses?
+
+**Prompted by**: Routing behavior
+
+Clarified:
+
+* Routers have MAC addresses on each interface
+* MAC addresses are rewritten per hop (layer 2), while IP stays constant (layer 3)
+
+---
+
+## Reverse proxies and ngrok
+
+**Prompted by**: Slide 33 — public IPs in Informatik
+
+We discussed:
+
+* Reverse proxies (nginx, Apache, etc.) forward requests from clients to internal servers
+* ngrok acts like a hosted reverse HTTP proxy using a tunnel to expose local services
+* Differences between public IP access and NAT + proxy setups
+
+---
+
+## Why research groups might get public IPs
+
+**Prompted by**: Slide 33 — “meiner AG wurden 24 Adressen zugeteilt”
+
+We explored:
+
+* Universities with large legacy blocks can afford to assign public IPs directly
+* Benefits: easy incoming connections, public DNS mapping, no NAT hassle
+* Risk: requires strong firewall policies
+
+---
+
+## What is ARP?
+
+**Prompted by**: Final packet delivery on LAN
+
+Defined ARP as the Address Resolution Protocol — maps IP to MAC within a subnet using broadcast, enabling packet delivery at layer 2.
 
