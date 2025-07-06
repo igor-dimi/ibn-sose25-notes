@@ -2,15 +2,16 @@
 title: IP Layer & Subnetting
 ---
 
-## Summary of VLN03 – Internet Protocol and Addressing (Slides 3–17)
-
-### Overview
+## Overview
 
 This lecture begins the deep dive into the **Network Layer** of the Internet stack — specifically the **Internet Protocol (IP)**. We analyze how data is transmitted between hosts across networks, how datagrams are structured, and how IP addresses define logical and physical boundaries within networks.
 
 Several **side explorations** were included to clarify underlying technologies (e.g. ARP, DHCP, NAT) and real-world applications (e.g. dormitory network issues, personal Wi-Fi routing).
 
 ---
+
+## Summary of VLN03 – Internet Protocol and Addressing (Slides 3–17)
+
 
 ### 1. HTTP Traffic and Wireshark (Slides 3–7)
 
@@ -529,3 +530,74 @@ We explored:
 
 Defined ARP as the Address Resolution Protocol — maps IP to MAC within a subnet using broadcast, enabling packet delivery at layer 2.
 
+
+## Summary of VLN03 — Slides 39–45
+
+*(Routing, Forwarding, and Prefix-Based Tables)*
+
+---
+
+### 1. **Forwarding vs Routing** (Slides 39–40)
+
+#### Forwarding
+
+* A **router’s core task**: inspect the destination IP address of a packet and forward it to the correct **output interface**.
+* Decision is based on a **forwarding table** (or FIB), which contains rules for which destination addresses are reachable via which output port.
+* The process is **local** and repeated per-packet.
+
+#### Routing
+
+* Refers to the **global algorithmic process** of building and maintaining forwarding tables.
+* Routing protocols (e.g., RIP, OSPF, BGP) **distribute topology information** so that each router can compute optimal next-hop decisions.
+* Forwarding is **where** to send it; routing is **how routers learn** where to send it.
+
+---
+
+### 2. **From Address Ranges to Prefix Matching** (Slides 41–45)
+
+#### Motivation for compact representation
+
+* Early forwarding tables stored **IP ranges** like `200.23.16.0 – 200.23.23.255` with associated output ports.
+* While correct, this format is:
+
+  * Memory-inefficient
+  * Slow to search in large tables
+  * Difficult to aggregate
+
+#### Transition to prefix-based representation
+
+* Observed: all addresses in a range often share a **common bit prefix**.
+* Idea: use **CIDR-style prefixes** to represent ranges compactly.
+
+  * e.g., `200.23.16.0 – 200.23.23.255` → `200.23.16.0/21`
+  * e.g., `200.23.24.0 – 200.23.24.255` → `200.23.24.0/24`
+
+#### Binary prefix matching
+
+* In binary: prefixes like `11001000 00010111 00010*****` encode address ranges efficiently.
+* Routers only compare the relevant **prefix bits** and ignore the remaining bits (`*`).
+* Reduces memory usage and speeds up lookup.
+
+#### Final form: longest-prefix matching table
+
+* The router matches the **longest applicable prefix** from the table.
+
+* Example table:
+
+  | Prefix (CIDR)  | Interface |
+  | -------------- | --------- |
+  | 200.23.16.0/21 | 0         |
+  | 200.23.24.0/24 | 1         |
+  | 200.23.25.0/21 | 2         |
+  | Default route  | 3         |
+
+* If multiple entries match a destination, the one with the **most bits in the prefix** is selected.
+
+---
+
+### 3. **Benefits of Prefix-Based Forwarding**
+
+* **Memory efficiency**: fewer entries needed for large address blocks
+* **Performance**: supports fast lookup structures (tries, binary trees, etc.)
+* **Scalability**: enables **route aggregation**, reducing table size across the Internet
+* **Flexibility**: can express fine-grained (specific /24) and coarse-grained (aggregated /21) routes

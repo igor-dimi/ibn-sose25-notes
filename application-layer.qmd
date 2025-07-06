@@ -376,9 +376,9 @@ You started at **slide 11**, skipping the review of protocol layering (slides 2�
 ---
 
 
-## Clarifying Detours and Triggers
+### Clarifying Detours and Triggers
 
-### 1. **“Do HTTP servers need to know the client’s IP address?”**
+#### 1. **“Do HTTP servers need to know the client’s IP address?”**
 
 **Triggered by**: slide 35 (Sockets)
 **Clarification**:
@@ -386,7 +386,7 @@ You started at **slide 11**, skipping the review of protocol layering (slides 2�
 * No, not usually. The OS handles delivery.
 * The server can access the client IP via `accept()` if needed, but it's optional.
 
-### 2. **“Is it realistic to build your own HTTP server?”**
+#### 2. **“Is it realistic to build your own HTTP server?”**
 
 **Triggered by**: understanding sockets in slide 35
 **Discussion**:
@@ -395,7 +395,7 @@ You started at **slide 11**, skipping the review of protocol layering (slides 2�
 * A minimal HTTP server can be written in under 50 lines of Python using just the socket API.
 * Focus is on parsing requests, forming responses, serving files, and handling concurrency.
 
-### 3. **“Why do Apache and Nginx exist if HTTP is simple?”**
+#### 3. **“Why do Apache and Nginx exist if HTTP is simple?”**
 
 **Triggered by**: realization that building a server is feasible
 **Clarification**:
@@ -403,7 +403,7 @@ You started at **slide 11**, skipping the review of protocol layering (slides 2�
 * Industrial servers are engineered for performance, security, flexibility, and scaling.
 * They handle advanced features like TLS, compression, load balancing, and dynamic routing.
 
-### 4. **“Can an HTTP server listen on multiple ports?”**
+#### 4. **“Can an HTTP server listen on multiple ports?”**
 
 **Triggered by**: slide 36 (port numbers)
 **Clarification**:
@@ -411,7 +411,7 @@ You started at **slide 11**, skipping the review of protocol layering (slides 2�
 * Yes — it's technically trivial (e.g. `bind()` on multiple sockets).
 * Often done for development (`8080`), reverse proxies, or alternate services.
 
-### 5. **“Do P2P applications prefer UDP over TCP?”**
+#### 5. **“Do P2P applications prefer UDP over TCP?”**
 
 **Triggered by**: slide 33 (P2P architectures)
 **Clarification**:
@@ -422,7 +422,7 @@ You started at **slide 11**, skipping the review of protocol layering (slides 2�
 ---
 
 
-### **Practical Experiment**
+#### **Practical Experiment**
 
 You tested this on your **Quarto preview server** (`localhost:3475`) and used `telnet` to manually send a `GET /` request. The server responded with:
 
@@ -440,7 +440,7 @@ This confirmed:
 
 ---
 
-### **1. Chunking and Large Files**
+#### **1. Chunking and Large Files**
 
 **What initiated it:**
 Slide 18 showed a large HTML response. You asked:
@@ -455,7 +455,7 @@ Slide 18 showed a large HTML response. You asked:
 
 ---
 
-### **2. Opening Local HTML Files in Browser**
+#### **2. Opening Local HTML Files in Browser**
 
 **What initiated it:**
 You asked how browsers handle local `.html` files opened by double-clicking.
@@ -468,7 +468,7 @@ You asked how browsers handle local `.html` files opened by double-clicking.
 
 ---
 
-### **3. What is an SPA (Single Page Application)?**
+#### **3. What is an SPA (Single Page Application)?**
 
 **What initiated it:**
 You observed that SPAs avoid reloading full HTML pages and instead dynamically update content.
@@ -481,7 +481,7 @@ You observed that SPAs avoid reloading full HTML pages and instead dynamically u
 
 ---
 
-### **4. JSON, REST, and GraphQL**
+#### **4. JSON, REST, and GraphQL**
 
 **What initiated it:**
 You asked how SPAs fetch data and render views without loading new HTML pages.
@@ -495,7 +495,7 @@ You asked how SPAs fetch data and render views without loading new HTML pages.
 
 ---
 
-### **5. Role of PostgreSQL and Backend**
+#### **5. Role of PostgreSQL and Backend**
 
 **What initiated it:**
 You asked how GraphQL or REST interfaces connect to a **PostgreSQL database**.
@@ -508,7 +508,7 @@ You asked how GraphQL or REST interfaces connect to a **PostgreSQL database**.
 
 ---
 
-### **6. Authentication and Password Handling**
+#### **6. Authentication and Password Handling**
 
 **What initiated it:**
 You asked how user login works — and whether passwords are visible to the server.
@@ -525,7 +525,7 @@ You asked how user login works — and whether passwords are visible to the serv
 
 ---
 
-### **7. HTTPS and Security**
+#### **7. HTTPS and Security**
 
 **What initiated it:**
 You noticed the password is sent in plain text within the HTTP body.
@@ -538,7 +538,7 @@ You noticed the password is sent in plain text within the HTTP body.
 
 ---
 
-### **8. Final Integration: Full-Stack SPA Project**
+#### **8. Final Integration: Full-Stack SPA Project**
 
 **What initiated it:**
 You asked whether this could be integrated into a learning project.
@@ -555,41 +555,45 @@ You asked whether this could be integrated into a learning project.
 
 ---
 
-### 1. What is a TCP segment?
+#### 1. What is a TCP segment?
 
 * A **TCP segment = TCP header + data payload**
 * Sent over IP; reassembled on the receiving side using SEQ/ACK numbers
 
-### 2. What is a byte stream?
+#### 2. What is a byte stream?
 
 * TCP provides a **reliable, ordered byte stream**
 * No inherent message boundaries — just a flow of bytes
 * Contrast with message-oriented protocols like UDP
 
-### 3. How does TCP know transmission is over?
+#### 3. How does TCP know transmission is over?
 
 * Sender signals with a **FIN** segment
 * Connection is closed using a **4-step FIN/ACK handshake**
 
-### 4. What does "contiguous bytes received" mean?
+#### 4. What does "contiguous bytes received" mean?
 
 * TCP only acknowledges data that has been received **in order**, without gaps
 * If segments arrive out of order, ACK does **not advance** until missing parts are filled in
 
-### 5. Duplicate segment handling
+#### 5. Duplicate segment handling
 
 * If the same segment arrives twice (e.g. delayed + retransmitted), TCP detects overlap using SEQ numbers and **silently discards** duplicates
 
-### 6. Do segments usually arrive in order?
+#### 6. Do segments usually arrive in order?
 
 * Yes, most of the time — but TCP is built to tolerate:
 
   * **Moderate reordering**
   * **Delayed or duplicate segments**
 
-### 7. When and how retransmission occurs
+#### 7. When and how retransmission occurs
 
 * **Fast Retransmit** is triggered by **3 duplicate ACKs**
 * **Timeout-based retransmission (RTO)** occurs when ACKs don’t arrive
 * Fast retransmit is called “fast” because it reacts quicker than waiting for RTO
+
+Certainly — here is a **clean, structured summary** of what we covered in this thread from Slide 39 onward. I’ve grouped related slides into coherent thematic units and removed redundant repetitions, while retaining all core insights.
+
+---
 
