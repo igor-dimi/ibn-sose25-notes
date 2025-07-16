@@ -1,0 +1,117 @@
+---
+title: "Ex 2016"
+---
+
+## Process Synchronization [11p]
+
+1. (1p)
+   Two threads A and B of a webserver are using common global variable `counter`,
+   in order to count the number of web page accesses. Provide an as simple as possible
+   pseudocode implementation of programs for both the threads, such that a race condition
+   can occur
+2. (2p)
+   Provide an interleaving (execution trace), s.t. an undesired result occurs. 
+   (`counter` has the value 0 before the start of the execution).
+   Explain how this problem occurs on the level of memory and register accesses, e.g.
+   "The value of the varialbe `counter` is loaded to the register R", etc. 
+   Assume a single core processor. 
+3. (4p)
+   Give an as simple as possible pseudocode implementation that prevents the race condition
+   using semaphores. Explain succinctly but completely how semaphore-operations work and achieve
+   the goal of preventing the race condition
+4. (2p) Now consider two processes P1, and P2. Provide the pseudoce that implements the following 
+   synchronization:
+
+   "Code block X in P1 must be executed only after code block Y in P2."
+
+5. (2p) Now consider the situation described in the 1st question above again. 
+   How large can be the difference between the wanted and unwanted results? 
+   Assume that a thread can be interrupted for an arbitrarily long time.
+   Justify your answer
+
+## Memory Management [12p]
+
+Assume a computer system that 
+
+* uses paging and virtual memory
+* Has a 32 bit address bus
+* 2 GiB ($2^31$ Bytes) RAM
+* Page size of 1 KiB ($2^10$ Bytes)
+
+1. [2p]
+   How much memory is required for the page table of single process when the system uses **normal**
+   page tables, i.e. not inverted, nor hierarchical page tables? Assume that each entry of the table 
+   is 4 Bytes.
+2. [2p]
+   a) What is the memory requirement of the inverted page table given an entry of the table is 4 Bytes? 
+   b) How many processes can run in the system simultaneously at most ? (assume a single inverted page
+   table for all processes)
+3. [1p]
+   The process with ID 5 addresses the logical address 1025, which is translated to the address 2049 by the MMU.
+   What is the offset and the page index of the logical address? What is the **frame number** of the physical address? 
+4. [3p]
+   Considering the case in the above subtask (subtask 3) provide the relevant parts of the page tables for:
+   i. a normal page table
+   ii. an inverted page table
+5. For some page replacement algorithms, like LRU, it is necessary to know approximately when the page was last used
+   (i.e. when was a memory access within the page last made). Explain succinctly how this is efficiently 
+   achieved in modern processors architectures (like x86)
+   **notes**:
+   1. Only a an approximation of the time of the last access is asked, no details for page replacement algorithms. 
+   2. You should refer to hardware details in your explanation
+
+## Deadlocks [11p]
+
+1. [1p]
+   Provide a common definition of a deadlock
+2. [4p]
+   Incorrect usage of semaphores can cause a deadlock. Provide two simple code fragments with semaphores, one per thread, such that
+   a deadlock can occur.
+   Describe the execution sequence of a concrete scenario where a deadlock can actually occur. 
+3. [3p]
+   To detect deadlocks resource allocation graphs are typically used. (RAG). In such graphs multiple instances per resource type can
+   occur. Draw an RAG for two following situations
+   i) The RAG contains a cycle and there exists a deadlock
+   ii) The RAG contains a cycle but there's no necessarily a deadlock
+4. [3p]
+   Explain the purpose and the main idea of the Banking algorithm. What assumption is made in the algorithm? 
+   **Tip**: You can, but don't have to use pseudocode. You don't have to explain the data structures of this algorithm. 
+
+## Network Protocols and Layers 
+
+A host (IP-Address 1.2.3.10) is located in a subnet (1.2.3.0/24) and is reachable from the internet over a gateway-router R. The IP-address of the 
+routers interface facing the subnet is 1.2.3.1. A process on the Host A sends a message to another host B outside of the network using the UDP protocol.
+Assume that the contents of the message is $N$
+
+1. [2p]
+   Before the message leaves the host A it gets encapsulated / wrapped in various headers by the operating system. Sketch the complete message
+   (frame), where each header must be named with the corresponsing network layer. Pay attention to the correct order of the headers.
+2. [3p]
+   Each header from the above subtask contains address-like information - at least two per header. Provide these information in the context 
+   of this task that was introduced above (hosts A, B, router R, and processes A and B). You should associate this information with the corresponding
+   headers w.r.t. the network layers. 
+3. [3p]
+   Now A wants to send a message to another host C with an IP-address 1.2.3.20. What can A deduce from the IP-address of C? 
+   How does A exactly make this deduction? What consequences does this have when constructing the complete message (Frame) 
+   when sending to C? 
+
+## Routing Algorithms [10p]
+
+Consider the following network graph:
+
+![graph](./dijkstra.png){width="75%"}
+
+Carry out **two steps** of the dijkstra algorithm for computing the shortest path starting from the node / router $u$ in the above graph,
+by completing the following table with the intermediate values - one line per main iteration loop. 
+
+| **Phase** | **N'** | **D(v) \| p(v)** | **D(w) \| p(w)** | **D(x) \| p(x)** | **D(y) \| p(y)** |
+| --- | --- | --- | --- | --- | --- |
+| Initialization | {u} | 2 \| u | 5 \| u | 1 \| u | $\infty$ \| - |
+| Step 1|  |  |   |  |  |
+| Step 2|  |  |   |  |  |
+
+Reminder:
+
+* N': The subset of nodes to which   
+   
+

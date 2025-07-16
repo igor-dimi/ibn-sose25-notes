@@ -16,6 +16,9 @@ book:
       - networks-intro.qmd
       - application-layer.qmd
       - ip-layer-subnetting.qmd
+    - part: "Exam"
+      chapters:
+      - exam/2016.qmd
   downloads: ["pdf"]
   page-navigation: true
 
