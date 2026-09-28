@@ -1,0 +1,14 @@
+---
+title: Exam Notes
+---
+
+## Exam contents
+
+* Process states and process transitions, questions about OSs
+* Semaphores and Race Conditions
+* Deadlocks: Drawing Graphs, determine all vectors and matrices and execute the banking algorithm on those
+* Paging in Hexadecimal system (as an exam question)
+* Calculations regarding FAT, Data systems and RAID
+* Subnetting and and constructing Routing tables 
+* execute the dijkstra algorithm
+* describe NAT and demonstrate on an Example

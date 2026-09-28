@@ -1,5 +1,5 @@
 ---
-title: "Ex 2016"
+title: "Exam 2016"
 ---
 
 ## Process Synchronization [11p]
