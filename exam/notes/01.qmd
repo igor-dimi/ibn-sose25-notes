@@ -1,0 +1,29 @@
+---
+title: OS Basics
+---
+
+## Notes
+
+## Questions 
+
+1. What is an OS? 
+   *  en: An OS is software layer between the hardware and
+      application programs. It manages the resources such
+      as the the processor, memory, and input / output
+      devices, and provides easy-use-abstractions for accessing
+      them. 
+   * de: Ein BS ist eine Softwareschicht zwischen den Hardware
+     und den Anwendungsprogrammen. Es verwaltet Ressources wie
+     Prozessor, Speicher und I/O-Geraete und stellt dafuer
+2. What are the functions of an Operating System / Welche Aufgaben hat ein Betriebssystem? 
+   * de: Zwei Hauptaufgaben:
+     1. Verwaltet und verteils es die Ressources wie CPU, Arbeitsspeicher und 
+        I/O zwischen Anwendungsprogrmmen. Dabei verhindert es Konflikte und sorgt
+        fuer eine moeglichst faire Zuteilung. 
+     2. Stellt Abstraktionen wie Prozesse, Dateien und virtuelle Adressraeume 
+        bereit, damit Programme das Hardware einfacher nutzen koennen 
+    * en: two main tasks:
+      1. Manage hardware resources s.a. CPU, main memory, I/O devices and allocates
+         them to application programs. Prevents conflicts between processes and
+         ensures a fair allocation.
+      2. provices abstractions s.a. processes, virtual address spaces, files, making the hardware easiwer to use
