@@ -35,8 +35,8 @@ Assume a computer system that
 
 * uses paging and virtual memory
 * Has a 32 bit address bus
-* 2 GiB ($2^31$ Bytes) RAM
-* Page size of 1 KiB ($2^10$ Bytes)
+* 2 GiB ($2^{31}$ Bytes) RAM
+* Page size of 1 KiB ($2^{10}$ Bytes)
 
 1. [2p]
    How much memory is required for the page table of single process when the system uses **normal**
@@ -101,7 +101,7 @@ Consider the following network graph:
 
 ![graph](./dijkstra.png){width="75%"}
 
-Carry out **two steps** of the dijkstra algorithm for computing the shortest path starting from the node / router $u$ in the above graph,
+1. [4p] Carry out **two steps** of the dijkstra algorithm for computing the shortest path starting from the node / router $u$ in the above graph,
 by completing the following table with the intermediate values - one line per main iteration loop. 
 
 | **Phase** | **N'** | **D(v) \| p(v)** | **D(w) \| p(w)** | **D(x) \| p(x)** | **D(y) \| p(y)** |
@@ -112,6 +112,29 @@ by completing the following table with the intermediate values - one line per ma
 
 Reminder:
 
-* N': The subset of nodes to which   
-   
+   * $N'$: The subset of nodes to which the minimal path from the source $u$ is known
+   * $D(q)$: The costs of the minimal path from the source $u$ t the node $q$. It is either
+     approximate, or in case $q \in N'$ exact. 
+   * $p(q)$: Parent pointer of $q$. Shows the last node before $q$ that exist on a known minimal path
+     from the start node $u$ to $q$.
+
+2. [1p] How can the entries of the routing table of the source node $u$ be determined from the values of
+   parent-pointer $p(q)$? Succinctly describe a general method. (You do not have to provide concrete entry values)
+
+3. [5p] In the network shown in the above diagram the distance-vector routing algorithm is used. The node $y$ has 
+   currently stored the following (outdated) distance vecteor $DV(y)$:
+
+   | u | v | w | x | y |
+   | --- | --- | --- | --- | --- |
+   | 3 | 4 | 1 | 1 | 0 |
+
+   Now y gets the following distance vector $DV(x)$ from $x$: 
+
+   | u | v | w | x | y |
+   | --- | --- | --- | --- | --- |
+   | 1 | 2 | 3 | 0 | 1 |
+
+   First provide the Bellman-Ford equation, that is used for the updating of $DV(y)$.
+   How does the distance vector of $y$ change? Explain each update to $DV(y)$ with the corresponding
+   expression from the equation.
 
