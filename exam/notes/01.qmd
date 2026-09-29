@@ -27,3 +27,72 @@ title: OS Basics
          them to application programs. Prevents conflicts between processes and
          ensures a fair allocation.
       2. provices abstractions s.a. processes, virtual address spaces, files, making the hardware easiwer to use
+3. What are Caches what do they work well? 
+   * de: Kleine, schnelle Speicher zwischen CPU und Hauptspeicher. Sie halten Kopien von Daten und Befehlen bereit, die die CPU wahrscheinlich bald benoetigt. So muss 
+   die CPU seltener auf den langsameren Hauptspeicher warten.
+   Das funktioniert, weil Programme haeufig kuerzlich verwendete oder benachbarte Speicherstellen erneut nutzen. 
+   (zeitliche & raeumliche Lokalitaet)
+   * en: a small & fast memory that keeps copies of data and instructions that are likely to be accessed near the cpu. Cache access slower than register access but much faster than main memory access. It works well because or spatial and temporal locality of data. 
+     * **spatial locality**: data near a recently accessed memory location is likely to be accessed soon
+     * **temporal locality**: recently accessed data is likely to be accessed soon. 
+4. What kind of CPU registers are there:
+   * en: 
+   * **general purpose registers**:
+      * data
+      * addresses
+      * intermediate results
+   * **instruction counter**: address of the next instruction to execute
+   * **stack pointer**: contains the address of the current top of the stack
+   * **status register**: holds CPU status and control bits
+   * de: 
+      * **allgemeine arbeistregister**: 
+      Daten, Addresen, Zwischenergebnisse
+      * **Befehlszaehler**: enthaelt die Addresse des naechsten auszufuehrenden Befehls
+      * **Kellerregister**: Enthalt die addresse der Spitze des Stacks 
+5. RISC vs CISC:
+   * en:
+      * CISC: complex instruction set computer. Individual instructions are more powerful / complex operations, but may take more work to execute
+      * RISC: simpler more regular instructions; a task may require more instructions but each instruction is generally easier to execute efficiently.
+   * de: 
+      * **CISC**: individuelle Befehle sind maechtiger & complexer und fuehren mehr arbeit durch benoetigen aber mehr zeit
+      * **RISC**: einfachere, einheitlichere Befehle. Erledigen atomare aufgaben aber sind schneller durzufuehren.
+6. What are the two execution modes of modern CPUs ? 
+   * **user mode**: an application can access memory pages mapped for it with user persmissions. It cannot directly
+   access another process's private memory or execute 
+   priviliged instructions, such as chaging memory-management
+   settings. Processes *can access* shared memory when the OS
+   maps it into both of their address spaces.
+   * **kernel mode**: the os can execute privileged instructions and access protected kernel memory.
+
+
+
+
+::: {.callout}
+
+# Mode vs Space
+
+* **user / kernel mode**: the cpu's current **privilege level**, what the executing code is allowed to do. 
+* **user space / kernel space**: **virtual memory areas**
+  used by applications and by the kernel
+
+An application runs in **user mode** and uses it **user-space**
+memory. When it makeks a system call, the CPU switches to 
+**kernel mode** to run OS code, which can access
+**kernel-space** memory. The application cannot switch modes 
+merely by jumping to a kernel address. 
+
+:::
+
+7. What happens during a system call (trap, passing parameters)
+   * System calls let a program request services from the kernel. 
+   * When a program makes a system call it issues a special 
+     CPU instruction s.a. `syscall` on x86-64. This causes
+     a **trap**: The CPU switches from user mode to kernel mode
+     and starts executing at a designated kernel entry point.
+   * The kernel entry point that handles system calls identifies the requested service, checks the parameters
+   and performs the operation. 
+   * the kernel places the result or error code where the program can receive it, then it returns. 
+   * The CPU resumes the program in user mode.
+8. What are shells and what is their purpose in OSs? 
+   
+   
