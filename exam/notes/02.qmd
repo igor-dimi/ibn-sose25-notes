@@ -1,0 +1,14 @@
+---
+title: Processes
+---
+
+## Notes 
+
+### 
+
+## Q & A 
+
+1. what is a processes and how does it differ to a program? \
+   * a process is a program in execution
+   * 
+
