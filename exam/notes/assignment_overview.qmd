@@ -1,0 +1,31 @@
+---
+title: Assignment Sheets Overview
+---
+
+## Assignment Sheet 1 
+
+| Task | Topic / subtopic | Type | Exam relevance | Revision priority |
+|---|---|---|---|---|
+| **A1** | Learning methodology: focused/diffuse thinking, creativity | Research + conceptual / supplementary | **Low** | Skip for IBN content revision |
+| **A2** | Computer architecture: x64 general-purpose registers, AVX2 registers, powers of two | Research + calculation | **Medium-low** | Know the underlying ideas, probably don't spend much time on lookup |
+| **A3** | OS protection: process address spaces, user/kernel mode, controlled resource access | Conceptual / application | **High** | Definitely do |
+| **A4** | Kernel mode / kernel stack; interrupts and system calls | Conceptual / explanation | **High** | Definitely do |
+| **A5** | POSIX system calls and minimal interfaces | Conceptual / design | **Medium** | Useful, but selective |
+| **A6** | Bash shell scripting | Programming | **Low–medium** | Understand shell concepts; full implementation is lower priority |
+| **A7** | Advantages/disadvantages of abstractions | Conceptual / supplementary | **Low** | Optional |
+
+## Sheet 2
+
+| Task | Main topic / subtopic | Problem type | Exam relevance | What I’d do |
+|---|---|---|---|---|
+| **A1** | PCB / Linux `task_struct` | Research + conceptual | **Medium** | Learn PCB concept; skip detailed kernel-source research |
+| **A2a** | `fork()`, return values, process tree | Trace / code analysis | **Very high** | **Definitely solve fully** |
+| **A2b** | `fork()`, PID-dependent behavior | Trace + conceptual / exploratory | **Medium** | Understand, but lower priority |
+| **A3** | Process hierarchy, process states, `ps`, background/suspended processes | Practical experiment + conceptual | **High** | Do conceptually; actual terminal experiment optional |
+| **A4** | `exec*()` family | Research / API comparison | **Medium-low** | Learn core `exec` semantics; don't memorize all signatures |
+| **A5** | Process/thread context switching | Conceptual / mechanism | **High** | **Definitely study** |
+| **A6.1** | Thread creation/join/order | Programming + synchronization | **Medium** | Useful, but belongs more to Threads |
+| **A6.2–3** | Thread performance measurement | Empirical / performance | **Low** | Skip for exam revision |
+
+
+* 
