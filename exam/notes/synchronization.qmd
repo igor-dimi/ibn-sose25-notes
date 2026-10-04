@@ -1,0 +1,624 @@
+# Race conditions, semaphores and synchronization
+
+This is one of the highest-priority units. The 2016 exam devoted an entire 11-point problem to instruction-level race tracing, semaphore repair, semaphore semantics and execution ordering. 12-ibn-klausur-2016.pdf The recent exam protocol also reports an independent pseudocode-based race-condition problem. 13-Ged-chtnisprotokoll_Klausur\_-IBN_Ersttermin.pdf
+
+The coverage below follows Day 2 of your plan and the selected Sheet 3 exercises. 15-Operating-Systems-and-Networks-SoSe-25-Notes.pdf 11-ueb03-ibn-SS2025.pdf
+
+## Why synchronization is necessary
+
+Threads belonging to the same process have:
+
+- separate registers and stacks;
+- a shared address space containing global variables, heap objects and other shared resources.
+
+Sharing makes communication inexpensive, but it allows multiple threads to access the same data concurrently.
+
+Consider:
+
+```default
+counter = counter + 1
+```
+
+Although this looks like one operation, it normally consists conceptually of:
+
+```default
+LOAD  counter into register R
+ADD   1 to R
+STORE R into counter
+```
+
+A thread can be interrupted between any two of these instructions.
+
+Suppose `counter = 0` and two threads both increment it:
+
+| Step | Thread A | Thread B | Shared `counter` |
+|---:|---|---|---:|
+| 1 | Load `counter` into `RA` (`RA=0`) | | 0 |
+| 2 | | Load `counter` into `RB` (`RB=0`) | 0 |
+| 3 | Add 1 to `RA` (`RA=1`) | | 0 |
+| 4 | Store `RA` | | 1 |
+| 5 | | Add 1 to `RB` (`RB=1`) | 1 |
+| 6 | | Store `RB` | 1 |
+
+The correct result would be 2, but the final result is 1. One increment has been overwritten: a **lost update**.
+
+This can happen on a single-core CPU. The threads do not need to execute physically at the same instant; preemption and interleaving are enough.
+
+## Race conditions
+
+A **race condition** exists when the correctness or result of a program unintentionally depends on the timing or execution order of concurrent operations.
+
+A typical race condition requires:
+
+1. shared state;
+2. concurrent accesses to that state;
+3. at least one access that modifies it;
+4. insufficient synchronization.
+
+The output may differ between executions because the scheduler can produce different interleavings.
+
+### Critical region
+
+A **critical region** or **critical section** is a part of a program that accesses shared data and must not be executed simultaneously with a conflicting critical region.
+
+```default
+entry protocol
+
+critical region
+
+exit protocol
+
+non-critical region
+```
+
+The entry and exit protocols are implemented using a mutex, semaphore or another synchronization primitive.
+
+### Requirements of a good mutual-exclusion solution
+
+A correct solution should provide:
+
+- **Mutual exclusion:** conflicting threads are never simultaneously inside their critical regions.
+- **Progress:** a thread outside its critical region must not unnecessarily prevent others from entering.
+- **No timing assumptions:** correctness must not depend on CPU speed or the number of cores.
+- **No starvation/bounded waiting:** a thread requesting entry should not be postponed forever.
+
+The first is a safety property: “nothing bad happens.” Progress and absence of starvation are liveness properties: “something good eventually happens.”
+
+## Atomicity
+
+An operation is **atomic** if other threads cannot observe or interrupt a partially completed execution of that operation.
+
+For example, the abstract operation
+
+```default
+wait(S)
+```
+
+must itself be atomic. If two threads could simultaneously test and decrement the semaphore non-atomically, the semaphore would not provide synchronization.
+
+Protecting a critical region does not mean that all its ordinary instructions become individually atomic. It means that the entry protocol ensures that only the permitted thread or threads can execute that region.
+
+## Semaphores
+
+A semaphore contains:
+
+- a nonnegative count representing available permits or resource instances;
+- an associated queue of blocked threads;
+- two atomic operations, conventionally called `wait` and `signal`.
+
+Other common names are:
+
+| Operation | Alternative names |
+|---|---|
+| `wait(S)` | `P(S)`, `down(S)`, `sem_wait(S)` |
+| `signal(S)` | `V(S)`, `up(S)`, `post(S)`, `sem_post(S)` |
+
+### `wait(S)`
+
+Conceptually:
+
+```default
+if a permit is available:
+    consume one permit
+    continue
+else:
+    block until a permit becomes available
+```
+
+Thus, `wait` may block.
+
+### `signal(S)`
+
+Conceptually:
+
+```default
+make one permit available
+if a thread is waiting:
+    wake one waiting thread
+```
+
+`signal` does not normally block.
+
+The implementation may represent blocked threads using negative values or separate queues, but exam solutions should normally describe the abstract behaviour rather than depend on a particular representation.
+
+### Binary and counting semaphores
+
+A **binary semaphore** has at most one available permit:
+
+```default
+Semaphore mutex = 1
+```
+
+A **counting semaphore** can represent several identical resource instances:
+
+```default
+Semaphore printers = 3
+```
+
+Up to three successful `wait(printers)` operations can occur before another thread must release a permit.
+
+## Mutual exclusion with a semaphore
+
+Initialize the semaphore to 1:
+
+```default
+Semaphore mutex = 1
+```
+
+Every thread uses:
+
+```default
+wait(mutex)
+
+    // critical region
+
+signal(mutex)
+```
+
+The first thread consumes the only permit. Other threads calling `wait(mutex)` must block until the first thread calls `signal(mutex)`.
+
+The protected operation must lie entirely between `wait` and `signal`:
+
+```default
+wait(mutex)
+counter = counter + 1
+signal(mutex)
+```
+
+Protecting only the load or only the store would still allow an unsafe interleaving.
+
+### Mutex versus binary semaphore
+
+At the level required by many introductory exercises, a mutex can be viewed as a binary lock. More precisely:
+
+- a mutex normally has an owner;
+- only the thread that locked it should unlock it;
+- a semaphore represents permits and does not necessarily have ownership.
+
+Semaphores can consequently express both mutual exclusion and dependencies between different threads.
+
+## Enforcing an execution order
+
+Suppose block `X` in Thread 1 may execute only after block `Y` in Thread 2.
+
+Initialize a semaphore to zero:
+
+```default
+Semaphore finished_Y = 0
+```
+
+Thread 1:
+
+```default
+wait(finished_Y)
+X
+```
+
+Thread 2:
+
+```default
+Y
+signal(finished_Y)
+```
+
+Why initialize it to zero?
+
+- If Thread 1 reaches `wait` first, it blocks.
+- After Thread 2 completes `Y`, `signal` provides the permit.
+- If Thread 2 finishes first, the semaphore retains the permit. Thread 1’s later `wait` consumes it and continues immediately.
+
+This is what is meant by saying that a semaphore has **memory**: an earlier signal can be remembered in its counter.
+
+## Blocking versus busy waiting
+
+A primitive can wait in two ways.
+
+### Busy waiting
+
+```default
+while lock is unavailable:
+    repeatedly test lock
+```
+
+The thread remains runnable and consumes CPU time. A lock implemented this way is often called a **spinlock**.
+
+Busy waiting can be reasonable for extremely short waits inside kernels or multiprocessor code, but it is inefficient for long waits.
+
+### Blocking
+
+If the resource is unavailable:
+
+1. the thread is placed in a waiting queue;
+2. its state becomes `Waiting/Blocked`;
+3. another runnable thread receives the CPU;
+4. a later `signal` makes the blocked thread `Ready`.
+
+Notice that waking a thread normally produces:
+
+```default
+Waiting → Ready
+```
+
+not immediately `Waiting → Running`.
+
+## Condition variables
+
+A condition variable allows a thread to sleep until some condition involving shared state may have become true.
+
+It must be used together with:
+
+- a **predicate**, such as `count > 0` or `production_done`;
+- a mutex protecting that predicate;
+- the condition variable on which threads wait.
+
+Canonical pattern:
+
+```default
+lock(mutex)
+
+while (!condition) {
+    cond_wait(condition_variable, mutex)
+}
+
+// condition is true; access shared state
+
+unlock(mutex)
+```
+
+`cond_wait(cv, mutex)` performs three important actions:
+
+1. atomically releases `mutex` and puts the caller to sleep;
+2. waits for a notification;
+3. reacquires `mutex` before returning.
+
+The atomic release-and-sleep step prevents the following lost-wakeup race:
+
+1. waiter checks that the condition is false;
+2. notifier makes it true and sends a signal;
+3. waiter goes to sleep after the signal;
+4. no future signal arrives.
+
+### Why `while`, not `if`?
+
+After waking, the thread must check the predicate again because:
+
+- wakeups may be spurious;
+- another awakened thread may acquire the mutex first and consume the resource;
+- a notification means “the condition may now be true,” not “the condition is guaranteed to remain true.”
+
+Correct:
+
+```default
+while (count == 0)
+    cond_wait(not_empty, mutex)
+```
+
+Unsafe:
+
+```default
+if (count == 0)
+    cond_wait(not_empty, mutex)
+```
+
+### `signal` versus `broadcast`
+
+- `cond_signal(cv)` wakes at least one waiting thread.
+- `cond_broadcast(cv)` wakes all threads waiting on `cv`.
+
+A producer adding one item normally needs to wake only one consumer. If `production_done` becomes true and every consumer must notice it and terminate, a broadcast is appropriate.
+
+The awakened threads do not all enter the critical region simultaneously: each must first reacquire the mutex.
+
+### Condition variables do not remember notifications
+
+If `cond_signal` or `cond_broadcast` is called while nobody is waiting, the notification disappears.
+
+This differs from a semaphore:
+
+```default
+signal(S)
+```
+
+with no waiter increments or preserves the semaphore’s permit count, so a later `wait(S)` can consume it.
+
+A mutex remembers whether it is currently locked, but an `unlock` is not a stored notification that a future thread can consume.
+
+### Why update and signal under the mutex?
+
+The standard protocol is:
+
+```default
+lock(mutex)
+done = true
+cond_broadcast(done_changed)
+unlock(mutex)
+```
+
+The mutex makes changing the predicate and notifying waiters part of one synchronized protocol. A waiter cannot slip between checking `done` and beginning to wait. When it wakes and reacquires the mutex, it sees a consistent value of `done`.
+
+## Producer–consumer pattern
+
+For a bounded buffer of capacity \(N\), a semaphore solution uses:
+
+```default
+Semaphore empty = N
+Semaphore full  = 0
+Semaphore mutex = 1
+```
+
+Producer:
+
+```default
+produce(item)
+
+wait(empty)
+wait(mutex)
+insert(item)
+signal(mutex)
+signal(full)
+```
+
+Consumer:
+
+```default
+wait(full)
+wait(mutex)
+item = remove()
+signal(mutex)
+signal(empty)
+
+consume(item)
+```
+
+Interpretation:
+
+- `empty` counts free slots;
+- `full` counts stored items;
+- `mutex` protects the buffer data structure.
+
+Do not acquire `mutex` before waiting for `empty` or `full`. Otherwise a thread might sleep while holding the buffer lock, preventing the other side from changing the condition it is waiting for.
+
+## Simplified read–write lock
+
+Suppose:
+
+```default
+Semaphore S = N
+```
+
+A reader consumes one permit:
+
+```default
+lock_read:
+    wait(S)
+
+unlock_read:
+    signal(S)
+```
+
+A writer attempts to consume all \(N\) permits:
+
+```default
+lock_write:
+    repeat N times:
+        wait(S)
+
+unlock_write:
+    repeat N times:
+        signal(S)
+```
+
+This appears to permit either:
+
+- up to \(N\) simultaneous readers; or
+- one writer holding every permit.
+
+But `lock_write` is not atomic.
+
+For \(N=3\), two writers could execute:
+
+```default
+W1: wait(S)   // S: 3 → 2
+W2: wait(S)   // S: 2 → 1
+W1: wait(S)   // S: 1 → 0
+W2: wait(S)   // blocks
+W1: wait(S)   // blocks
+```
+
+Neither writer can acquire all three permits, and neither can release its partial acquisition because it has not entered the critical region. This is a **deadlock**.
+
+A simple repair serializes writers while they collect the permits:
+
+```default
+Semaphore S = N
+Semaphore writer_gate = 1
+
+lock_write:
+    wait(writer_gate)
+    repeat N times:
+        wait(S)
+    signal(writer_gate)
+
+unlock_write:
+    repeat N times:
+        signal(S)
+```
+
+Only one writer may now attempt the multi-step acquisition.
+
+This repair prevents the writer–writer split deadlock, but it does not necessarily guarantee fairness: continuously arriving readers might still starve a writer.
+
+One correction to retain from your earlier work: your old Sheet 3 answer identified the interleaved writer acquisition, but described it as permitting simultaneous writing. The direct consequence is instead the deadlock shown above. 14-Operating-Systems-and-Networs-SoSe-25-Solutions.pdf
+
+## Common exam traps
+
+- Treating `counter++` as an indivisible operation.
+- Thinking a race requires multiple CPU cores.
+- Protecting different threads with different mutexes.
+- Forgetting to initialize a mutex semaphore to 1.
+- Initializing an ordering semaphore to 1 instead of 0.
+- Forgetting that semaphore operations must themselves be atomic.
+- Omitting `signal` on some control-flow path.
+- Sleeping while holding a mutex needed by the thread that could wake you.
+- Using `if` instead of `while` around `cond_wait`.
+- Assuming condition-variable notifications are remembered.
+- Confusing deadlock with starvation.
+- Calling every timing-dependent output a race: nondeterministic ordering can be intentional and harmless.
+
+---
+
+## Exam-like exercises
+
+Do these closed-book. Allow approximately 35–45 minutes in total.
+
+### Exercise 1: Race condition and semaphore repair
+
+Two threads share:
+
+```default
+integer counter = 0
+```
+
+Thread A:
+
+```default
+repeat 3 times:
+    counter = counter + 1
+```
+
+Thread B:
+
+```default
+repeat 2 times:
+    counter = counter + 1
+```
+
+Assume a single-core system and that an increment consists of:
+
+```default
+LOAD counter into private register R
+ADD 1 to R
+STORE R into counter
+```
+
+#### Questions
+
+1. Define the term **race condition**.
+2. What should the final value of `counter` be?
+3. Give an instruction-level interleaving in which one update is lost.
+4. Explain why the race can occur despite there being only one CPU core.
+5. Repair the program using one semaphore. State its initial value.
+6. Explain completely but concisely what `wait` and `signal` do.
+7. Would it be sufficient for A and B to use two different mutexes? Explain.
+
+Use this table for Part 3:
+
+| Step | Thread | Instruction | Private register | Shared `counter` |
+|---:|---|---|---:|---:|
+| 1 | | | | |
+| 2 | | | | |
+
+### Exercise 2: Ordering and condition variables
+
+#### Part A: Ordering
+
+Block `send_result` in Thread A may execute only after Thread B has completed `calculate_result`.
+
+Write the simplest semaphore-based pseudocode for both threads. Give the semaphore’s initial value.
+
+Your solution must work regardless of which thread starts first.
+
+#### Part B: Find the condition-variable errors
+
+A consumer uses:
+
+```default
+lock(mutex)
+
+if (count == 0)
+    cond_wait(not_empty, mutex)
+
+item = remove_from_buffer()
+count = count - 1
+
+unlock(mutex)
+```
+
+The producer uses:
+
+```default
+add_to_buffer(item)
+count = count + 1
+cond_signal(not_empty)
+```
+
+Answer:
+
+1. Identify at least two synchronization errors.
+2. Rewrite the relevant consumer and producer pseudocode correctly.
+3. Why must the consumer test the condition in a `while` loop?
+4. What happens if `cond_signal(not_empty)` is called while nobody is waiting?
+5. What would happen in the analogous situation with `signal(S)` on a semaphore?
+6. When would `broadcast` be preferable to `signal`?
+
+### Exercise 3: Debugging a semaphore construction
+
+Let \(N=4\):
+
+```default
+Semaphore S = 4
+
+lock_read:
+    wait(S)
+
+unlock_read:
+    signal(S)
+
+lock_write:
+    for i = 1 to 4:
+        wait(S)
+
+unlock_write:
+    for i = 1 to 4:
+        signal(S)
+```
+
+1. Give an exact execution involving two writers that leads to failure.
+2. Classify the failure as:
+   - mutual-exclusion violation,
+   - deadlock, or
+   - starvation.
+3. Explain precisely why neither writer can continue.
+4. Repair the construction using one additional semaphore or mutex.
+5. Does your repair also guarantee that a writer can never starve? Explain briefly.
+
+## Answers 
+
+
+
+
+### Exercise 1
+
+
+
+

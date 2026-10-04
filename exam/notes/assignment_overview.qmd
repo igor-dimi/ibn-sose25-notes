@@ -28,4 +28,663 @@ title: Assignment Sheets Overview
 | **A6.2–3** | Thread performance measurement | Empirical / performance | **Low** | Skip for exam revision |
 
 
-* 
+## Sheet 3 
+
+**Topics**: Threads, Race Conditions, Mutual Exclusion, Critical Sections, Semaphores, Mutexes, Condition Variables, Active/Busy Waiting, Producer–Consumer Problem, Read–Write Locks, Deadlock, Starvation, Pthreads synchronization APIs, Win32 synchronization APIs.
+
+| Aufgabe | Topic / subtopic | Type of task | Exam relevance | Exam-likeness |
+|---|---|---|---|---|
+| **1** | **Concurrency → Race Conditions / Mutual Exclusion** | Code analysis, conceptual reasoning | **Very high** | **Very high** |
+| **2** | **Synchronization → Semaphores, Mutexes, Condition Variables** | Conceptual / video-based / supplementary theory | **High** | **Medium–High** |
+| **3** | **Synchronization → Producer–Consumer, Condition Variables, Active Waiting** | Programming / implementation / performance experiment | **High conceptually**, lower for full implementation | **Medium** |
+| **4** | **Synchronization → Semaphores, Read–Write Locks, Deadlock / Starvation / Mutual Exclusion** | Pseudocode analysis + construction | **Very high** | **Very high** |
+| **5 Bonus** | **Synchronization APIs → POSIX/Pthreads vs. Win32 Semaphores** | Research / API lookup / coding | **Low–Medium** | **Low** |
+
+## Sheet 4
+
+Yes. Looking at **Übungsblatt 4 as a whole**, there is a fairly clear transition in the course here: Aufgaben 1–3 finish the block on **Interprozesskommunikation / Pipes**, while Aufgaben 4–7 begin **Speicherverwaltung**, especially fragmentation, contiguous allocation, logical/physical addresses and the foundations of paging. This matches the organization of the summary: IPC comes before threads/synchronization, while memory management then introduces swapping, fragmentation, MMU/logical vs. physical addresses, followed by paging. ibn-zusammenfassung ibn-zusammenfassung ibn-zusammenfassung
+
+The exam evidence makes the **memory-management half particularly important**. The 2016 exam devoted an entire 12-point problem to paging and address translation, including page-table sizes, logical/physical addresses, page number/offset and inverted page tables. ibn-klausur-2016 The more recent memory protocol likewise reports a large paging/memory-management problem involving page tables, logical/physical addresses and calculations. Gedächtnisprotokoll_Klausur\_ IB…
+
+### Classification of Übungsblatt 4
+
+| Aufgabe | Topic → subtopic | Type of task | Exam relevance | How exam-like? | Assessment |
+|---|---|---|---|---|---|
+| **1** | **Interprocess Communication → named vs. anonymous pipes** | Conceptual / application / example construction | **Medium** | **Medium** | The concepts themselves are standard OS material and explicitly appear in the summary. You need to understand the limitations and use cases of named vs. anonymous pipes. The requirement to invent your own scenario is somewhat exercise-like rather than typical written-exam style. |
+| **2** | **IPC / OS interfaces → Win32 handles, I/O redirection** | **Research + programming/API investigation** | **Low** | **Very low** | Strongly research-oriented: look up Win32 handle representation and construct Windows API code for redirection. The summary and the available exams concentrate much more on POSIX concepts than on exact Win32 API details. Useful background, but not something I would prioritize for exam preparation. |
+| **3** | **IPC → anonymous pipes, bidirectional process communication** | **Programming / implementation** | **Medium** | **Low–Medium** | Anonymous pipes themselves are relevant; the summary explicitly covers `pipe()`, `read()` and `write()`. ibn-zusammenfassung But writing a complete program with two processes and two-way communication is more implementation-heavy than the exam evidence suggests. Understanding *how* the two pipes must be arranged is more important than memorizing code. |
+| **4** | **Memory management → fragmentation, swapping, paging, allocation trade-offs** | **Research / conceptual / diagram interpretation** | **Medium–High concepts**, but **Low–Medium as an exercise** | **Low–Medium** | The concepts are important: fragmentation, swapping and paging are core memory-management topics. But the task is built around watching a research talk and interpreting a specific allocator paper, which makes the assignment itself much less exam-like. Part **(b)** on swapping and **(c)** on paging are more useful than the research-specific details. |
+| **5** | **Memory management → internal vs. external fragmentation; logical vs. physical addresses** | **Conceptual definition/comparison** | **High** | **High** | Very good exam-prep question. These are fundamental distinctions explicitly covered in the summary. ibn-zusammenfassung Short “explain the difference between X and Y” questions are also exactly the sort of thing that can appear as exam subquestions. |
+| **6** | **Memory management → contiguous allocation; First Fit, Best Fit, Worst Fit** | **Calculation / algorithm simulation** | **Medium–High** | **High** | Very exam-like format: small concrete data set, apply three algorithms by hand. The summary explicitly lists First Fit, Best Fit and Worst Fit as the allocation strategies for holes. ibn-zusammenfassung It has not appeared explicitly in the two exam documents we have, so I would put it below paging, but it is exactly the kind of calculation that could easily be asked. |
+| **7** | **Paging → splitting a logical address into page number + offset** | **Calculation + tiny coding component** | **Very High** | **Very High** | One of the strongest exam-prep tasks on the sheet. The summary explicitly requires understanding page number and offset. ibn-zusammenfassung More importantly, the **2016 exam asks essentially this exact operation**: given a logical address and page size, determine offset and page index. ibn-klausur-2016 The recent memory protocol again says logical/physical addresses and page calculations appeared. Gedächtnisprotokoll_Klausur\_ IB… |
+
+The actual sheet confirms this progression very clearly: Aufgaben 1–3 are named pipes, Win32 handles/redirection, and anonymous-pipe communication; Aufgaben 4–7 then move to fragmentation/swapping/paging, memory-management terminology, placement algorithms and page-number/offset calculations. ueb04-ibn-SS2025 ueb04-ibn-SS2025
+
+### Topics
+
+**Topics: Interprocess Communication (IPC), Pipes, I/O and file-handle abstractions, Memory Management, Swapping, Fragmentation, Contiguous Memory Allocation, Logical vs. Physical Addressing, Paging**
+
+If we compress that to the **main syllabus-level topics**, rather than listing every subtopic:
+
+**Topics: Interprocess Communication, Memory Management, Paging**
+
+For exam preparation, I would mentally divide Blatt 4 into roughly three priority groups: **Aufgabe 7 and 5 are especially important**, Aufgabe 6 is also worth being able to solve comfortably, while Aufgaben 1 and 3 are useful IPC knowledge but less strongly represented in the exam evidence. Aufgabe 4 contains important theory inside a relatively non-exam-like research exercise, and Aufgabe 2 is the clearest candidate to deprioritize.
+
+## Sheet 5
+
+Yes. **Übungsblatt 5 is unusually exam-relevant overall**. Unlike some earlier sheets, almost the entire sheet is concentrated on one major syllabus block—**Paging and page tables**—and that block appears prominently in both exam documents. In the more recent *Gedächtnisprotokoll*, Paging/Memory Management was even described as a comparatively extensive exam problem, involving construction of page tables, logical/physical addresses, unit conversions, and an inverted-page-table question. Gedächtnisprotokoll_Klausur\_ IB… The 2016 exam likewise devoted an entire 12-point problem to page-table sizes, inverted page tables, address decomposition, and page-table contents. ibn-klausur-2016
+
+### Main syllabus-level topics
+
+The sheet belongs almost entirely to **Speicherverwaltung → Paging und Seitentabellen**. More specifically, I would place its material under:
+
+- **Paging and address translation**
+  - logical vs. physical addresses
+  - page number, frame number, offset
+  - direct/normal page tables
+- **Page-table organizations**
+  - direct page tables
+  - inverted page tables
+  - hierarchical / multilevel page tables
+  - memory consumption of page tables
+- **Translation Lookaside Buffer (TLB)**
+  - TLB hit / miss
+  - TLB capacity
+  - locality and repeated accesses
+  - TLB invalidation on context switches
+  - effective memory-access time
+- **Hardware/software interaction in virtual memory**
+  - process-specific address mappings
+  - why address translation state changes on a process switch
+- **Practical address translation**
+  - following a translation through a simulator
+  - decomposing virtual addresses across levels of a page table
+
+That matches the organization of the summary very closely: the summary's section **“7. Paging und Seitentabellen”** starts with pages, frames, address decomposition and page tables, and then covers TLBs, effective access time, direct/inverted tables and multilevel page tables. ibn-zusammenfassung ibn-zusammenfassung ibn-zusammenfassung
+
+### Analysis of Übungsblatt 5
+
+| Aufgabe | Topic / subtopic | Type of task | Exam relevance | How exam-like? | Assessment |
+|---|---|---|---|---|---|
+| **1** | Paging; direct page table; mapping **page number → frame number**; sparsity/size of a direct table | **Conceptual analogy + estimation** | **High** | **Medium** | The student-ID/address analogy itself is pedagogical and somewhat assignment-like, but the underlying ideas—what indexes a page table, what its entries contain, and why a direct table can be huge/sparse—are core exam material. ueb05-ibn-SS2025 |
+| **2** | Address translation; page number, offset, frame number; constructing direct page-table entries | **Calculation + table construction** | **Very high** | **Very high** | One of the most important tasks on the sheet. Given logical→physical address mappings, you reconstruct the relevant page-table entries. This is extremely close to actual exam material. ueb05-ibn-SS2025 |
+| **3** | TLB; page size; stride accesses; capacity misses; temporal/spatial locality | **Calculation / reasoning from code** | **Medium–High** | **Medium** | Important conceptual TLB exercise, but more elaborate than what we have direct evidence for in the exams. Excellent for understanding *why* a TLB works, rather than a direct historical exam clone. ueb05-ibn-SS2025 |
+| **4** | TLB invalidation; process switch vs. thread switch; process-specific page tables | **Conceptual explanation + counterexample** | **High** | **Medium–High** | Good exam-style conceptual question: explain a mechanism and construct a failure scenario. Not directly repeated in the supplied exams, but squarely within core paging/TLB knowledge. ueb05-ibn-SS2025 |
+| **5** | Multilevel translation + TLB lookup | **Simulator / practical supplementary exercise** | **Low–Medium** | **Low** | The concepts are important, but “run simulator and submit screenshot” is obviously not an exam format. Use it for visualization, not as a priority exam exercise. ueb05-ibn-SS2025 |
+| **6** | Direct page-table memory size; inverted page table; RAM overhead | **Calculation** | **Extremely high** | **Extremely high** | Probably the strongest exam-preparation task on the sheet. The 2016 exam asks essentially these calculations, and the older minitest included in the exam document contains almost the *same wording*. ueb05-ibn-SS2025 |
+| **7** | TLB hit ratio; hierarchical page tables; expected access time; locality | **Formula derivation + conceptual explanation** | **High** | **High** | Very exam-suitable: derive an expected-time formula, then explain why the simplistic probabilistic model is unrealistic. Combines calculation with conceptual understanding. ueb05-ibn-SS2025 |
+| **8** | Multilevel page tables; splitting address bits; entries per level; table contents; maximum memory use | **Diagram + calculation + conceptual explanation** | **High** | **Medium–High** | Very useful and comprehensive, but somewhat longer than a typical short exam subquestion. The individual skills it tests are highly examinable. ueb05-ibn-SS2025 |
+
+### Why Aufgabe 2 and Aufgabe 6 stand out
+
+**Aufgabe 2 is almost exactly the skill tested in the recent exam protocol.** The protocol says that the Paging problem required students to **create/fill page tables** and determine **logical and physical addresses**, with PIDs and addresses given. Gedächtnisprotokoll_Klausur\_ IB… That is essentially what Aufgabe 2 trains.
+
+The 2016 exam is equally direct. It gives a logical address translated to a physical address, asks for its **offset, page index and frame number**, and then asks for the corresponding entries of both a normal and an inverted page table. ibn-klausur-2016
+
+So for exam preparation I would treat **Aufgabe 2 as mandatory**.
+
+**Aufgabe 6 is even more striking.** The 2016 exam asks for the memory requirement of a normal page table and then for the memory requirement of an inverted page table. ibn-klausur-2016 Moreover, the old 2012 minitest included in the same PDF asks:
+
+- maximum memory requirement of a page table without hierarchical tables;
+- what fraction of physical memory an inverted page table would require. ibn-klausur-2016
+
+That is essentially **Übung 5, Aufgabe 6**, just with the parameters packaged slightly differently. So this is not merely “the same topic”; it is a historically demonstrated **exam question form**.
+
+### Aufgabe 1: important concept, less important packaging
+
+The point of Aufgabe 1 is to make you understand the structural relationship
+
+$$
+\text{page number}\longrightarrow \boxed{\text{page table}}\longrightarrow\text{frame number}.
+$$
+
+That is exactly the formulation used in the summary: the **page number is the index**, and the corresponding page-table entry contains the **frame number**. ibn-zusammenfassung
+
+The student-residence analogy itself is unlikely to appear verbatim on an exam. But once you strip away the analogy, it tests two important questions:
+
+1. What does a direct page table actually represent?
+2. Why can a direct page table contain an enormous number of unused entries?
+
+So I would **understand it thoroughly but not spend much time rehearsing the dormitory analogy itself**.
+
+### Aufgabe 3: TLB capacity + locality
+
+This one is more sophisticated. You have a 4 KiB page, 4-byte integers, an array accessed with stride \(M\), and a TLB containing 64 entries. You have to reason about when successive array accesses hit different pages and when the working set exceeds the TLB capacity. ueb05-ibn-SS2025
+
+The summary explicitly treats the TLB as a cache of page-table entries, including TLB hits/misses and the fact that only a small number of pages tend to be accessed frequently. ibn-zusammenfassung
+
+So the **knowledge is definitely syllabus material**, but the exact “choose \(M\) and \(N\)” formulation looks more like a deeper exercise than a historically observed exam problem. I'd therefore study the reasoning, but not prioritize it above Aufgaben 2 and 6.
+
+### Aufgabe 4: TLB and context switches
+
+This question tests an important consequence of the fact that **different processes have different page tables**.
+
+The summary explicitly says that each process needs its own direct page table because different processes may use the same logical addresses while referring to different data. ibn-zusammenfassung
+
+Therefore stale entries such as
+
+$$
+p \rightarrow f_A
+$$
+
+from process A cannot normally simply remain valid when process B, which may map the same page \(p\) to \(f_B\), starts executing.
+
+The “does this also apply to threads?” part is particularly useful because it checks whether you understand that threads of one process normally share the same address space.
+
+This is a good **short conceptual-exam-question style**, even though neither of our two exam documents directly asks it.
+
+### Aufgabe 5: useful, but supplementary
+
+This is the easiest one to deprioritize. It literally asks you to use the Address Translation Simulator and submit a screenshot. ueb05-ibn-SS2025
+
+The **translation process it illustrates is important**. The activity itself is not.
+
+For exam preparation I'd classify it:
+
+> **Supplementary visualization exercise — do once if the mechanism is unclear; otherwise skip during final revision.**
+
+### Aufgabe 7: very useful calculation pattern
+
+This task combines two things:
+
+$$
+\text{expected access time}
+$$
+
+and
+
+$$
+\text{locality / why TLB hit rates are high}.
+$$
+
+The summary explicitly contains an expected-access-time calculation for a TLB:
+
+$$
+E[X]=h(1+T)+(1-h)(2+T)
+$$
+
+for the simple one-level case, together with the interpretation of TLB hit and miss costs. ibn-zusammenfassung
+
+Aufgabe 7 generalizes essentially the same reasoning to a **\(k\)-level page table**. ueb05-ibn-SS2025
+
+That makes it quite valuable: it is not merely memorizing a formula—you need to reconstruct the formula from the number of memory accesses.
+
+I would therefore consider it **strong exam preparation**, even though our two exam samples do not show this exact question.
+
+### Aufgabe 8: multilevel tables
+
+This is the sheet's most comprehensive page-table-structure problem. You have to divide a 32-bit logical address among:
+
+- page offset,
+- level-1 index,
+- level-2 index,
+- level-3 index,
+
+and then determine the number of table entries and total maximum memory usage. ueb05-ibn-SS2025
+
+The summary explicitly expects understanding of this structure: upper levels contain addresses of lower-level page tables, while only the lowest level plays the role of the ordinary direct page table. ibn-zusammenfassung
+
+So this is **core syllabus material**. Its only downside from an exam-preparation perspective is that the exercise is rather extensive. An actual exam might split it into smaller subquestions.
+
+---
+
+### My exam-preparation grouping
+
+If we use the same practical categories we were using for the previous sheets, I would group them approximately like this:
+
+| Priority | Tasks | Reason |
+|---|---|---|
+| **Must be able to solve confidently** | **2, 6** | Direct overlap with documented exam questions |
+| **Strong exam preparation** | **4, 7, 8** | Core mechanisms + highly exam-suitable reasoning/calculation |
+| **Important understanding, somewhat more exercise-like** | **1, 3** | Core material, but the particular formulation is less directly evidenced by exams |
+| **Supplementary** | **5** | Simulator activity rather than an exam question |
+
+And one especially useful conclusion from this sheet is that **“Paging und Seitentabellen” should be treated as a major exam block rather than a peripheral chapter**. The 2016 exam allocated **12/52 points** to Speicherverwaltung, with almost the entire problem centered on page tables. ibn-klausur-2016 The newer memory protocol again reports a large Paging/Memory-Management problem involving page tables, address translation, size calculations, and inverted page tables. Gedächtnisprotokoll_Klausur\_ IB…
+
+So compared with Übungsblätter 2–4, **Übungsblatt 5 has a very high concentration of material that maps directly onto demonstrated IBN exam content.**
+
+
+## Sheet 6 
+
+### Main syllabus-level topics
+
+1. **Memory management**
+2. **Paging and page tables**
+3. **Virtual memory and page replacement**
+4. **Locality and working sets**
+5. **Segmentation and contiguous memory allocation**
+
+### Detailed subtopics
+
+- Page-reference sequences and page faults
+- FIFO, LRU, Clock/Second Chance and OPT
+- Comparing page-replacement algorithms
+- Hardware-supported approximation of LRU
+- Reference/accessed bits (**R-bits**)
+- Epoch length and page-table scanning overhead
+- Working set $WS(t,\Delta)$
+- Computing the largest working set in a reference sequence
+- Direct page-table size in IA-32
+- Memory utilization and fragmentation
+- Heap and stack growth
+- Comparison of contiguous allocation, segmentation and paging
+
+There is no real **research task** on this sheet. The main categories are calculations, algorithm simulation, conceptual reasoning, pseudocode and practical programming.
+
+### Assignment-by-assignment classification
+
+| Task | Topic and subtopic | Type | Exam relevance | Exam-like? | Concise assessment |
+|---|---|---|---|---|---|
+| **1a** | Virtual memory → FIFO and LRU page replacement | Calculation / manual simulation | **Very high** | **Very high** | Almost exactly the kind of page-fault calculation already used in a mini-test: simulate frames and count faults. |
+| **1b** | Page replacement → Clock versus LRU | Constructive example / algorithm comparison | **High** | **Medium–high** | Requires genuine understanding of how the two algorithms choose victims, not merely memorizing definitions. |
+| **2** | Page replacement → mathematical relation between OPT and LRU | Theoretical/conceptual reasoning | **Medium** | **Low–medium** | An interesting theoretical insight, but less representative than concrete page-fault calculations. |
+| **3** | Page replacement → implementation of Clock or LRU | Programming / practical implementation | **Medium for understanding** | **Very low** | Writing and submitting a complete program is unrealistic in a written exam. Understanding its state transitions remains useful. |
+| **4a** | Paging → R-bits, approximate LRU and page-table scanning | Calculation / performance analysis | **Very high** | **High** | Closely related to the 2016 question about approximating the last-access time using hardware R-bits. |
+| **4b** | Virtual memory → choice of epoch length | Estimation / design reasoning | **High** | **Medium** | More open-ended than a typical calculation; you must state assumptions and balance accuracy against overhead. |
+| **5** | Working sets → membership and possible overlap | Short conceptual question | **Medium–high** | **Medium–high** | A compact definition-and-justification question. Working-set definitions have appeared in the supplied exam material. |
+| **6** | Working sets → maximum distinct pages in a sliding window of length \(\Delta\) | Algorithm design / pseudocode | **High** | **Medium** | The core sliding-window algorithm is exam-suitable, although the file-processing framing is somewhat assignment-like. |
+| **7** | Memory management → contiguous allocation vs segmentation vs paging | Conceptual comparison | **High** | **Medium–high** | A classic explain-and-compare question. Paging is demonstrably exam-relevant; segmentation is less visible in the supplied exams but belongs to the core syllabus. |
+
+### Recommended study priority
+
+#### Priority A — practise thoroughly
+
+- **1a:** FIFO/LRU calculation
+- **4a:** R-bit scanning calculation
+- **4b:** epoch-length reasoning
+- **7:** comparison of memory-management schemes
+
+These combine central syllabus material with realistic written-exam formats.
+
+#### Priority B — understand and be able to reproduce
+
+- **1b:** Clock versus LRU
+- **5:** working-set membership
+- **6:** largest-working-set pseudocode
+
+These test whether you understand the algorithms and definitions beyond memorization.
+
+#### Priority C — understand the main idea
+
+- **2:** OPT–LRU mathematical relationship
+
+Useful theoretical knowledge, but comparatively specialized.
+
+#### Priority D — optional implementation work
+
+- **3:** full simulator implementation
+
+For exam preparation, manually tracing the simulator’s states matters much more than writing the complete program.
+
+Overall, **sheet 6 has high exam relevance**. The strongest evidence is that page-replacement calculations appear almost directly in the supplied material, the 2016 exam asks about R-bit-based recency approximation, and the recent exam recollection describes paging as a substantial exam topic.
+
+## Sheet 7
+
+### Main syllabus-level topics
+
+Assignment sheet 7 is primarily about:
+
+1. **File systems**
+   - Links, FAT, I-nodes, directories and pathname resolution
+2. **Secondary-storage management**
+   - Hard-disk access times and disk-scheduling algorithms
+3. **RAID**
+   - Reliability, redundancy and read performance
+4. **Paging and page tables**
+   - Only in Aufgabe 3, as an analogy to I-nodes
+
+This corresponds closely to Chapter 10, “Dateien, Dateisysteme, Festplatten,” of the summary. 01-ibn-zusammenfassung.pdf
+
+A particularly important observation is that the recent exam memory protocol explicitly mentions **both FAT and I-nodes**. 13-Ged-chtnisprotokoll_Klausur\_-IBN_Ersttermin.pdf
+
+### Detailed subtopics
+
+- Hard links versus symbolic links
+- FAT and linked file allocation
+- Cluster allocation and traversal
+- I-node structure
+- Direct and indirect block addressing
+- Maximum file-size calculations
+- Directory traversal and pathname lookup
+- Analogy between paging and I-nodes
+- Seek time and rotational latency
+- Conversion between RPM and rotational latency
+- FCFS, SSTF, SCAN, C-SCAN and C-LOOK
+- RAID 0 versus RAID 1
+- Failure probabilities
+- Parallel and load-balanced reads
+
+### Analysis of the individual assignments
+
+The following classification is based on the full sheet. 07-ueb07-ibn-SS2025.pdf
+
+| Aufgabe | Topic and subtopic | Type | Exam relevance | Exam-likeness | Concise assessment |
+|---|---|---|---|---|---|
+| **1** | File systems: hard vs. symbolic links | Conceptual comparison / recall | **Medium–high** | **High** | A typical short conceptual exam question. Know differences involving I-nodes, cross-filesystem links, dangling links and deletion. |
+| **2** | File allocation: FAT, clusters, allocation and traversal | Programming / simulation / practical application | **Very high content relevance** | **Low for the complete task; high for its concepts** | FAT appeared in the recent exam protocol. Writing the entire simulator is unlikely in an exam, but tracing a FAT or allocating clusters is highly relevant. |
+| **3** | I-nodes and paging: structural analogy, multilevel tables | Conceptual transfer / supplementary deepening | **Medium–high** | **Low–medium** | Both constituent topics are important, but the analogy itself is somewhat artificial and less representative of a direct exam question. |
+| **4** | I-nodes: maximum file size with direct and single-indirect pointers | Calculation | **Very high** | **Very high** | One of the strongest exam-preparation tasks. Almost the same type of I-node calculation appears in the older mini-test material appended to the 2016 PDF. |
+| **5** | Directories and I-nodes: pathname resolution and disk operations | Calculation / process tracing | **High** | **High** | Tests whether you understand how each pathname component requires directory-block and I-node access. A classic filesystem exam problem. |
+| **6** | Hard disks: rotational latency, seek time, total access time, RPM | Numerical calculation | **Medium–high** | **High** | The historical information is contextual; the underlying calculations are standard and exam-like. |
+| **7** | Disk scheduling: FCFS, SSTF, SCAN, C-SCAN, C-LOOK | Algorithm execution / calculation | **High** | **Very high** | A classic “execute the algorithm and calculate the cost” task. Pay attention to initial direction and whether the head travels to the physical endpoint. |
+| **8** | RAID 0/1: failure probabilities | Probability calculation + explanation | **Very high** | **Very high** | Especially important: essentially this exact RAID 0/1 probability task occurs in the older mini-test material contained in the 2016 PDF. |
+| **9** | RAID 0/1: comparative read performance | Conceptual reasoning / performance analysis | **Medium–high** | **High** | A good short exam question. Requires distinguishing a single sequential read from multiple independent reads that can be distributed across mirrors. |
+
+The comparison material comes from the 2016 examination PDF, including the older mini-tests appended to it. 12-ibn-klausur-2016.pdf
+
+### Important distinction for Aufgabe 2
+
+I would not treat the entire FAT simulator as something you must reproduce under exam conditions. Split it into two layers:
+
+- **Exam-relevant:** understanding the FAT representation, following a cluster chain, allocating clusters, calculating the number of required clusters and recognizing error cases.
+- **Mostly practical:** designing the class, writing complete code, testing it and printing outputs.
+
+Thus, Aufgabe 2 is simultaneously **very important in subject matter** and **not very exam-like in its full implementation format**.
+
+### Recommended exam-preparation priority
+
+1. **Aufgabe 4** — direct I-node calculation and closely matched by older exam material  
+2. **Aufgabe 8** — essentially an exact previous mini-test question  
+3. **Aufgabe 2, conceptual portion** — FAT explicitly appeared in the recent exam protocol  
+4. **Aufgabe 5** — fundamental I-node/directory mechanics  
+5. **Aufgabe 7** — standard algorithm-execution problem  
+6. **Aufgaben 1 and 9** — compact conceptual questions  
+7. **Aufgabe 6** — standard calculations, but less directly supported by the supplied exams  
+8. **Aufgabe 3** — useful for deeper understanding, but the least directly exam-like formulation
+
+Overall, sheet 7 is **highly relevant**. It contains two exceptionally strong past-exam matches—Aufgaben 4 and 8—and directly practises FAT and I-nodes, which the recent memory protocol identifies as actual exam topics.
+
+## Sheet 8
+
+### Main syllabus-level topics
+
+1. **Deadlocks and resource allocation**
+2. **CPU scheduling**
+
+Sheet 8 is especially important for exam preparation because deadlocks and the Banker algorithm occur directly in both exam references. Scheduling calculations also occur in an older mini-test included in the 2016 exam document.
+
+The classification below is based on the assignment sheet 08-ueb08-ibn-SS2025.pdf, the syllabus structure in the summary 01-ibn-zusammenfassung.pdf, and comparison with the 2016 exam 12-ibn-klausur-2016.pdf and the recent exam memory protocol 13-Ged-chtnisprotokoll_Klausur\_-IBN_Ersttermin.pdf.
+
+### Detailed subtopics
+
+#### Deadlocks
+
+- Definition of a resource deadlock
+- Four necessary Coffman conditions:
+  - mutual exclusion
+  - hold and wait
+  - no preemption
+  - circular wait
+- Necessary versus sufficient conditions
+- Deadlocks caused by incorrect semaphore acquisition
+- Prevention through a globally consistent resource-acquisition order
+- Resource-allocation graphs
+- Multiple instances of a resource type
+- Resource vector $E$ and available-resource vector $A$
+- Allocation matrix $C$ and request matrix $R$
+- Banker algorithm
+- Safe execution sequences
+- Deadlock detection versus deadlock avoidance
+
+#### CPU scheduling
+
+- CPU-bound versus I/O-bound processes
+- CPU bursts and I/O bursts
+- FCFS
+- Shortest Job First
+- Round Robin and the time quantum
+- Gantt diagrams
+- Turnaround time
+- Waiting time
+- Average waiting time
+- Fairness and starvation
+- Priority scheduling
+
+### Analysis of the individual assignments
+
+| Aufgabe | Topic and subtopic | Type | Exam relevance | Exam-likeness | Concise assessment |
+|---|---|---|---|---|---|
+| **1** | Deadlocks: necessary conditions, multiple resource instances, necessary vs. sufficient | Conceptual proof; counterexample construction | **High** | **High** | Very close to the 2016 question asking for graphs with cycles both with and without a necessary deadlock. Although marked bonus, the underlying distinction is exam-relevant. |
+| **2** | Semaphore deadlock; four Coffman conditions; deadlock prevention | Execution trace; conceptual explanation; design/fix | **Very high** | **Very high** | Almost a direct exam pattern: show how opposite lock ordering produces deadlock, identify the four conditions, and remove circular wait through consistent lock ordering. |
+| **3** | Banker algorithm; matrices \(E,C,R,A\); identifying deadlocked processes | Programming; algorithm implementation; testing | **High conceptually** | **Medium as a full task** | Implementing a complete program is unlikely in a written exam. Understanding the algorithm, writing pseudocode and tracing it manually are extremely relevant. |
+| **4** | Resource-allocation graph; resource vectors and matrices; manual Banker algorithm | Graph construction; data representation; hand calculation | **Very high** | **Very high** | The strongest exam-preparation task on the sheet. The recent exam reportedly used essentially this sequence: draw the graph and apply the Banker algorithm. |
+| **5** | Scheduling: CPU-bound versus I/O-bound processes | Conceptual explanation | **Medium** | **Medium** | A plausible short theory question. Know that I/O-bound processes usually have short CPU bursts and should receive CPU time quickly to keep devices and the system responsive. |
+| **6** | FCFS, SJF and Round Robin; Gantt diagrams; turnaround and waiting times | Calculation; algorithm trace; comparison | **High** | **High** | A standard scheduling calculation. An older mini-test in the 2016 document asks for nearly the same SJF/RR execution trace. Practise this carefully. |
+| **7** | Starvation under scheduling algorithms | Conceptual classification | **Medium–High** | **Medium–High** | A very typical one-point conceptual question. Under the usual assumptions, starvation can occur with **SJF** and **priority scheduling**, but not with FCFS or Round Robin. |
+
+#### Small issue in Aufgabe 6
+
+Part (b) refers to *„die vier genannten Scheduling-Algorithmen“*, but part (a) names only three:
+
+- FCFS
+- Shortest Job First
+- Round Robin
+
+This is almost certainly a typo. Unless another algorithm was specified orally, calculate the values for these three.
+
+### Why these tasks are strongly exam-relevant
+
+The match with the exam evidence is unusually direct:
+
+- The **2016 exam** contains an entire 11-point section on deadlocks, including:
+  - deadlock definition,
+  - semaphore code producing a deadlock,
+  - resource-allocation graphs,
+  - cycles that do or do not imply deadlock,
+  - the purpose and main idea of the Banker algorithm.
+- The **recent exam protocol** explicitly reports:
+  - drawing a resource/allocation graph,
+  - applying the Banker algorithm,
+  - concluding that no deadlock exists.
+- An older mini-test included in the 2016 document asks for **SJF and Round-Robin scheduling traces**, closely matching Aufgabe 6.
+
+### Recommended preparation priority
+
+1. **Aufgabe 4** — closest match to the recent exam  
+2. **Aufgabe 2** — direct classical exam pattern  
+3. **Aufgabe 6** — central scheduling calculation  
+4. **Aufgabe 1** — important conceptual distinction about multiple instances  
+5. **Aufgabe 3, algorithmic core** — understand and trace it; full programming is secondary  
+6. **Aufgabe 7** — easy, compact exam knowledge  
+7. **Aufgabe 5** — useful short conceptual background  
+
+Overall, **sheet 8 is one of the most exam-relevant sheets so far**, mainly because Aufgaben 2 and 4 correspond almost directly to documented exam questions.
+
+
+## Sheet 9
+
+Sheet 9 is almost entirely about **computer networks**, progressing through the protocol stack:
+
+1. **Fundamentals of packet-switched networks**
+2. **Network delay and queueing**
+3. **Internet structure, routing paths and topology**
+4. **Protocol layers, encapsulation and addressing**
+5. **Transport protocols and reliable communication**
+6. **Application-layer protocols, especially HTTP**
+7. **IPv4 fragmentation**
+
+This classification is based on the exercises in sheet 9, the networking section of the summary, and the two available exam documents. 09-ueb09-ibn-SS2025.pdf 01-ibn-zusammenfassung.pdf
+
+### Detailed subtopics
+
+- Packet switching versus circuit switching
+- Statistical multiplexing
+- Binomial probability for simultaneously active users
+- Queueing delay and transmission time
+- Traceroute and interpretation of network paths
+- ISPs, BelWü, network redundancy and Internet exchange points
+- Internet protocol stack
+- Protocol data units: message, segment/datagram, IP datagram and frame
+- Endpoints and addressing at different layers
+- Encapsulation and protocol robustness
+- TCP over extremely long-delay or intermittently connected networks
+- HTTP cookies and state management
+- HTTP requests and responses
+- Conditional HTTP GET and caching
+- Relationship between HTTP messages and TCP segments
+- IPv4 fragmentation, MTU, identification, flags and fragment offsets
+
+### Exercise-by-exercise analysis
+
+| Exercise | Topic and subtopic | Type | Exam relevance | Exam-likeness | Concise assessment |
+|---|---|---|---|---|---|
+| **1** | Packet switching; statistical multiplexing; binomial probability | Calculation / modelling | **Medium** | **Medium** | The underlying idea is important, but the large binomial-tail calculation is more specialised than the observed exam questions. Understand the setup and interpretation. |
+| **2** | Queueing delay; transmission time \(L/R\) | Formula derivation / calculation | **High** | **High** | Short, self-contained and closely related to earlier exam-style calculations involving transmission and propagation delays. |
+| **3** | Traceroute; ISP topology; redundancy; Internet exchange points | Practical investigation / research | **Medium** | **Low** | Useful networking intuition, but dependent on live infrastructure and external research. It does **not** directly practise Dijkstra or subnetting, despite being routing-related. |
+| **4** | Protocol stack; encapsulation; PDUs; endpoints; addressing | Conceptual knowledge / structured table | **Very high** | **Very high** | One of the most important exercises. The 2016 exam contained an extremely similar task about encapsulation, layer headers and address-like information. |
+| **5** | Encapsulation; layer-dependent attack scope; protocol security | Conceptual reasoning / security enrichment | **Low–medium** | **Low** | Tests whether you understand the scope of transport, network and link-layer communication, but the recursive ZIP scenario is unusual and supplementary. |
+| **6** | TCP reliability under enormous delay and disrupted connectivity; delay-tolerant networking | Research / conceptual transfer / bonus | **Medium** | **Low–medium** | TCP reliability and connection establishment are relevant, but the Mars/DTN setting and required reading make this primarily enrichment. |
+| **7** | HTTP cookies; maintaining state over stateless HTTP | Short conceptual explanation | **High** | **High** | Directly represented in the summary and well suited to a short written exam question. Know the first response, cookie storage, later request and server-side association. |
+| **8** | HTTP in Wireshark; GET/response; conditional GET; TCP segmentation; embedded objects | Practical laboratory / protocol analysis | **Medium–high** | **Low** as a complete exercise | Wireshark operation is unlikely in a paper exam, but the protocol observations it reveals can become conceptual exam questions. |
+| **9** | IPv4 fragmentation; MTU; header length, ID, MF flag and fragment offset | Calculation / header analysis | **High** | **Very high** | A classic written-exam calculation. It directly matches the fragmentation material in the summary and requires precise handling of byte lengths and offsets. |
+
+The particularly strong rating for Aufgabe 4 comes from the 2016 exam, whose Aufgabe 4 asks for the encapsulated frame, the layer headers and their addressing information. 12-ibn-klausur-2016.pdf The more recent memory protocol emphasizes Dijkstra, forwarding tables and subnetting; this makes Aufgabe 3 only indirectly useful for that routing component. 13-Ged-chtnisprotokoll_Klausur\_-IBN_Ersttermin.pdf
+
+### Recommended exam-preparation priority
+
+#### First priority
+
+1. **Aufgabe 4 — protocol layers, encapsulation and addressing**
+2. **Aufgabe 9 — IPv4 fragmentation**
+
+These are the most conventionally exam-like tasks on the sheet.
+
+#### Second priority
+
+3. **Aufgabe 2 — queueing-delay derivation**
+4. **Aufgabe 7 — HTTP cookies**
+5. **Aufgabe 1 — statistical multiplexing**, especially the general probabilistic model
+
+#### Selective preparation
+
+6. **Aufgabe 8** — learn the HTTP concepts and packet observations; reproducing the complete Wireshark lab is less important for the written exam.
+7. **Aufgabe 6** — learn what very long RTTs and interruptions do to TCP, but the article-specific details are secondary.
+8. **Aufgabe 3** — useful practical background, but not a substitute for practising Dijkstra, forwarding tables and subnetting.
+9. **Aufgabe 5** — understand the layer-dependent scope of the attack; the specific construction is low priority.
+
+Overall, sheet 9 contains several highly relevant networking fundamentals, but it mixes them with substantial research and laboratory work. For efficient exam preparation, **Aufgaben 4 and 9 deserve the most careful complete solutions**.
+
+## Sheet 10
+
+Yes. Sheet 10 is one of the most exam-relevant sheets so far because it concentrates on the three topics explicitly reported in the newer exam: **subnetting, forwarding tables, and Dijkstra**. 10-ueb10-ibn-SS2025.pdf
+
+### Main syllabus-level topics
+
+1. **Network layer and IPv4 addressing**
+   - Classful and classless addressing
+   - Subnetting and address allocation
+   - Network and host portions of an IP address
+
+2. **Packet forwarding**
+   - Forwarding/routing tables
+   - Prefix representation
+   - Longest-prefix matching
+
+3. **Routing algorithms**
+   - Link-state routing and Dijkstra’s algorithm
+   - Distance-vector routing and the Bellman–Ford equation
+   - Properties of shortest paths
+
+These correspond closely to the IPv4, subnetting, forwarding, Dijkstra, and Bellman–Ford sections of the course summary. 01-ibn-zusammenfassung.pdf
+
+### Detailed subtopics
+
+- IPv4 address classes A, B and C
+- CIDR notation such as `/16`, `/23`, `/25`
+- Network ID, subnet ID and host ID
+- Subnet masks in binary and decimal notation
+- Calculating the number of addresses and hosts
+- Fixed-size and variable-size subnet allocation
+- Dividing address blocks among networks and router links
+- Translating address ranges into prefixes
+- Prefix ordering and longest-prefix matching
+- Constructing forwarding tables
+- Traceroute and changing network routes
+- Dijkstra tables: \(N'\), tentative distances and predecessors
+- Optimal-substructure property of shortest paths
+- Bellman–Ford recurrence
+- Why Dijkstra requires nonnegative edge weights
+
+### Classification of the individual exercises
+
+| Exercise | Topic and subtopic | Type | Exam relevance | Exam-likeness | Concise assessment |
+|---|---|---|---|---|---|
+| **1** | IPv4 classes; Whois; traceroute; real network topology | Conceptual + research + practical investigation | **Low–medium** | **Low** | Identifying address classes is relevant, but RIPE lookup and performing traceroute are mainly supplementary practical work. |
+| **2** | Subnet masks; address counts; network/host ID; subdivision of an address block | Calculation + subnet design | **Very high** | **Very high** | Direct practice for dividing networks into subnets and determining prefixes or masks. |
+| **3a** | CIDR/VLSM address allocation for host networks and router links | Advanced calculation + network design | **Very high** | **High–very high** | Covers subnet allocation under capacity constraints. Slightly more intricate than a typical short exam question. |
+| **3b** | Forwarding tables; route aggregation; longest-prefix matching | Table construction + application | **Very high** | **Very high** | Almost exactly the combination of subnetting and forwarding-table construction reported in the newer exam. |
+| **4** | Converting address ranges to prefixes; prefix order; longest-prefix matching | Binary calculation + routing-table reasoning | **Very high** | **Very high** | Excellent preparation for prefix manipulation and routing decisions, especially overlapping prefixes. |
+| **5** | Dijkstra’s shortest-path algorithm | Algorithm execution + table calculation | **Very high** | **Extremely high** | Directly matches both reference exams: execute Dijkstra and fill in the algorithm’s table. |
+| **6a** | Optimal substructure of shortest paths | Proof + theory | **Medium** | **Medium** | Useful theoretical justification, but less likely than executing the algorithm. |
+| **6b** | Traceroute and changing routes | Conceptual application | **Low–medium** | **Low–medium** | Tests understanding that routes and routing information can change over time. |
+| **6c** | Bellman–Ford equation and shortest-path decomposition | Conceptual theory | **High** | **Medium–high** | Bellman–Ford appeared in the 2016 exam, although there it was used for a concrete distance-vector update. |
+| **6d** | Negative edge weights and limitations of Dijkstra | Algorithmic reasoning | **Medium** | **Medium** | Important for understanding Dijkstra, but less directly reflected in the reference exams. |
+
+### Evidence from the reference exams
+
+The newer memory protocol explicitly lists, in a single routing exercise:
+
+- performing Dijkstra,
+- filling a routing/forwarding table,
+- dividing a network into subnets,
+- determining prefixes and subnet masks.
+
+That makes Exercises **2–5** unusually strong direct preparation. 13-Ged-chtnisprotokoll_Klausur\_-IBN_Ersttermin.pdf
+
+The 2016 exam independently confirms the importance of:
+
+- executing Dijkstra in tabular form,
+- deriving forwarding entries from predecessor pointers,
+- explaining and applying the Bellman–Ford equation,
+- using a subnet mask to determine whether two hosts belong to the same subnet.
+
+Thus Exercise **5** is almost an exact match, while Exercises **2–4** and **6c** cover closely related examinable skills. 12-ibn-klausur-2016.pdf
+
+### Recommended study priority
+
+1. **Exercise 5** — exact Dijkstra exam practice  
+2. **Exercise 3** — strongest combined subnetting and forwarding-table exercise  
+3. **Exercise 2** — essential subnetting calculations  
+4. **Exercise 4** — prefixes and longest-prefix matching  
+5. **Exercise 6c** — Bellman–Ford connection  
+6. **Exercises 6a and 6d** — conceptual reinforcement  
+7. **Exercise 1 and 6b** — supplementary practical context  
+
+Overall, **Exercises 2–5 form the exam core of Sheet 10**. If time is limited, those should all be completed carefully rather than merely read.
+
+## Overview
+
+The third column is useful, especially if it contains only the exercises with the strongest combination of **topic relevance** and **exam-like format**.
+
+Here, “A” means *Aufgabe*. The ratings are absolute, not merely relative to the other exercises on the same sheet.
+
+| Sheet | Main syllabus topics | Most exam-like and exam-relevant exercises |
+|---:|---|---|
+| **1** 02-ueb01-ibn-SS2025.pdf | OS foundations; CPU registers and powers of two; protection and privilege modes; interrupts and system calls; kernel stack; POSIX/Unix interfaces; shell scripting | **A2(ii)** — powers-of-two calculations (**medium–high**); **A3–4** — protection, kernel mode and kernel stack (**medium**) |
+| **2** 03-ueb02-ibn-SS2025.pdf | Processes and threads; PCB; `fork()` and process hierarchies; process states; `exec()`; context switches; pthreads | **A2(a)** — tracing `fork()` and drawing the process tree (**very high**); **A3** — process hierarchy and process states (**very high**) |
+| **3** 11-ueb03-ibn-SS2025.pdf | Process synchronization; race conditions; critical sections; semaphores, mutexes and condition variables; producer–consumer; readers–writers | **A1** — detect and prevent a race condition (**very high**); **A2** — synchronization primitives (**high**); **A4(a–b)** — trace and correct semaphore-based synchronization (**high**) |
+| **4** 04-ueb04-ibn-SS2025.pdf | Interprocess communication and pipes; I/O redirection; memory management; fragmentation and swapping; contiguous allocation; logical and physical addresses; paging basics | **A5** — core memory-management distinctions (**high**); **A6** — First/Best/Worst Fit calculation (**medium–high**); **A7** — page number and offset (**high**) |
+| **5** 05-ueb05-ibn-SS2025.pdf | Paging and address translation; page tables; hierarchical and inverted page tables; TLB; address-space calculations; effective access time | **A2** — construct page-table entries from address mappings (**very high**); **A6** — direct and inverted page-table size (**very high**); **A8** — multilevel page tables (**very high**) |
+| **6** 06-ueb06-ibn-SS2025.pdf | Virtual memory; page replacement; FIFO, LRU, Clock and OPT; reference bits; working sets; segmentation versus paging | **A1** — execute FIFO/LRU/Clock-style replacement (**very high**); **A4** — reference bits and LRU approximation (**high**); **A5** — working-set concept (**medium**) |
+| **7** 07-ueb07-ibn-SS2025.pdf | File systems; hard and symbolic links; FAT; i-nodes; directory traversal; disk performance and scheduling; RAID | **A4** — maximum file size from direct/indirect i-node pointers (**very high**); **A5** — directory traversal and disk operations (**very high**); **A2** — FAT structure (**high relevance**, but implementation format is less exam-like) |
+| **8** 08-ueb08-ibn-SS2025.pdf | Deadlocks; necessary deadlock conditions; resource-allocation graphs; Banker’s algorithm; CPU scheduling; starvation | **A2** — semaphore deadlock, conditions and prevention (**very high**); **A4** — resource graph, matrices and Banker’s algorithm by hand (**extremely high**); **A3** — Banker’s algorithm (**high relevance**, but programming format is less exam-like) |
+| **9** 09-ueb09-ibn-SS2025.pdf | Network performance and delays; packet switching; protocol layers; encapsulation and addressing; TCP; HTTP and cookies; IPv4 fragmentation | **A4** — layers, encapsulation, endpoints and addressing (**extremely high**); **A9** — IPv4 fragmentation calculation (**high**); **A2** — queueing-delay calculation (**medium–high**) |
+| **10** 10-ueb10-ibn-SS2025.pdf | IPv4 addressing and subnetting; CIDR and prefixes; forwarding tables; longest-prefix matching; Dijkstra; Bellman–Ford and distance-vector routing | **A2** — subnet masks and network/host IDs (**very high**); **A3** — subnet allocation and forwarding tables (**extremely high**); **A4** — prefixes and longest-prefix matching (**very high**); **A5** — Dijkstra table (**extremely high**) |
+
+The syllabus classification follows the organization and terminology of the course summary. 01-ibn-zusammenfassung.pdf
+
+The “exam-like” judgments are based particularly on the direct matches in the 2016 exam—race conditions and semaphores, page tables, deadlocks, protocol layers, Dijkstra and Bellman–Ford—and in the newer memory protocol—`fork()`, race conditions, Banker’s algorithm, FAT/i-nodes, paging, subnetting, forwarding tables and Dijkstra. 12-ibn-klausur-2016.pdf 13-Ged-chtnisprotokoll_Klausur\_-IBN_Ersttermin.pdf
+
+### Strongest sheets overall
+
+If you prioritize entire sheets rather than individual exercises:
+
+1. **Sheet 10** — subnetting, forwarding tables and Dijkstra  
+2. **Sheet 8** — deadlocks, resource graphs and Banker’s algorithm  
+3. **Sheet 5** — paging and page tables  
+4. **Sheet 3** — race conditions and synchronization  
+5. **Sheet 2** — `fork()` and process states  
+6. **Sheet 7** — FAT and i-nodes  
+7. **Sheet 9** — network layers and addressing  
+
+Sheets **1, 4 and 6** still contain useful exam material, but their exercises have fewer direct matches with the two reference exams.

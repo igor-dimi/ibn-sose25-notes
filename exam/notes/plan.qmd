@@ -1,0 +1,129 @@
+---
+title: Plan
+---
+
+
+Yes—this is still realistic, especially because you solved the material before. You are **reactivating knowledge**, not learning the entire course from zero.
+
+The crucial change is: **do not redo all ten sheets sequentially**. They contain research, programming, and practical tasks that are useful pedagogically but inefficient for a written exam. The sheets collapse into about seven examinable clusters.
+
+## Priority hierarchy
+
+### Priority 1: direct reference-exam matches
+
+These should become automatic:
+
+- `fork()`, process trees and process states
+- Race conditions, semaphores and synchronization
+- Deadlocks, resource-allocation graphs and Banker’s algorithm
+- Paging, page-table calculations and address translation
+- FAT and i-nodes
+- Protocol layers, encapsulation and addressing
+- Subnetting, prefixes and forwarding tables
+- Dijkstra and Bellman–Ford
+
+### Priority 2: likely supporting material
+
+- Page replacement: FIFO, LRU and Clock
+- TLB and reference bits
+- CPU scheduling
+- IP fragmentation
+- Disk scheduling and RAID
+- Memory fragmentation and allocation algorithms
+
+### Priority 3: postpone unless time remains
+
+- Long programming exercises
+- Internet research and API-detail questions
+- Traceroute, Whois and Wireshark experiments
+- Historical hardware details
+- Learning-methodology questions
+- Reimplementing FAT, Banker, LRU or producer–consumer in code
+
+For programming exercises, understand the underlying algorithm and execute it **by hand**. Do not spend hours coding it again.
+
+## Ten-day core plan
+
+Assume approximately 4–6 focused hours per day. If you have 11–13 days, use the extra days for consolidation rather than expanding the syllabus.
+
+| Day | Focus | Essential exercises and outcomes |
+|---:|---|---|
+| **1** | Diagnostic + processes | Attempt the 2016 exam under time pressure, even if incomplete. Then review Sheet 2 A2(a), A3. Know `fork()` return values, process trees and the five process states. |
+| **2** | Synchronization | Sheet 3 A1, A2 and A4(a–b). Trace a race condition instruction by instruction; repair it with semaphores; understand `wait`, `signal`, mutexes and condition variables. |
+| **3** | Paging fundamentals | Sheet 4 A5, A7; Sheet 5 A2, A6. Split addresses into page number/offset, construct page-table entries, and calculate normal/inverted page-table sizes. |
+| **4** | Advanced paging and virtual memory | Sheet 5 A8; Sheet 6 A1, A4. Multilevel tables, TLB, FIFO/LRU/Clock and reference-bit approximation. |
+| **5** | Deadlocks and scheduling | Sheet 8 A2 and A4 first; A6 if time remains. Know the four deadlock conditions, resource graphs, Banker matrices and hand execution. |
+| **6** | File systems | Sheet 7 A4 and A5; review the FAT mechanism from A2 without implementing it. Practise i-node maximum-file-size and pathname traversal calculations. |
+| **7** | Network stack | Sheet 9 A4 and A9. Reconstruct encapsulation, endpoints and addressing at each layer; then practise IP fragmentation. |
+| **8** | Subnetting and forwarding | Sheet 10 A2, A3 and A4. Work entirely from scratch: masks, address counts, network/host IDs, prefixes and longest-prefix matching. |
+| **9** | Routing algorithms | Sheet 10 A5 and A6(c); 2016 exam Question 5. Complete Dijkstra tables, derive next hops from predecessor pointers, and perform Bellman–Ford updates. |
+| **10** | Timed mixed mock + repair | Assemble unused exercise parts into a 90-minute mock. Mark it immediately. Redo every incorrect question from a blank page without consulting the solution. |
+
+## If you have 11–13 days
+
+Use the additional days as follows:
+
+- **Day 11:** Repair your weakest two topics.
+- **Day 12:** Second full timed mock covering all major clusters.
+- **Day 13:** Light closed-book recall, formulas and common mistakes. No major new topics.
+
+If you have only ten days, the core plan already covers the important material. Do not sacrifice mock-exam practice to squeeze in every supplementary topic.
+
+## How to structure each study day
+
+A good five-hour day would look like this:
+
+1. **30 minutes: closed-book retrieval**
+   - Write everything remembered from yesterday.
+   - Reproduce algorithms, definitions and calculation procedures.
+
+2. **60–75 minutes: targeted theory recovery**
+   - Use the summary only to repair what you could not recall.
+   - Avoid reading an entire chapter passively.
+
+3. **Two 75-minute problem blocks**
+   - Solve selected exercises without notes.
+   - Work in a handwritten, exam-style format.
+   - Impose time limits.
+
+4. **30 minutes: correction and error log**
+   - Record each substantive mistake.
+   - Classify its cause: forgotten fact, wrong method, arithmetic error or misreading.
+
+5. **20–30 minutes: delayed repetition**
+   - Reattempt one problem from two or three days earlier.
+
+If you have only three hours, keep the same structure but shorten the theory section—not the problem-solving section.
+
+## Build an error log, not another long summary
+
+Use five columns:
+
+| Topic | Mistake | Cause | Correct rule/method | Retest |
+|---|---|---|---|---|
+| Subnetting | Used $2^h$ as usable-host count | Forgot network/broadcast addresses | Normally $2^h-2$, unless stated otherwise | Tomorrow |
+| Dijkstra | Updated an already-finalized node | Algorithm rule forgotten | Nodes in $N'$ are final | In two days |
+
+Your final revision should be driven primarily by this list.
+
+## Learn reusable solution templates
+
+For each major exam type, have a standard procedure:
+
+- **`fork()`:** draw one branch per call; label parent and child return values.
+- **Race condition:** expand operations into load–modify–store and show the interleaving.
+- **Banker:** calculate available resources, find a satisfiable process, release its allocation, repeat.
+- **Paging:** derive offset bits from page size, then split the logical address.
+- **I-node:** calculate pointers per indirect block before calculating capacity.
+- **Subnetting:** determine required host bits, then prefix length, block size and aligned boundaries.
+- **Longest-prefix matching:** list all matching prefixes and choose the longest.
+- **Dijkstra:** maintain $N'$, $D(v)$ and $p(v)$ systematically.
+- **Bellman–Ford:** minimize link cost plus the neighbour’s advertised distance.
+
+## The most important rule
+
+Do not measure progress by “pages read” or “sheets reviewed.” Measure it by:
+
+> Can I solve this problem from a blank page, correctly and within exam time?
+
+After about five days, some topics will already feel substantially more familiar. That is the advantage of having solved the sheets before. A focused ten-day recovery is much more plausible than the current breadth of the material makes it appear.
