@@ -1,0 +1,2239 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.31">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>1&nbsp; Assignment Sheets Overview – Operating Systems and Networks SoSe 25 Notes</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../exam/notes/plan.html" rel="next">
+<link href="../../index.html" rel="prev">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-e1a5c8363afafaef2c763b6775fbf3ca.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-b330ada5220959fbd7d7e7c55953a312.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../exam/notes/assignment_overview.html">Exam Notes</a></li><li class="breadcrumb-item"><a href="../../exam/notes/assignment_overview.html"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Assignment Sheets Overview</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../../">Operating Systems and Networks SoSe 25 Notes</a> 
+        <div class="sidebar-tools-main">
+    <a href="../../Operating-Systems-and-Networks-SoSe-25-Notes.pdf" title="Download PDF" class="quarto-navigation-tool px-1" aria-label="Download PDF"><i class="bi bi-file-pdf"></i></a>
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Exam Notes</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../exam/notes/assignment_overview.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Assignment Sheets Overview</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../exam/notes/plan.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Plan</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../exam/notes/processes_and_fork.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Processes and <code>fork()</code></span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../exam/notes/synchronization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Race conditions, semaphores and synchronization</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active" data-toc-expanded="-1">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#assignment-sheet-1" id="toc-assignment-sheet-1" class="nav-link active" data-scroll-target="#assignment-sheet-1">Assignment Sheet 1</a></li>
+  <li><a href="#sheet-2" id="toc-sheet-2" class="nav-link" data-scroll-target="#sheet-2">Sheet 2</a></li>
+  <li><a href="#sheet-3" id="toc-sheet-3" class="nav-link" data-scroll-target="#sheet-3">Sheet 3</a></li>
+  <li><a href="#sheet-4" id="toc-sheet-4" class="nav-link" data-scroll-target="#sheet-4">Sheet 4</a>
+  <ul class="collapse">
+  <li><a href="#classification-of-übungsblatt-4" id="toc-classification-of-übungsblatt-4" class="nav-link" data-scroll-target="#classification-of-übungsblatt-4">Classification of Übungsblatt 4</a></li>
+  <li><a href="#topics" id="toc-topics" class="nav-link" data-scroll-target="#topics">Topics</a></li>
+  </ul></li>
+  <li><a href="#sheet-5" id="toc-sheet-5" class="nav-link" data-scroll-target="#sheet-5">Sheet 5</a>
+  <ul class="collapse">
+  <li><a href="#main-syllabus-level-topics" id="toc-main-syllabus-level-topics" class="nav-link" data-scroll-target="#main-syllabus-level-topics">Main syllabus-level topics</a></li>
+  <li><a href="#analysis-of-übungsblatt-5" id="toc-analysis-of-übungsblatt-5" class="nav-link" data-scroll-target="#analysis-of-übungsblatt-5">Analysis of Übungsblatt 5</a></li>
+  <li><a href="#why-aufgabe-2-and-aufgabe-6-stand-out" id="toc-why-aufgabe-2-and-aufgabe-6-stand-out" class="nav-link" data-scroll-target="#why-aufgabe-2-and-aufgabe-6-stand-out">Why Aufgabe 2 and Aufgabe 6 stand out</a></li>
+  <li><a href="#aufgabe-1-important-concept-less-important-packaging" id="toc-aufgabe-1-important-concept-less-important-packaging" class="nav-link" data-scroll-target="#aufgabe-1-important-concept-less-important-packaging">Aufgabe 1: important concept, less important packaging</a></li>
+  <li><a href="#aufgabe-3-tlb-capacity-locality" id="toc-aufgabe-3-tlb-capacity-locality" class="nav-link" data-scroll-target="#aufgabe-3-tlb-capacity-locality">Aufgabe 3: TLB capacity + locality</a></li>
+  <li><a href="#aufgabe-4-tlb-and-context-switches" id="toc-aufgabe-4-tlb-and-context-switches" class="nav-link" data-scroll-target="#aufgabe-4-tlb-and-context-switches">Aufgabe 4: TLB and context switches</a></li>
+  <li><a href="#aufgabe-5-useful-but-supplementary" id="toc-aufgabe-5-useful-but-supplementary" class="nav-link" data-scroll-target="#aufgabe-5-useful-but-supplementary">Aufgabe 5: useful, but supplementary</a></li>
+  <li><a href="#aufgabe-7-very-useful-calculation-pattern" id="toc-aufgabe-7-very-useful-calculation-pattern" class="nav-link" data-scroll-target="#aufgabe-7-very-useful-calculation-pattern">Aufgabe 7: very useful calculation pattern</a></li>
+  <li><a href="#aufgabe-8-multilevel-tables" id="toc-aufgabe-8-multilevel-tables" class="nav-link" data-scroll-target="#aufgabe-8-multilevel-tables">Aufgabe 8: multilevel tables</a></li>
+  <li><a href="#my-exam-preparation-grouping" id="toc-my-exam-preparation-grouping" class="nav-link" data-scroll-target="#my-exam-preparation-grouping">My exam-preparation grouping</a></li>
+  </ul></li>
+  <li><a href="#sheet-6" id="toc-sheet-6" class="nav-link" data-scroll-target="#sheet-6">Sheet 6</a>
+  <ul class="collapse">
+  <li><a href="#main-syllabus-level-topics-1" id="toc-main-syllabus-level-topics-1" class="nav-link" data-scroll-target="#main-syllabus-level-topics-1">Main syllabus-level topics</a></li>
+  <li><a href="#detailed-subtopics" id="toc-detailed-subtopics" class="nav-link" data-scroll-target="#detailed-subtopics">Detailed subtopics</a></li>
+  <li><a href="#assignment-by-assignment-classification" id="toc-assignment-by-assignment-classification" class="nav-link" data-scroll-target="#assignment-by-assignment-classification">Assignment-by-assignment classification</a></li>
+  <li><a href="#recommended-study-priority" id="toc-recommended-study-priority" class="nav-link" data-scroll-target="#recommended-study-priority">Recommended study priority</a></li>
+  </ul></li>
+  <li><a href="#sheet-7" id="toc-sheet-7" class="nav-link" data-scroll-target="#sheet-7">Sheet 7</a>
+  <ul class="collapse">
+  <li><a href="#main-syllabus-level-topics-2" id="toc-main-syllabus-level-topics-2" class="nav-link" data-scroll-target="#main-syllabus-level-topics-2">Main syllabus-level topics</a></li>
+  <li><a href="#detailed-subtopics-1" id="toc-detailed-subtopics-1" class="nav-link" data-scroll-target="#detailed-subtopics-1">Detailed subtopics</a></li>
+  <li><a href="#analysis-of-the-individual-assignments" id="toc-analysis-of-the-individual-assignments" class="nav-link" data-scroll-target="#analysis-of-the-individual-assignments">Analysis of the individual assignments</a></li>
+  <li><a href="#important-distinction-for-aufgabe-2" id="toc-important-distinction-for-aufgabe-2" class="nav-link" data-scroll-target="#important-distinction-for-aufgabe-2">Important distinction for Aufgabe 2</a></li>
+  <li><a href="#recommended-exam-preparation-priority" id="toc-recommended-exam-preparation-priority" class="nav-link" data-scroll-target="#recommended-exam-preparation-priority">Recommended exam-preparation priority</a></li>
+  </ul></li>
+  <li><a href="#sheet-8" id="toc-sheet-8" class="nav-link" data-scroll-target="#sheet-8">Sheet 8</a>
+  <ul class="collapse">
+  <li><a href="#main-syllabus-level-topics-3" id="toc-main-syllabus-level-topics-3" class="nav-link" data-scroll-target="#main-syllabus-level-topics-3">Main syllabus-level topics</a></li>
+  <li><a href="#detailed-subtopics-2" id="toc-detailed-subtopics-2" class="nav-link" data-scroll-target="#detailed-subtopics-2">Detailed subtopics</a></li>
+  <li><a href="#analysis-of-the-individual-assignments-1" id="toc-analysis-of-the-individual-assignments-1" class="nav-link" data-scroll-target="#analysis-of-the-individual-assignments-1">Analysis of the individual assignments</a></li>
+  <li><a href="#why-these-tasks-are-strongly-exam-relevant" id="toc-why-these-tasks-are-strongly-exam-relevant" class="nav-link" data-scroll-target="#why-these-tasks-are-strongly-exam-relevant">Why these tasks are strongly exam-relevant</a></li>
+  <li><a href="#recommended-preparation-priority" id="toc-recommended-preparation-priority" class="nav-link" data-scroll-target="#recommended-preparation-priority">Recommended preparation priority</a></li>
+  </ul></li>
+  <li><a href="#sheet-9" id="toc-sheet-9" class="nav-link" data-scroll-target="#sheet-9">Sheet 9</a>
+  <ul class="collapse">
+  <li><a href="#detailed-subtopics-3" id="toc-detailed-subtopics-3" class="nav-link" data-scroll-target="#detailed-subtopics-3">Detailed subtopics</a></li>
+  <li><a href="#exercise-by-exercise-analysis" id="toc-exercise-by-exercise-analysis" class="nav-link" data-scroll-target="#exercise-by-exercise-analysis">Exercise-by-exercise analysis</a></li>
+  <li><a href="#recommended-exam-preparation-priority-1" id="toc-recommended-exam-preparation-priority-1" class="nav-link" data-scroll-target="#recommended-exam-preparation-priority-1">Recommended exam-preparation priority</a></li>
+  </ul></li>
+  <li><a href="#sheet-10" id="toc-sheet-10" class="nav-link" data-scroll-target="#sheet-10">Sheet 10</a>
+  <ul class="collapse">
+  <li><a href="#main-syllabus-level-topics-4" id="toc-main-syllabus-level-topics-4" class="nav-link" data-scroll-target="#main-syllabus-level-topics-4">Main syllabus-level topics</a></li>
+  <li><a href="#detailed-subtopics-4" id="toc-detailed-subtopics-4" class="nav-link" data-scroll-target="#detailed-subtopics-4">Detailed subtopics</a></li>
+  <li><a href="#classification-of-the-individual-exercises" id="toc-classification-of-the-individual-exercises" class="nav-link" data-scroll-target="#classification-of-the-individual-exercises">Classification of the individual exercises</a></li>
+  <li><a href="#evidence-from-the-reference-exams" id="toc-evidence-from-the-reference-exams" class="nav-link" data-scroll-target="#evidence-from-the-reference-exams">Evidence from the reference exams</a></li>
+  <li><a href="#recommended-study-priority-1" id="toc-recommended-study-priority-1" class="nav-link" data-scroll-target="#recommended-study-priority-1">Recommended study priority</a></li>
+  </ul></li>
+  <li><a href="#overview" id="toc-overview" class="nav-link" data-scroll-target="#overview">Overview</a>
+  <ul class="collapse">
+  <li><a href="#strongest-sheets-overall" id="toc-strongest-sheets-overall" class="nav-link" data-scroll-target="#strongest-sheets-overall">Strongest sheets overall</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../exam/notes/assignment_overview.html">Exam Notes</a></li><li class="breadcrumb-item"><a href="../../exam/notes/assignment_overview.html"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Assignment Sheets Overview</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Assignment Sheets Overview</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="assignment-sheet-1" class="level2">
+<h2 class="anchored" data-anchor-id="assignment-sheet-1">Assignment Sheet 1</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Task</th>
+<th>Topic / subtopic</th>
+<th>Type</th>
+<th>Exam relevance</th>
+<th>Revision priority</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>A1</strong></td>
+<td>Learning methodology: focused/diffuse thinking, creativity</td>
+<td>Research + conceptual / supplementary</td>
+<td><strong>Low</strong></td>
+<td>Skip for IBN content revision</td>
+</tr>
+<tr class="even">
+<td><strong>A2</strong></td>
+<td>Computer architecture: x64 general-purpose registers, AVX2 registers, powers of two</td>
+<td>Research + calculation</td>
+<td><strong>Medium-low</strong></td>
+<td>Know the underlying ideas, probably don’t spend much time on lookup</td>
+</tr>
+<tr class="odd">
+<td><strong>A3</strong></td>
+<td>OS protection: process address spaces, user/kernel mode, controlled resource access</td>
+<td>Conceptual / application</td>
+<td><strong>High</strong></td>
+<td>Definitely do</td>
+</tr>
+<tr class="even">
+<td><strong>A4</strong></td>
+<td>Kernel mode / kernel stack; interrupts and system calls</td>
+<td>Conceptual / explanation</td>
+<td><strong>High</strong></td>
+<td>Definitely do</td>
+</tr>
+<tr class="odd">
+<td><strong>A5</strong></td>
+<td>POSIX system calls and minimal interfaces</td>
+<td>Conceptual / design</td>
+<td><strong>Medium</strong></td>
+<td>Useful, but selective</td>
+</tr>
+<tr class="even">
+<td><strong>A6</strong></td>
+<td>Bash shell scripting</td>
+<td>Programming</td>
+<td><strong>Low–medium</strong></td>
+<td>Understand shell concepts; full implementation is lower priority</td>
+</tr>
+<tr class="odd">
+<td><strong>A7</strong></td>
+<td>Advantages/disadvantages of abstractions</td>
+<td>Conceptual / supplementary</td>
+<td><strong>Low</strong></td>
+<td>Optional</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="sheet-2" class="level2">
+<h2 class="anchored" data-anchor-id="sheet-2">Sheet 2</h2>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Task</th>
+<th>Main topic / subtopic</th>
+<th>Problem type</th>
+<th>Exam relevance</th>
+<th>What I’d do</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>A1</strong></td>
+<td>PCB / Linux <code>task_struct</code></td>
+<td>Research + conceptual</td>
+<td><strong>Medium</strong></td>
+<td>Learn PCB concept; skip detailed kernel-source research</td>
+</tr>
+<tr class="even">
+<td><strong>A2a</strong></td>
+<td><code>fork()</code>, return values, process tree</td>
+<td>Trace / code analysis</td>
+<td><strong>Very high</strong></td>
+<td><strong>Definitely solve fully</strong></td>
+</tr>
+<tr class="odd">
+<td><strong>A2b</strong></td>
+<td><code>fork()</code>, PID-dependent behavior</td>
+<td>Trace + conceptual / exploratory</td>
+<td><strong>Medium</strong></td>
+<td>Understand, but lower priority</td>
+</tr>
+<tr class="even">
+<td><strong>A3</strong></td>
+<td>Process hierarchy, process states, <code>ps</code>, background/suspended processes</td>
+<td>Practical experiment + conceptual</td>
+<td><strong>High</strong></td>
+<td>Do conceptually; actual terminal experiment optional</td>
+</tr>
+<tr class="odd">
+<td><strong>A4</strong></td>
+<td><code>exec*()</code> family</td>
+<td>Research / API comparison</td>
+<td><strong>Medium-low</strong></td>
+<td>Learn core <code>exec</code> semantics; don’t memorize all signatures</td>
+</tr>
+<tr class="even">
+<td><strong>A5</strong></td>
+<td>Process/thread context switching</td>
+<td>Conceptual / mechanism</td>
+<td><strong>High</strong></td>
+<td><strong>Definitely study</strong></td>
+</tr>
+<tr class="odd">
+<td><strong>A6.1</strong></td>
+<td>Thread creation/join/order</td>
+<td>Programming + synchronization</td>
+<td><strong>Medium</strong></td>
+<td>Useful, but belongs more to Threads</td>
+</tr>
+<tr class="even">
+<td><strong>A6.2–3</strong></td>
+<td>Thread performance measurement</td>
+<td>Empirical / performance</td>
+<td><strong>Low</strong></td>
+<td>Skip for exam revision</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="sheet-3" class="level2">
+<h2 class="anchored" data-anchor-id="sheet-3">Sheet 3</h2>
+<p><strong>Topics</strong>: Threads, Race Conditions, Mutual Exclusion, Critical Sections, Semaphores, Mutexes, Condition Variables, Active/Busy Waiting, Producer–Consumer Problem, Read–Write Locks, Deadlock, Starvation, Pthreads synchronization APIs, Win32 synchronization APIs.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Aufgabe</th>
+<th>Topic / subtopic</th>
+<th>Type of task</th>
+<th>Exam relevance</th>
+<th>Exam-likeness</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>1</strong></td>
+<td><strong>Concurrency → Race Conditions / Mutual Exclusion</strong></td>
+<td>Code analysis, conceptual reasoning</td>
+<td><strong>Very high</strong></td>
+<td><strong>Very high</strong></td>
+</tr>
+<tr class="even">
+<td><strong>2</strong></td>
+<td><strong>Synchronization → Semaphores, Mutexes, Condition Variables</strong></td>
+<td>Conceptual / video-based / supplementary theory</td>
+<td><strong>High</strong></td>
+<td><strong>Medium–High</strong></td>
+</tr>
+<tr class="odd">
+<td><strong>3</strong></td>
+<td><strong>Synchronization → Producer–Consumer, Condition Variables, Active Waiting</strong></td>
+<td>Programming / implementation / performance experiment</td>
+<td><strong>High conceptually</strong>, lower for full implementation</td>
+<td><strong>Medium</strong></td>
+</tr>
+<tr class="even">
+<td><strong>4</strong></td>
+<td><strong>Synchronization → Semaphores, Read–Write Locks, Deadlock / Starvation / Mutual Exclusion</strong></td>
+<td>Pseudocode analysis + construction</td>
+<td><strong>Very high</strong></td>
+<td><strong>Very high</strong></td>
+</tr>
+<tr class="odd">
+<td><strong>5 Bonus</strong></td>
+<td><strong>Synchronization APIs → POSIX/Pthreads vs.&nbsp;Win32 Semaphores</strong></td>
+<td>Research / API lookup / coding</td>
+<td><strong>Low–Medium</strong></td>
+<td><strong>Low</strong></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="sheet-4" class="level2">
+<h2 class="anchored" data-anchor-id="sheet-4">Sheet 4</h2>
+<p>Yes. Looking at <strong>Übungsblatt 4 as a whole</strong>, there is a fairly clear transition in the course here: Aufgaben 1–3 finish the block on <strong>Interprozesskommunikation / Pipes</strong>, while Aufgaben 4–7 begin <strong>Speicherverwaltung</strong>, especially fragmentation, contiguous allocation, logical/physical addresses and the foundations of paging. This matches the organization of the summary: IPC comes before threads/synchronization, while memory management then introduces swapping, fragmentation, MMU/logical vs.&nbsp;physical addresses, followed by paging. ibn-zusammenfassung ibn-zusammenfassung ibn-zusammenfassung</p>
+<p>The exam evidence makes the <strong>memory-management half particularly important</strong>. The 2016 exam devoted an entire 12-point problem to paging and address translation, including page-table sizes, logical/physical addresses, page number/offset and inverted page tables. ibn-klausur-2016 The more recent memory protocol likewise reports a large paging/memory-management problem involving page tables, logical/physical addresses and calculations. Gedächtnisprotokoll_Klausur_ IB…</p>
+<section id="classification-of-übungsblatt-4" class="level3">
+<h3 class="anchored" data-anchor-id="classification-of-übungsblatt-4">Classification of Übungsblatt 4</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Aufgabe</th>
+<th>Topic → subtopic</th>
+<th>Type of task</th>
+<th>Exam relevance</th>
+<th>How exam-like?</th>
+<th>Assessment</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>1</strong></td>
+<td><strong>Interprocess Communication → named vs.&nbsp;anonymous pipes</strong></td>
+<td>Conceptual / application / example construction</td>
+<td><strong>Medium</strong></td>
+<td><strong>Medium</strong></td>
+<td>The concepts themselves are standard OS material and explicitly appear in the summary. You need to understand the limitations and use cases of named vs.&nbsp;anonymous pipes. The requirement to invent your own scenario is somewhat exercise-like rather than typical written-exam style.</td>
+</tr>
+<tr class="even">
+<td><strong>2</strong></td>
+<td><strong>IPC / OS interfaces → Win32 handles, I/O redirection</strong></td>
+<td><strong>Research + programming/API investigation</strong></td>
+<td><strong>Low</strong></td>
+<td><strong>Very low</strong></td>
+<td>Strongly research-oriented: look up Win32 handle representation and construct Windows API code for redirection. The summary and the available exams concentrate much more on POSIX concepts than on exact Win32 API details. Useful background, but not something I would prioritize for exam preparation.</td>
+</tr>
+<tr class="odd">
+<td><strong>3</strong></td>
+<td><strong>IPC → anonymous pipes, bidirectional process communication</strong></td>
+<td><strong>Programming / implementation</strong></td>
+<td><strong>Medium</strong></td>
+<td><strong>Low–Medium</strong></td>
+<td>Anonymous pipes themselves are relevant; the summary explicitly covers <code>pipe()</code>, <code>read()</code> and <code>write()</code>. ibn-zusammenfassung But writing a complete program with two processes and two-way communication is more implementation-heavy than the exam evidence suggests. Understanding <em>how</em> the two pipes must be arranged is more important than memorizing code.</td>
+</tr>
+<tr class="even">
+<td><strong>4</strong></td>
+<td><strong>Memory management → fragmentation, swapping, paging, allocation trade-offs</strong></td>
+<td><strong>Research / conceptual / diagram interpretation</strong></td>
+<td><strong>Medium–High concepts</strong>, but <strong>Low–Medium as an exercise</strong></td>
+<td><strong>Low–Medium</strong></td>
+<td>The concepts are important: fragmentation, swapping and paging are core memory-management topics. But the task is built around watching a research talk and interpreting a specific allocator paper, which makes the assignment itself much less exam-like. Part <strong>(b)</strong> on swapping and <strong>(c)</strong> on paging are more useful than the research-specific details.</td>
+</tr>
+<tr class="odd">
+<td><strong>5</strong></td>
+<td><strong>Memory management → internal vs.&nbsp;external fragmentation; logical vs.&nbsp;physical addresses</strong></td>
+<td><strong>Conceptual definition/comparison</strong></td>
+<td><strong>High</strong></td>
+<td><strong>High</strong></td>
+<td>Very good exam-prep question. These are fundamental distinctions explicitly covered in the summary. ibn-zusammenfassung Short “explain the difference between X and Y” questions are also exactly the sort of thing that can appear as exam subquestions.</td>
+</tr>
+<tr class="even">
+<td><strong>6</strong></td>
+<td><strong>Memory management → contiguous allocation; First Fit, Best Fit, Worst Fit</strong></td>
+<td><strong>Calculation / algorithm simulation</strong></td>
+<td><strong>Medium–High</strong></td>
+<td><strong>High</strong></td>
+<td>Very exam-like format: small concrete data set, apply three algorithms by hand. The summary explicitly lists First Fit, Best Fit and Worst Fit as the allocation strategies for holes. ibn-zusammenfassung It has not appeared explicitly in the two exam documents we have, so I would put it below paging, but it is exactly the kind of calculation that could easily be asked.</td>
+</tr>
+<tr class="odd">
+<td><strong>7</strong></td>
+<td><strong>Paging → splitting a logical address into page number + offset</strong></td>
+<td><strong>Calculation + tiny coding component</strong></td>
+<td><strong>Very High</strong></td>
+<td><strong>Very High</strong></td>
+<td>One of the strongest exam-prep tasks on the sheet. The summary explicitly requires understanding page number and offset. ibn-zusammenfassung More importantly, the <strong>2016 exam asks essentially this exact operation</strong>: given a logical address and page size, determine offset and page index. ibn-klausur-2016 The recent memory protocol again says logical/physical addresses and page calculations appeared. Gedächtnisprotokoll_Klausur_ IB…</td>
+</tr>
+</tbody>
+</table>
+<p>The actual sheet confirms this progression very clearly: Aufgaben 1–3 are named pipes, Win32 handles/redirection, and anonymous-pipe communication; Aufgaben 4–7 then move to fragmentation/swapping/paging, memory-management terminology, placement algorithms and page-number/offset calculations. ueb04-ibn-SS2025 ueb04-ibn-SS2025</p>
+</section>
+<section id="topics" class="level3">
+<h3 class="anchored" data-anchor-id="topics">Topics</h3>
+<p><strong>Topics: Interprocess Communication (IPC), Pipes, I/O and file-handle abstractions, Memory Management, Swapping, Fragmentation, Contiguous Memory Allocation, Logical vs.&nbsp;Physical Addressing, Paging</strong></p>
+<p>If we compress that to the <strong>main syllabus-level topics</strong>, rather than listing every subtopic:</p>
+<p><strong>Topics: Interprocess Communication, Memory Management, Paging</strong></p>
+<p>For exam preparation, I would mentally divide Blatt 4 into roughly three priority groups: <strong>Aufgabe 7 and 5 are especially important</strong>, Aufgabe 6 is also worth being able to solve comfortably, while Aufgaben 1 and 3 are useful IPC knowledge but less strongly represented in the exam evidence. Aufgabe 4 contains important theory inside a relatively non-exam-like research exercise, and Aufgabe 2 is the clearest candidate to deprioritize.</p>
+</section>
+</section>
+<section id="sheet-5" class="level2">
+<h2 class="anchored" data-anchor-id="sheet-5">Sheet 5</h2>
+<p>Yes. <strong>Übungsblatt 5 is unusually exam-relevant overall</strong>. Unlike some earlier sheets, almost the entire sheet is concentrated on one major syllabus block—<strong>Paging and page tables</strong>—and that block appears prominently in both exam documents. In the more recent <em>Gedächtnisprotokoll</em>, Paging/Memory Management was even described as a comparatively extensive exam problem, involving construction of page tables, logical/physical addresses, unit conversions, and an inverted-page-table question. Gedächtnisprotokoll_Klausur_ IB… The 2016 exam likewise devoted an entire 12-point problem to page-table sizes, inverted page tables, address decomposition, and page-table contents. ibn-klausur-2016</p>
+<section id="main-syllabus-level-topics" class="level3">
+<h3 class="anchored" data-anchor-id="main-syllabus-level-topics">Main syllabus-level topics</h3>
+<p>The sheet belongs almost entirely to <strong>Speicherverwaltung → Paging und Seitentabellen</strong>. More specifically, I would place its material under:</p>
+<ul>
+<li><strong>Paging and address translation</strong>
+<ul>
+<li>logical vs.&nbsp;physical addresses</li>
+<li>page number, frame number, offset</li>
+<li>direct/normal page tables</li>
+</ul></li>
+<li><strong>Page-table organizations</strong>
+<ul>
+<li>direct page tables</li>
+<li>inverted page tables</li>
+<li>hierarchical / multilevel page tables</li>
+<li>memory consumption of page tables</li>
+</ul></li>
+<li><strong>Translation Lookaside Buffer (TLB)</strong>
+<ul>
+<li>TLB hit / miss</li>
+<li>TLB capacity</li>
+<li>locality and repeated accesses</li>
+<li>TLB invalidation on context switches</li>
+<li>effective memory-access time</li>
+</ul></li>
+<li><strong>Hardware/software interaction in virtual memory</strong>
+<ul>
+<li>process-specific address mappings</li>
+<li>why address translation state changes on a process switch</li>
+</ul></li>
+<li><strong>Practical address translation</strong>
+<ul>
+<li>following a translation through a simulator</li>
+<li>decomposing virtual addresses across levels of a page table</li>
+</ul></li>
+</ul>
+<p>That matches the organization of the summary very closely: the summary’s section <strong>“7. Paging und Seitentabellen”</strong> starts with pages, frames, address decomposition and page tables, and then covers TLBs, effective access time, direct/inverted tables and multilevel page tables. ibn-zusammenfassung ibn-zusammenfassung ibn-zusammenfassung</p>
+</section>
+<section id="analysis-of-übungsblatt-5" class="level3">
+<h3 class="anchored" data-anchor-id="analysis-of-übungsblatt-5">Analysis of Übungsblatt 5</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Aufgabe</th>
+<th>Topic / subtopic</th>
+<th>Type of task</th>
+<th>Exam relevance</th>
+<th>How exam-like?</th>
+<th>Assessment</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>1</strong></td>
+<td>Paging; direct page table; mapping <strong>page number → frame number</strong>; sparsity/size of a direct table</td>
+<td><strong>Conceptual analogy + estimation</strong></td>
+<td><strong>High</strong></td>
+<td><strong>Medium</strong></td>
+<td>The student-ID/address analogy itself is pedagogical and somewhat assignment-like, but the underlying ideas—what indexes a page table, what its entries contain, and why a direct table can be huge/sparse—are core exam material. ueb05-ibn-SS2025</td>
+</tr>
+<tr class="even">
+<td><strong>2</strong></td>
+<td>Address translation; page number, offset, frame number; constructing direct page-table entries</td>
+<td><strong>Calculation + table construction</strong></td>
+<td><strong>Very high</strong></td>
+<td><strong>Very high</strong></td>
+<td>One of the most important tasks on the sheet. Given logical→physical address mappings, you reconstruct the relevant page-table entries. This is extremely close to actual exam material. ueb05-ibn-SS2025</td>
+</tr>
+<tr class="odd">
+<td><strong>3</strong></td>
+<td>TLB; page size; stride accesses; capacity misses; temporal/spatial locality</td>
+<td><strong>Calculation / reasoning from code</strong></td>
+<td><strong>Medium–High</strong></td>
+<td><strong>Medium</strong></td>
+<td>Important conceptual TLB exercise, but more elaborate than what we have direct evidence for in the exams. Excellent for understanding <em>why</em> a TLB works, rather than a direct historical exam clone. ueb05-ibn-SS2025</td>
+</tr>
+<tr class="even">
+<td><strong>4</strong></td>
+<td>TLB invalidation; process switch vs.&nbsp;thread switch; process-specific page tables</td>
+<td><strong>Conceptual explanation + counterexample</strong></td>
+<td><strong>High</strong></td>
+<td><strong>Medium–High</strong></td>
+<td>Good exam-style conceptual question: explain a mechanism and construct a failure scenario. Not directly repeated in the supplied exams, but squarely within core paging/TLB knowledge. ueb05-ibn-SS2025</td>
+</tr>
+<tr class="odd">
+<td><strong>5</strong></td>
+<td>Multilevel translation + TLB lookup</td>
+<td><strong>Simulator / practical supplementary exercise</strong></td>
+<td><strong>Low–Medium</strong></td>
+<td><strong>Low</strong></td>
+<td>The concepts are important, but “run simulator and submit screenshot” is obviously not an exam format. Use it for visualization, not as a priority exam exercise. ueb05-ibn-SS2025</td>
+</tr>
+<tr class="even">
+<td><strong>6</strong></td>
+<td>Direct page-table memory size; inverted page table; RAM overhead</td>
+<td><strong>Calculation</strong></td>
+<td><strong>Extremely high</strong></td>
+<td><strong>Extremely high</strong></td>
+<td>Probably the strongest exam-preparation task on the sheet. The 2016 exam asks essentially these calculations, and the older minitest included in the exam document contains almost the <em>same wording</em>. ueb05-ibn-SS2025</td>
+</tr>
+<tr class="odd">
+<td><strong>7</strong></td>
+<td>TLB hit ratio; hierarchical page tables; expected access time; locality</td>
+<td><strong>Formula derivation + conceptual explanation</strong></td>
+<td><strong>High</strong></td>
+<td><strong>High</strong></td>
+<td>Very exam-suitable: derive an expected-time formula, then explain why the simplistic probabilistic model is unrealistic. Combines calculation with conceptual understanding. ueb05-ibn-SS2025</td>
+</tr>
+<tr class="even">
+<td><strong>8</strong></td>
+<td>Multilevel page tables; splitting address bits; entries per level; table contents; maximum memory use</td>
+<td><strong>Diagram + calculation + conceptual explanation</strong></td>
+<td><strong>High</strong></td>
+<td><strong>Medium–High</strong></td>
+<td>Very useful and comprehensive, but somewhat longer than a typical short exam subquestion. The individual skills it tests are highly examinable. ueb05-ibn-SS2025</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="why-aufgabe-2-and-aufgabe-6-stand-out" class="level3">
+<h3 class="anchored" data-anchor-id="why-aufgabe-2-and-aufgabe-6-stand-out">Why Aufgabe 2 and Aufgabe 6 stand out</h3>
+<p><strong>Aufgabe 2 is almost exactly the skill tested in the recent exam protocol.</strong> The protocol says that the Paging problem required students to <strong>create/fill page tables</strong> and determine <strong>logical and physical addresses</strong>, with PIDs and addresses given. Gedächtnisprotokoll_Klausur_ IB… That is essentially what Aufgabe 2 trains.</p>
+<p>The 2016 exam is equally direct. It gives a logical address translated to a physical address, asks for its <strong>offset, page index and frame number</strong>, and then asks for the corresponding entries of both a normal and an inverted page table. ibn-klausur-2016</p>
+<p>So for exam preparation I would treat <strong>Aufgabe 2 as mandatory</strong>.</p>
+<p><strong>Aufgabe 6 is even more striking.</strong> The 2016 exam asks for the memory requirement of a normal page table and then for the memory requirement of an inverted page table. ibn-klausur-2016 Moreover, the old 2012 minitest included in the same PDF asks:</p>
+<ul>
+<li>maximum memory requirement of a page table without hierarchical tables;</li>
+<li>what fraction of physical memory an inverted page table would require. ibn-klausur-2016</li>
+</ul>
+<p>That is essentially <strong>Übung 5, Aufgabe 6</strong>, just with the parameters packaged slightly differently. So this is not merely “the same topic”; it is a historically demonstrated <strong>exam question form</strong>.</p>
+</section>
+<section id="aufgabe-1-important-concept-less-important-packaging" class="level3">
+<h3 class="anchored" data-anchor-id="aufgabe-1-important-concept-less-important-packaging">Aufgabe 1: important concept, less important packaging</h3>
+<p>The point of Aufgabe 1 is to make you understand the structural relationship</p>
+<p><span class="math display">\[
+\text{page number}\longrightarrow \boxed{\text{page table}}\longrightarrow\text{frame number}.
+\]</span></p>
+<p>That is exactly the formulation used in the summary: the <strong>page number is the index</strong>, and the corresponding page-table entry contains the <strong>frame number</strong>. ibn-zusammenfassung</p>
+<p>The student-residence analogy itself is unlikely to appear verbatim on an exam. But once you strip away the analogy, it tests two important questions:</p>
+<ol type="1">
+<li>What does a direct page table actually represent?</li>
+<li>Why can a direct page table contain an enormous number of unused entries?</li>
+</ol>
+<p>So I would <strong>understand it thoroughly but not spend much time rehearsing the dormitory analogy itself</strong>.</p>
+</section>
+<section id="aufgabe-3-tlb-capacity-locality" class="level3">
+<h3 class="anchored" data-anchor-id="aufgabe-3-tlb-capacity-locality">Aufgabe 3: TLB capacity + locality</h3>
+<p>This one is more sophisticated. You have a 4 KiB page, 4-byte integers, an array accessed with stride (M), and a TLB containing 64 entries. You have to reason about when successive array accesses hit different pages and when the working set exceeds the TLB capacity. ueb05-ibn-SS2025</p>
+<p>The summary explicitly treats the TLB as a cache of page-table entries, including TLB hits/misses and the fact that only a small number of pages tend to be accessed frequently. ibn-zusammenfassung</p>
+<p>So the <strong>knowledge is definitely syllabus material</strong>, but the exact “choose (M) and (N)” formulation looks more like a deeper exercise than a historically observed exam problem. I’d therefore study the reasoning, but not prioritize it above Aufgaben 2 and 6.</p>
+</section>
+<section id="aufgabe-4-tlb-and-context-switches" class="level3">
+<h3 class="anchored" data-anchor-id="aufgabe-4-tlb-and-context-switches">Aufgabe 4: TLB and context switches</h3>
+<p>This question tests an important consequence of the fact that <strong>different processes have different page tables</strong>.</p>
+<p>The summary explicitly says that each process needs its own direct page table because different processes may use the same logical addresses while referring to different data. ibn-zusammenfassung</p>
+<p>Therefore stale entries such as</p>
+<p><span class="math display">\[
+p \rightarrow f_A
+\]</span></p>
+<p>from process A cannot normally simply remain valid when process B, which may map the same page (p) to (f_B), starts executing.</p>
+<p>The “does this also apply to threads?” part is particularly useful because it checks whether you understand that threads of one process normally share the same address space.</p>
+<p>This is a good <strong>short conceptual-exam-question style</strong>, even though neither of our two exam documents directly asks it.</p>
+</section>
+<section id="aufgabe-5-useful-but-supplementary" class="level3">
+<h3 class="anchored" data-anchor-id="aufgabe-5-useful-but-supplementary">Aufgabe 5: useful, but supplementary</h3>
+<p>This is the easiest one to deprioritize. It literally asks you to use the Address Translation Simulator and submit a screenshot. ueb05-ibn-SS2025</p>
+<p>The <strong>translation process it illustrates is important</strong>. The activity itself is not.</p>
+<p>For exam preparation I’d classify it:</p>
+<blockquote class="blockquote">
+<p><strong>Supplementary visualization exercise — do once if the mechanism is unclear; otherwise skip during final revision.</strong></p>
+</blockquote>
+</section>
+<section id="aufgabe-7-very-useful-calculation-pattern" class="level3">
+<h3 class="anchored" data-anchor-id="aufgabe-7-very-useful-calculation-pattern">Aufgabe 7: very useful calculation pattern</h3>
+<p>This task combines two things:</p>
+<p><span class="math display">\[
+\text{expected access time}
+\]</span></p>
+<p>and</p>
+<p><span class="math display">\[
+\text{locality / why TLB hit rates are high}.
+\]</span></p>
+<p>The summary explicitly contains an expected-access-time calculation for a TLB:</p>
+<p><span class="math display">\[
+E[X]=h(1+T)+(1-h)(2+T)
+\]</span></p>
+<p>for the simple one-level case, together with the interpretation of TLB hit and miss costs. ibn-zusammenfassung</p>
+<p>Aufgabe 7 generalizes essentially the same reasoning to a <strong>(k)-level page table</strong>. ueb05-ibn-SS2025</p>
+<p>That makes it quite valuable: it is not merely memorizing a formula—you need to reconstruct the formula from the number of memory accesses.</p>
+<p>I would therefore consider it <strong>strong exam preparation</strong>, even though our two exam samples do not show this exact question.</p>
+</section>
+<section id="aufgabe-8-multilevel-tables" class="level3">
+<h3 class="anchored" data-anchor-id="aufgabe-8-multilevel-tables">Aufgabe 8: multilevel tables</h3>
+<p>This is the sheet’s most comprehensive page-table-structure problem. You have to divide a 32-bit logical address among:</p>
+<ul>
+<li>page offset,</li>
+<li>level-1 index,</li>
+<li>level-2 index,</li>
+<li>level-3 index,</li>
+</ul>
+<p>and then determine the number of table entries and total maximum memory usage. ueb05-ibn-SS2025</p>
+<p>The summary explicitly expects understanding of this structure: upper levels contain addresses of lower-level page tables, while only the lowest level plays the role of the ordinary direct page table. ibn-zusammenfassung</p>
+<p>So this is <strong>core syllabus material</strong>. Its only downside from an exam-preparation perspective is that the exercise is rather extensive. An actual exam might split it into smaller subquestions.</p>
+<hr>
+</section>
+<section id="my-exam-preparation-grouping" class="level3">
+<h3 class="anchored" data-anchor-id="my-exam-preparation-grouping">My exam-preparation grouping</h3>
+<p>If we use the same practical categories we were using for the previous sheets, I would group them approximately like this:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Priority</th>
+<th>Tasks</th>
+<th>Reason</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Must be able to solve confidently</strong></td>
+<td><strong>2, 6</strong></td>
+<td>Direct overlap with documented exam questions</td>
+</tr>
+<tr class="even">
+<td><strong>Strong exam preparation</strong></td>
+<td><strong>4, 7, 8</strong></td>
+<td>Core mechanisms + highly exam-suitable reasoning/calculation</td>
+</tr>
+<tr class="odd">
+<td><strong>Important understanding, somewhat more exercise-like</strong></td>
+<td><strong>1, 3</strong></td>
+<td>Core material, but the particular formulation is less directly evidenced by exams</td>
+</tr>
+<tr class="even">
+<td><strong>Supplementary</strong></td>
+<td><strong>5</strong></td>
+<td>Simulator activity rather than an exam question</td>
+</tr>
+</tbody>
+</table>
+<p>And one especially useful conclusion from this sheet is that <strong>“Paging und Seitentabellen” should be treated as a major exam block rather than a peripheral chapter</strong>. The 2016 exam allocated <strong>12/52 points</strong> to Speicherverwaltung, with almost the entire problem centered on page tables. ibn-klausur-2016 The newer memory protocol again reports a large Paging/Memory-Management problem involving page tables, address translation, size calculations, and inverted page tables. Gedächtnisprotokoll_Klausur_ IB…</p>
+<p>So compared with Übungsblätter 2–4, <strong>Übungsblatt 5 has a very high concentration of material that maps directly onto demonstrated IBN exam content.</strong></p>
+</section>
+</section>
+<section id="sheet-6" class="level2">
+<h2 class="anchored" data-anchor-id="sheet-6">Sheet 6</h2>
+<section id="main-syllabus-level-topics-1" class="level3">
+<h3 class="anchored" data-anchor-id="main-syllabus-level-topics-1">Main syllabus-level topics</h3>
+<ol type="1">
+<li><strong>Memory management</strong></li>
+<li><strong>Paging and page tables</strong></li>
+<li><strong>Virtual memory and page replacement</strong></li>
+<li><strong>Locality and working sets</strong></li>
+<li><strong>Segmentation and contiguous memory allocation</strong></li>
+</ol>
+</section>
+<section id="detailed-subtopics" class="level3">
+<h3 class="anchored" data-anchor-id="detailed-subtopics">Detailed subtopics</h3>
+<ul>
+<li>Page-reference sequences and page faults</li>
+<li>FIFO, LRU, Clock/Second Chance and OPT</li>
+<li>Comparing page-replacement algorithms</li>
+<li>Hardware-supported approximation of LRU</li>
+<li>Reference/accessed bits (<strong>R-bits</strong>)</li>
+<li>Epoch length and page-table scanning overhead</li>
+<li>Working set <span class="math inline">\(WS(t,\Delta)\)</span></li>
+<li>Computing the largest working set in a reference sequence</li>
+<li>Direct page-table size in IA-32</li>
+<li>Memory utilization and fragmentation</li>
+<li>Heap and stack growth</li>
+<li>Comparison of contiguous allocation, segmentation and paging</li>
+</ul>
+<p>There is no real <strong>research task</strong> on this sheet. The main categories are calculations, algorithm simulation, conceptual reasoning, pseudocode and practical programming.</p>
+</section>
+<section id="assignment-by-assignment-classification" class="level3">
+<h3 class="anchored" data-anchor-id="assignment-by-assignment-classification">Assignment-by-assignment classification</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Task</th>
+<th>Topic and subtopic</th>
+<th>Type</th>
+<th>Exam relevance</th>
+<th>Exam-like?</th>
+<th>Concise assessment</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>1a</strong></td>
+<td>Virtual memory → FIFO and LRU page replacement</td>
+<td>Calculation / manual simulation</td>
+<td><strong>Very high</strong></td>
+<td><strong>Very high</strong></td>
+<td>Almost exactly the kind of page-fault calculation already used in a mini-test: simulate frames and count faults.</td>
+</tr>
+<tr class="even">
+<td><strong>1b</strong></td>
+<td>Page replacement → Clock versus LRU</td>
+<td>Constructive example / algorithm comparison</td>
+<td><strong>High</strong></td>
+<td><strong>Medium–high</strong></td>
+<td>Requires genuine understanding of how the two algorithms choose victims, not merely memorizing definitions.</td>
+</tr>
+<tr class="odd">
+<td><strong>2</strong></td>
+<td>Page replacement → mathematical relation between OPT and LRU</td>
+<td>Theoretical/conceptual reasoning</td>
+<td><strong>Medium</strong></td>
+<td><strong>Low–medium</strong></td>
+<td>An interesting theoretical insight, but less representative than concrete page-fault calculations.</td>
+</tr>
+<tr class="even">
+<td><strong>3</strong></td>
+<td>Page replacement → implementation of Clock or LRU</td>
+<td>Programming / practical implementation</td>
+<td><strong>Medium for understanding</strong></td>
+<td><strong>Very low</strong></td>
+<td>Writing and submitting a complete program is unrealistic in a written exam. Understanding its state transitions remains useful.</td>
+</tr>
+<tr class="odd">
+<td><strong>4a</strong></td>
+<td>Paging → R-bits, approximate LRU and page-table scanning</td>
+<td>Calculation / performance analysis</td>
+<td><strong>Very high</strong></td>
+<td><strong>High</strong></td>
+<td>Closely related to the 2016 question about approximating the last-access time using hardware R-bits.</td>
+</tr>
+<tr class="even">
+<td><strong>4b</strong></td>
+<td>Virtual memory → choice of epoch length</td>
+<td>Estimation / design reasoning</td>
+<td><strong>High</strong></td>
+<td><strong>Medium</strong></td>
+<td>More open-ended than a typical calculation; you must state assumptions and balance accuracy against overhead.</td>
+</tr>
+<tr class="odd">
+<td><strong>5</strong></td>
+<td>Working sets → membership and possible overlap</td>
+<td>Short conceptual question</td>
+<td><strong>Medium–high</strong></td>
+<td><strong>Medium–high</strong></td>
+<td>A compact definition-and-justification question. Working-set definitions have appeared in the supplied exam material.</td>
+</tr>
+<tr class="even">
+<td><strong>6</strong></td>
+<td>Working sets → maximum distinct pages in a sliding window of length ()</td>
+<td>Algorithm design / pseudocode</td>
+<td><strong>High</strong></td>
+<td><strong>Medium</strong></td>
+<td>The core sliding-window algorithm is exam-suitable, although the file-processing framing is somewhat assignment-like.</td>
+</tr>
+<tr class="odd">
+<td><strong>7</strong></td>
+<td>Memory management → contiguous allocation vs segmentation vs paging</td>
+<td>Conceptual comparison</td>
+<td><strong>High</strong></td>
+<td><strong>Medium–high</strong></td>
+<td>A classic explain-and-compare question. Paging is demonstrably exam-relevant; segmentation is less visible in the supplied exams but belongs to the core syllabus.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="recommended-study-priority" class="level3">
+<h3 class="anchored" data-anchor-id="recommended-study-priority">Recommended study priority</h3>
+<section id="priority-a-practise-thoroughly" class="level4">
+<h4 class="anchored" data-anchor-id="priority-a-practise-thoroughly">Priority A — practise thoroughly</h4>
+<ul>
+<li><strong>1a:</strong> FIFO/LRU calculation</li>
+<li><strong>4a:</strong> R-bit scanning calculation</li>
+<li><strong>4b:</strong> epoch-length reasoning</li>
+<li><strong>7:</strong> comparison of memory-management schemes</li>
+</ul>
+<p>These combine central syllabus material with realistic written-exam formats.</p>
+</section>
+<section id="priority-b-understand-and-be-able-to-reproduce" class="level4">
+<h4 class="anchored" data-anchor-id="priority-b-understand-and-be-able-to-reproduce">Priority B — understand and be able to reproduce</h4>
+<ul>
+<li><strong>1b:</strong> Clock versus LRU</li>
+<li><strong>5:</strong> working-set membership</li>
+<li><strong>6:</strong> largest-working-set pseudocode</li>
+</ul>
+<p>These test whether you understand the algorithms and definitions beyond memorization.</p>
+</section>
+<section id="priority-c-understand-the-main-idea" class="level4">
+<h4 class="anchored" data-anchor-id="priority-c-understand-the-main-idea">Priority C — understand the main idea</h4>
+<ul>
+<li><strong>2:</strong> OPT–LRU mathematical relationship</li>
+</ul>
+<p>Useful theoretical knowledge, but comparatively specialized.</p>
+</section>
+<section id="priority-d-optional-implementation-work" class="level4">
+<h4 class="anchored" data-anchor-id="priority-d-optional-implementation-work">Priority D — optional implementation work</h4>
+<ul>
+<li><strong>3:</strong> full simulator implementation</li>
+</ul>
+<p>For exam preparation, manually tracing the simulator’s states matters much more than writing the complete program.</p>
+<p>Overall, <strong>sheet 6 has high exam relevance</strong>. The strongest evidence is that page-replacement calculations appear almost directly in the supplied material, the 2016 exam asks about R-bit-based recency approximation, and the recent exam recollection describes paging as a substantial exam topic.</p>
+</section>
+</section>
+</section>
+<section id="sheet-7" class="level2">
+<h2 class="anchored" data-anchor-id="sheet-7">Sheet 7</h2>
+<section id="main-syllabus-level-topics-2" class="level3">
+<h3 class="anchored" data-anchor-id="main-syllabus-level-topics-2">Main syllabus-level topics</h3>
+<p>Assignment sheet 7 is primarily about:</p>
+<ol type="1">
+<li><strong>File systems</strong>
+<ul>
+<li>Links, FAT, I-nodes, directories and pathname resolution</li>
+</ul></li>
+<li><strong>Secondary-storage management</strong>
+<ul>
+<li>Hard-disk access times and disk-scheduling algorithms</li>
+</ul></li>
+<li><strong>RAID</strong>
+<ul>
+<li>Reliability, redundancy and read performance</li>
+</ul></li>
+<li><strong>Paging and page tables</strong>
+<ul>
+<li>Only in Aufgabe 3, as an analogy to I-nodes</li>
+</ul></li>
+</ol>
+<p>This corresponds closely to Chapter 10, “Dateien, Dateisysteme, Festplatten,” of the summary. 01-ibn-zusammenfassung.pdf</p>
+<p>A particularly important observation is that the recent exam memory protocol explicitly mentions <strong>both FAT and I-nodes</strong>. 13-Ged-chtnisprotokoll_Klausur_-IBN_Ersttermin.pdf</p>
+</section>
+<section id="detailed-subtopics-1" class="level3">
+<h3 class="anchored" data-anchor-id="detailed-subtopics-1">Detailed subtopics</h3>
+<ul>
+<li>Hard links versus symbolic links</li>
+<li>FAT and linked file allocation</li>
+<li>Cluster allocation and traversal</li>
+<li>I-node structure</li>
+<li>Direct and indirect block addressing</li>
+<li>Maximum file-size calculations</li>
+<li>Directory traversal and pathname lookup</li>
+<li>Analogy between paging and I-nodes</li>
+<li>Seek time and rotational latency</li>
+<li>Conversion between RPM and rotational latency</li>
+<li>FCFS, SSTF, SCAN, C-SCAN and C-LOOK</li>
+<li>RAID 0 versus RAID 1</li>
+<li>Failure probabilities</li>
+<li>Parallel and load-balanced reads</li>
+</ul>
+</section>
+<section id="analysis-of-the-individual-assignments" class="level3">
+<h3 class="anchored" data-anchor-id="analysis-of-the-individual-assignments">Analysis of the individual assignments</h3>
+<p>The following classification is based on the full sheet. 07-ueb07-ibn-SS2025.pdf</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Aufgabe</th>
+<th>Topic and subtopic</th>
+<th>Type</th>
+<th>Exam relevance</th>
+<th>Exam-likeness</th>
+<th>Concise assessment</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>1</strong></td>
+<td>File systems: hard vs.&nbsp;symbolic links</td>
+<td>Conceptual comparison / recall</td>
+<td><strong>Medium–high</strong></td>
+<td><strong>High</strong></td>
+<td>A typical short conceptual exam question. Know differences involving I-nodes, cross-filesystem links, dangling links and deletion.</td>
+</tr>
+<tr class="even">
+<td><strong>2</strong></td>
+<td>File allocation: FAT, clusters, allocation and traversal</td>
+<td>Programming / simulation / practical application</td>
+<td><strong>Very high content relevance</strong></td>
+<td><strong>Low for the complete task; high for its concepts</strong></td>
+<td>FAT appeared in the recent exam protocol. Writing the entire simulator is unlikely in an exam, but tracing a FAT or allocating clusters is highly relevant.</td>
+</tr>
+<tr class="odd">
+<td><strong>3</strong></td>
+<td>I-nodes and paging: structural analogy, multilevel tables</td>
+<td>Conceptual transfer / supplementary deepening</td>
+<td><strong>Medium–high</strong></td>
+<td><strong>Low–medium</strong></td>
+<td>Both constituent topics are important, but the analogy itself is somewhat artificial and less representative of a direct exam question.</td>
+</tr>
+<tr class="even">
+<td><strong>4</strong></td>
+<td>I-nodes: maximum file size with direct and single-indirect pointers</td>
+<td>Calculation</td>
+<td><strong>Very high</strong></td>
+<td><strong>Very high</strong></td>
+<td>One of the strongest exam-preparation tasks. Almost the same type of I-node calculation appears in the older mini-test material appended to the 2016 PDF.</td>
+</tr>
+<tr class="odd">
+<td><strong>5</strong></td>
+<td>Directories and I-nodes: pathname resolution and disk operations</td>
+<td>Calculation / process tracing</td>
+<td><strong>High</strong></td>
+<td><strong>High</strong></td>
+<td>Tests whether you understand how each pathname component requires directory-block and I-node access. A classic filesystem exam problem.</td>
+</tr>
+<tr class="even">
+<td><strong>6</strong></td>
+<td>Hard disks: rotational latency, seek time, total access time, RPM</td>
+<td>Numerical calculation</td>
+<td><strong>Medium–high</strong></td>
+<td><strong>High</strong></td>
+<td>The historical information is contextual; the underlying calculations are standard and exam-like.</td>
+</tr>
+<tr class="odd">
+<td><strong>7</strong></td>
+<td>Disk scheduling: FCFS, SSTF, SCAN, C-SCAN, C-LOOK</td>
+<td>Algorithm execution / calculation</td>
+<td><strong>High</strong></td>
+<td><strong>Very high</strong></td>
+<td>A classic “execute the algorithm and calculate the cost” task. Pay attention to initial direction and whether the head travels to the physical endpoint.</td>
+</tr>
+<tr class="even">
+<td><strong>8</strong></td>
+<td>RAID 0/1: failure probabilities</td>
+<td>Probability calculation + explanation</td>
+<td><strong>Very high</strong></td>
+<td><strong>Very high</strong></td>
+<td>Especially important: essentially this exact RAID 0/1 probability task occurs in the older mini-test material contained in the 2016 PDF.</td>
+</tr>
+<tr class="odd">
+<td><strong>9</strong></td>
+<td>RAID 0/1: comparative read performance</td>
+<td>Conceptual reasoning / performance analysis</td>
+<td><strong>Medium–high</strong></td>
+<td><strong>High</strong></td>
+<td>A good short exam question. Requires distinguishing a single sequential read from multiple independent reads that can be distributed across mirrors.</td>
+</tr>
+</tbody>
+</table>
+<p>The comparison material comes from the 2016 examination PDF, including the older mini-tests appended to it. 12-ibn-klausur-2016.pdf</p>
+</section>
+<section id="important-distinction-for-aufgabe-2" class="level3">
+<h3 class="anchored" data-anchor-id="important-distinction-for-aufgabe-2">Important distinction for Aufgabe 2</h3>
+<p>I would not treat the entire FAT simulator as something you must reproduce under exam conditions. Split it into two layers:</p>
+<ul>
+<li><strong>Exam-relevant:</strong> understanding the FAT representation, following a cluster chain, allocating clusters, calculating the number of required clusters and recognizing error cases.</li>
+<li><strong>Mostly practical:</strong> designing the class, writing complete code, testing it and printing outputs.</li>
+</ul>
+<p>Thus, Aufgabe 2 is simultaneously <strong>very important in subject matter</strong> and <strong>not very exam-like in its full implementation format</strong>.</p>
+</section>
+<section id="recommended-exam-preparation-priority" class="level3">
+<h3 class="anchored" data-anchor-id="recommended-exam-preparation-priority">Recommended exam-preparation priority</h3>
+<ol type="1">
+<li><strong>Aufgabe 4</strong> — direct I-node calculation and closely matched by older exam material<br>
+</li>
+<li><strong>Aufgabe 8</strong> — essentially an exact previous mini-test question<br>
+</li>
+<li><strong>Aufgabe 2, conceptual portion</strong> — FAT explicitly appeared in the recent exam protocol<br>
+</li>
+<li><strong>Aufgabe 5</strong> — fundamental I-node/directory mechanics<br>
+</li>
+<li><strong>Aufgabe 7</strong> — standard algorithm-execution problem<br>
+</li>
+<li><strong>Aufgaben 1 and 9</strong> — compact conceptual questions<br>
+</li>
+<li><strong>Aufgabe 6</strong> — standard calculations, but less directly supported by the supplied exams<br>
+</li>
+<li><strong>Aufgabe 3</strong> — useful for deeper understanding, but the least directly exam-like formulation</li>
+</ol>
+<p>Overall, sheet 7 is <strong>highly relevant</strong>. It contains two exceptionally strong past-exam matches—Aufgaben 4 and 8—and directly practises FAT and I-nodes, which the recent memory protocol identifies as actual exam topics.</p>
+</section>
+</section>
+<section id="sheet-8" class="level2">
+<h2 class="anchored" data-anchor-id="sheet-8">Sheet 8</h2>
+<section id="main-syllabus-level-topics-3" class="level3">
+<h3 class="anchored" data-anchor-id="main-syllabus-level-topics-3">Main syllabus-level topics</h3>
+<ol type="1">
+<li><strong>Deadlocks and resource allocation</strong></li>
+<li><strong>CPU scheduling</strong></li>
+</ol>
+<p>Sheet 8 is especially important for exam preparation because deadlocks and the Banker algorithm occur directly in both exam references. Scheduling calculations also occur in an older mini-test included in the 2016 exam document.</p>
+<p>The classification below is based on the assignment sheet 08-ueb08-ibn-SS2025.pdf, the syllabus structure in the summary 01-ibn-zusammenfassung.pdf, and comparison with the 2016 exam 12-ibn-klausur-2016.pdf and the recent exam memory protocol 13-Ged-chtnisprotokoll_Klausur_-IBN_Ersttermin.pdf.</p>
+</section>
+<section id="detailed-subtopics-2" class="level3">
+<h3 class="anchored" data-anchor-id="detailed-subtopics-2">Detailed subtopics</h3>
+<section id="deadlocks" class="level4">
+<h4 class="anchored" data-anchor-id="deadlocks">Deadlocks</h4>
+<ul>
+<li>Definition of a resource deadlock</li>
+<li>Four necessary Coffman conditions:
+<ul>
+<li>mutual exclusion</li>
+<li>hold and wait</li>
+<li>no preemption</li>
+<li>circular wait</li>
+</ul></li>
+<li>Necessary versus sufficient conditions</li>
+<li>Deadlocks caused by incorrect semaphore acquisition</li>
+<li>Prevention through a globally consistent resource-acquisition order</li>
+<li>Resource-allocation graphs</li>
+<li>Multiple instances of a resource type</li>
+<li>Resource vector <span class="math inline">\(E\)</span> and available-resource vector <span class="math inline">\(A\)</span></li>
+<li>Allocation matrix <span class="math inline">\(C\)</span> and request matrix <span class="math inline">\(R\)</span></li>
+<li>Banker algorithm</li>
+<li>Safe execution sequences</li>
+<li>Deadlock detection versus deadlock avoidance</li>
+</ul>
+</section>
+<section id="cpu-scheduling" class="level4">
+<h4 class="anchored" data-anchor-id="cpu-scheduling">CPU scheduling</h4>
+<ul>
+<li>CPU-bound versus I/O-bound processes</li>
+<li>CPU bursts and I/O bursts</li>
+<li>FCFS</li>
+<li>Shortest Job First</li>
+<li>Round Robin and the time quantum</li>
+<li>Gantt diagrams</li>
+<li>Turnaround time</li>
+<li>Waiting time</li>
+<li>Average waiting time</li>
+<li>Fairness and starvation</li>
+<li>Priority scheduling</li>
+</ul>
+</section>
+</section>
+<section id="analysis-of-the-individual-assignments-1" class="level3">
+<h3 class="anchored" data-anchor-id="analysis-of-the-individual-assignments-1">Analysis of the individual assignments</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Aufgabe</th>
+<th>Topic and subtopic</th>
+<th>Type</th>
+<th>Exam relevance</th>
+<th>Exam-likeness</th>
+<th>Concise assessment</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>1</strong></td>
+<td>Deadlocks: necessary conditions, multiple resource instances, necessary vs.&nbsp;sufficient</td>
+<td>Conceptual proof; counterexample construction</td>
+<td><strong>High</strong></td>
+<td><strong>High</strong></td>
+<td>Very close to the 2016 question asking for graphs with cycles both with and without a necessary deadlock. Although marked bonus, the underlying distinction is exam-relevant.</td>
+</tr>
+<tr class="even">
+<td><strong>2</strong></td>
+<td>Semaphore deadlock; four Coffman conditions; deadlock prevention</td>
+<td>Execution trace; conceptual explanation; design/fix</td>
+<td><strong>Very high</strong></td>
+<td><strong>Very high</strong></td>
+<td>Almost a direct exam pattern: show how opposite lock ordering produces deadlock, identify the four conditions, and remove circular wait through consistent lock ordering.</td>
+</tr>
+<tr class="odd">
+<td><strong>3</strong></td>
+<td>Banker algorithm; matrices (E,C,R,A); identifying deadlocked processes</td>
+<td>Programming; algorithm implementation; testing</td>
+<td><strong>High conceptually</strong></td>
+<td><strong>Medium as a full task</strong></td>
+<td>Implementing a complete program is unlikely in a written exam. Understanding the algorithm, writing pseudocode and tracing it manually are extremely relevant.</td>
+</tr>
+<tr class="even">
+<td><strong>4</strong></td>
+<td>Resource-allocation graph; resource vectors and matrices; manual Banker algorithm</td>
+<td>Graph construction; data representation; hand calculation</td>
+<td><strong>Very high</strong></td>
+<td><strong>Very high</strong></td>
+<td>The strongest exam-preparation task on the sheet. The recent exam reportedly used essentially this sequence: draw the graph and apply the Banker algorithm.</td>
+</tr>
+<tr class="odd">
+<td><strong>5</strong></td>
+<td>Scheduling: CPU-bound versus I/O-bound processes</td>
+<td>Conceptual explanation</td>
+<td><strong>Medium</strong></td>
+<td><strong>Medium</strong></td>
+<td>A plausible short theory question. Know that I/O-bound processes usually have short CPU bursts and should receive CPU time quickly to keep devices and the system responsive.</td>
+</tr>
+<tr class="even">
+<td><strong>6</strong></td>
+<td>FCFS, SJF and Round Robin; Gantt diagrams; turnaround and waiting times</td>
+<td>Calculation; algorithm trace; comparison</td>
+<td><strong>High</strong></td>
+<td><strong>High</strong></td>
+<td>A standard scheduling calculation. An older mini-test in the 2016 document asks for nearly the same SJF/RR execution trace. Practise this carefully.</td>
+</tr>
+<tr class="odd">
+<td><strong>7</strong></td>
+<td>Starvation under scheduling algorithms</td>
+<td>Conceptual classification</td>
+<td><strong>Medium–High</strong></td>
+<td><strong>Medium–High</strong></td>
+<td>A very typical one-point conceptual question. Under the usual assumptions, starvation can occur with <strong>SJF</strong> and <strong>priority scheduling</strong>, but not with FCFS or Round Robin.</td>
+</tr>
+</tbody>
+</table>
+<section id="small-issue-in-aufgabe-6" class="level4">
+<h4 class="anchored" data-anchor-id="small-issue-in-aufgabe-6">Small issue in Aufgabe 6</h4>
+<p>Part (b) refers to <em>„die vier genannten Scheduling-Algorithmen“</em>, but part (a) names only three:</p>
+<ul>
+<li>FCFS</li>
+<li>Shortest Job First</li>
+<li>Round Robin</li>
+</ul>
+<p>This is almost certainly a typo. Unless another algorithm was specified orally, calculate the values for these three.</p>
+</section>
+</section>
+<section id="why-these-tasks-are-strongly-exam-relevant" class="level3">
+<h3 class="anchored" data-anchor-id="why-these-tasks-are-strongly-exam-relevant">Why these tasks are strongly exam-relevant</h3>
+<p>The match with the exam evidence is unusually direct:</p>
+<ul>
+<li>The <strong>2016 exam</strong> contains an entire 11-point section on deadlocks, including:
+<ul>
+<li>deadlock definition,</li>
+<li>semaphore code producing a deadlock,</li>
+<li>resource-allocation graphs,</li>
+<li>cycles that do or do not imply deadlock,</li>
+<li>the purpose and main idea of the Banker algorithm.</li>
+</ul></li>
+<li>The <strong>recent exam protocol</strong> explicitly reports:
+<ul>
+<li>drawing a resource/allocation graph,</li>
+<li>applying the Banker algorithm,</li>
+<li>concluding that no deadlock exists.</li>
+</ul></li>
+<li>An older mini-test included in the 2016 document asks for <strong>SJF and Round-Robin scheduling traces</strong>, closely matching Aufgabe 6.</li>
+</ul>
+</section>
+<section id="recommended-preparation-priority" class="level3">
+<h3 class="anchored" data-anchor-id="recommended-preparation-priority">Recommended preparation priority</h3>
+<ol type="1">
+<li><strong>Aufgabe 4</strong> — closest match to the recent exam<br>
+</li>
+<li><strong>Aufgabe 2</strong> — direct classical exam pattern<br>
+</li>
+<li><strong>Aufgabe 6</strong> — central scheduling calculation<br>
+</li>
+<li><strong>Aufgabe 1</strong> — important conceptual distinction about multiple instances<br>
+</li>
+<li><strong>Aufgabe 3, algorithmic core</strong> — understand and trace it; full programming is secondary<br>
+</li>
+<li><strong>Aufgabe 7</strong> — easy, compact exam knowledge<br>
+</li>
+<li><strong>Aufgabe 5</strong> — useful short conceptual background</li>
+</ol>
+<p>Overall, <strong>sheet 8 is one of the most exam-relevant sheets so far</strong>, mainly because Aufgaben 2 and 4 correspond almost directly to documented exam questions.</p>
+</section>
+</section>
+<section id="sheet-9" class="level2">
+<h2 class="anchored" data-anchor-id="sheet-9">Sheet 9</h2>
+<p>Sheet 9 is almost entirely about <strong>computer networks</strong>, progressing through the protocol stack:</p>
+<ol type="1">
+<li><strong>Fundamentals of packet-switched networks</strong></li>
+<li><strong>Network delay and queueing</strong></li>
+<li><strong>Internet structure, routing paths and topology</strong></li>
+<li><strong>Protocol layers, encapsulation and addressing</strong></li>
+<li><strong>Transport protocols and reliable communication</strong></li>
+<li><strong>Application-layer protocols, especially HTTP</strong></li>
+<li><strong>IPv4 fragmentation</strong></li>
+</ol>
+<p>This classification is based on the exercises in sheet 9, the networking section of the summary, and the two available exam documents. 09-ueb09-ibn-SS2025.pdf 01-ibn-zusammenfassung.pdf</p>
+<section id="detailed-subtopics-3" class="level3">
+<h3 class="anchored" data-anchor-id="detailed-subtopics-3">Detailed subtopics</h3>
+<ul>
+<li>Packet switching versus circuit switching</li>
+<li>Statistical multiplexing</li>
+<li>Binomial probability for simultaneously active users</li>
+<li>Queueing delay and transmission time</li>
+<li>Traceroute and interpretation of network paths</li>
+<li>ISPs, BelWü, network redundancy and Internet exchange points</li>
+<li>Internet protocol stack</li>
+<li>Protocol data units: message, segment/datagram, IP datagram and frame</li>
+<li>Endpoints and addressing at different layers</li>
+<li>Encapsulation and protocol robustness</li>
+<li>TCP over extremely long-delay or intermittently connected networks</li>
+<li>HTTP cookies and state management</li>
+<li>HTTP requests and responses</li>
+<li>Conditional HTTP GET and caching</li>
+<li>Relationship between HTTP messages and TCP segments</li>
+<li>IPv4 fragmentation, MTU, identification, flags and fragment offsets</li>
+</ul>
+</section>
+<section id="exercise-by-exercise-analysis" class="level3">
+<h3 class="anchored" data-anchor-id="exercise-by-exercise-analysis">Exercise-by-exercise analysis</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Exercise</th>
+<th>Topic and subtopic</th>
+<th>Type</th>
+<th>Exam relevance</th>
+<th>Exam-likeness</th>
+<th>Concise assessment</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>1</strong></td>
+<td>Packet switching; statistical multiplexing; binomial probability</td>
+<td>Calculation / modelling</td>
+<td><strong>Medium</strong></td>
+<td><strong>Medium</strong></td>
+<td>The underlying idea is important, but the large binomial-tail calculation is more specialised than the observed exam questions. Understand the setup and interpretation.</td>
+</tr>
+<tr class="even">
+<td><strong>2</strong></td>
+<td>Queueing delay; transmission time (L/R)</td>
+<td>Formula derivation / calculation</td>
+<td><strong>High</strong></td>
+<td><strong>High</strong></td>
+<td>Short, self-contained and closely related to earlier exam-style calculations involving transmission and propagation delays.</td>
+</tr>
+<tr class="odd">
+<td><strong>3</strong></td>
+<td>Traceroute; ISP topology; redundancy; Internet exchange points</td>
+<td>Practical investigation / research</td>
+<td><strong>Medium</strong></td>
+<td><strong>Low</strong></td>
+<td>Useful networking intuition, but dependent on live infrastructure and external research. It does <strong>not</strong> directly practise Dijkstra or subnetting, despite being routing-related.</td>
+</tr>
+<tr class="even">
+<td><strong>4</strong></td>
+<td>Protocol stack; encapsulation; PDUs; endpoints; addressing</td>
+<td>Conceptual knowledge / structured table</td>
+<td><strong>Very high</strong></td>
+<td><strong>Very high</strong></td>
+<td>One of the most important exercises. The 2016 exam contained an extremely similar task about encapsulation, layer headers and address-like information.</td>
+</tr>
+<tr class="odd">
+<td><strong>5</strong></td>
+<td>Encapsulation; layer-dependent attack scope; protocol security</td>
+<td>Conceptual reasoning / security enrichment</td>
+<td><strong>Low–medium</strong></td>
+<td><strong>Low</strong></td>
+<td>Tests whether you understand the scope of transport, network and link-layer communication, but the recursive ZIP scenario is unusual and supplementary.</td>
+</tr>
+<tr class="even">
+<td><strong>6</strong></td>
+<td>TCP reliability under enormous delay and disrupted connectivity; delay-tolerant networking</td>
+<td>Research / conceptual transfer / bonus</td>
+<td><strong>Medium</strong></td>
+<td><strong>Low–medium</strong></td>
+<td>TCP reliability and connection establishment are relevant, but the Mars/DTN setting and required reading make this primarily enrichment.</td>
+</tr>
+<tr class="odd">
+<td><strong>7</strong></td>
+<td>HTTP cookies; maintaining state over stateless HTTP</td>
+<td>Short conceptual explanation</td>
+<td><strong>High</strong></td>
+<td><strong>High</strong></td>
+<td>Directly represented in the summary and well suited to a short written exam question. Know the first response, cookie storage, later request and server-side association.</td>
+</tr>
+<tr class="even">
+<td><strong>8</strong></td>
+<td>HTTP in Wireshark; GET/response; conditional GET; TCP segmentation; embedded objects</td>
+<td>Practical laboratory / protocol analysis</td>
+<td><strong>Medium–high</strong></td>
+<td><strong>Low</strong> as a complete exercise</td>
+<td>Wireshark operation is unlikely in a paper exam, but the protocol observations it reveals can become conceptual exam questions.</td>
+</tr>
+<tr class="odd">
+<td><strong>9</strong></td>
+<td>IPv4 fragmentation; MTU; header length, ID, MF flag and fragment offset</td>
+<td>Calculation / header analysis</td>
+<td><strong>High</strong></td>
+<td><strong>Very high</strong></td>
+<td>A classic written-exam calculation. It directly matches the fragmentation material in the summary and requires precise handling of byte lengths and offsets.</td>
+</tr>
+</tbody>
+</table>
+<p>The particularly strong rating for Aufgabe 4 comes from the 2016 exam, whose Aufgabe 4 asks for the encapsulated frame, the layer headers and their addressing information. 12-ibn-klausur-2016.pdf The more recent memory protocol emphasizes Dijkstra, forwarding tables and subnetting; this makes Aufgabe 3 only indirectly useful for that routing component. 13-Ged-chtnisprotokoll_Klausur_-IBN_Ersttermin.pdf</p>
+</section>
+<section id="recommended-exam-preparation-priority-1" class="level3">
+<h3 class="anchored" data-anchor-id="recommended-exam-preparation-priority-1">Recommended exam-preparation priority</h3>
+<section id="first-priority" class="level4">
+<h4 class="anchored" data-anchor-id="first-priority">First priority</h4>
+<ol type="1">
+<li><strong>Aufgabe 4 — protocol layers, encapsulation and addressing</strong></li>
+<li><strong>Aufgabe 9 — IPv4 fragmentation</strong></li>
+</ol>
+<p>These are the most conventionally exam-like tasks on the sheet.</p>
+</section>
+<section id="second-priority" class="level4">
+<h4 class="anchored" data-anchor-id="second-priority">Second priority</h4>
+<ol start="3" type="1">
+<li><strong>Aufgabe 2 — queueing-delay derivation</strong></li>
+<li><strong>Aufgabe 7 — HTTP cookies</strong></li>
+<li><strong>Aufgabe 1 — statistical multiplexing</strong>, especially the general probabilistic model</li>
+</ol>
+</section>
+<section id="selective-preparation" class="level4">
+<h4 class="anchored" data-anchor-id="selective-preparation">Selective preparation</h4>
+<ol start="6" type="1">
+<li><strong>Aufgabe 8</strong> — learn the HTTP concepts and packet observations; reproducing the complete Wireshark lab is less important for the written exam.</li>
+<li><strong>Aufgabe 6</strong> — learn what very long RTTs and interruptions do to TCP, but the article-specific details are secondary.</li>
+<li><strong>Aufgabe 3</strong> — useful practical background, but not a substitute for practising Dijkstra, forwarding tables and subnetting.</li>
+<li><strong>Aufgabe 5</strong> — understand the layer-dependent scope of the attack; the specific construction is low priority.</li>
+</ol>
+<p>Overall, sheet 9 contains several highly relevant networking fundamentals, but it mixes them with substantial research and laboratory work. For efficient exam preparation, <strong>Aufgaben 4 and 9 deserve the most careful complete solutions</strong>.</p>
+</section>
+</section>
+</section>
+<section id="sheet-10" class="level2">
+<h2 class="anchored" data-anchor-id="sheet-10">Sheet 10</h2>
+<p>Yes. Sheet 10 is one of the most exam-relevant sheets so far because it concentrates on the three topics explicitly reported in the newer exam: <strong>subnetting, forwarding tables, and Dijkstra</strong>. 10-ueb10-ibn-SS2025.pdf</p>
+<section id="main-syllabus-level-topics-4" class="level3">
+<h3 class="anchored" data-anchor-id="main-syllabus-level-topics-4">Main syllabus-level topics</h3>
+<ol type="1">
+<li><strong>Network layer and IPv4 addressing</strong>
+<ul>
+<li>Classful and classless addressing</li>
+<li>Subnetting and address allocation</li>
+<li>Network and host portions of an IP address</li>
+</ul></li>
+<li><strong>Packet forwarding</strong>
+<ul>
+<li>Forwarding/routing tables</li>
+<li>Prefix representation</li>
+<li>Longest-prefix matching</li>
+</ul></li>
+<li><strong>Routing algorithms</strong>
+<ul>
+<li>Link-state routing and Dijkstra’s algorithm</li>
+<li>Distance-vector routing and the Bellman–Ford equation</li>
+<li>Properties of shortest paths</li>
+</ul></li>
+</ol>
+<p>These correspond closely to the IPv4, subnetting, forwarding, Dijkstra, and Bellman–Ford sections of the course summary. 01-ibn-zusammenfassung.pdf</p>
+</section>
+<section id="detailed-subtopics-4" class="level3">
+<h3 class="anchored" data-anchor-id="detailed-subtopics-4">Detailed subtopics</h3>
+<ul>
+<li>IPv4 address classes A, B and C</li>
+<li>CIDR notation such as <code>/16</code>, <code>/23</code>, <code>/25</code></li>
+<li>Network ID, subnet ID and host ID</li>
+<li>Subnet masks in binary and decimal notation</li>
+<li>Calculating the number of addresses and hosts</li>
+<li>Fixed-size and variable-size subnet allocation</li>
+<li>Dividing address blocks among networks and router links</li>
+<li>Translating address ranges into prefixes</li>
+<li>Prefix ordering and longest-prefix matching</li>
+<li>Constructing forwarding tables</li>
+<li>Traceroute and changing network routes</li>
+<li>Dijkstra tables: (N’), tentative distances and predecessors</li>
+<li>Optimal-substructure property of shortest paths</li>
+<li>Bellman–Ford recurrence</li>
+<li>Why Dijkstra requires nonnegative edge weights</li>
+</ul>
+</section>
+<section id="classification-of-the-individual-exercises" class="level3">
+<h3 class="anchored" data-anchor-id="classification-of-the-individual-exercises">Classification of the individual exercises</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Exercise</th>
+<th>Topic and subtopic</th>
+<th>Type</th>
+<th>Exam relevance</th>
+<th>Exam-likeness</th>
+<th>Concise assessment</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>1</strong></td>
+<td>IPv4 classes; Whois; traceroute; real network topology</td>
+<td>Conceptual + research + practical investigation</td>
+<td><strong>Low–medium</strong></td>
+<td><strong>Low</strong></td>
+<td>Identifying address classes is relevant, but RIPE lookup and performing traceroute are mainly supplementary practical work.</td>
+</tr>
+<tr class="even">
+<td><strong>2</strong></td>
+<td>Subnet masks; address counts; network/host ID; subdivision of an address block</td>
+<td>Calculation + subnet design</td>
+<td><strong>Very high</strong></td>
+<td><strong>Very high</strong></td>
+<td>Direct practice for dividing networks into subnets and determining prefixes or masks.</td>
+</tr>
+<tr class="odd">
+<td><strong>3a</strong></td>
+<td>CIDR/VLSM address allocation for host networks and router links</td>
+<td>Advanced calculation + network design</td>
+<td><strong>Very high</strong></td>
+<td><strong>High–very high</strong></td>
+<td>Covers subnet allocation under capacity constraints. Slightly more intricate than a typical short exam question.</td>
+</tr>
+<tr class="even">
+<td><strong>3b</strong></td>
+<td>Forwarding tables; route aggregation; longest-prefix matching</td>
+<td>Table construction + application</td>
+<td><strong>Very high</strong></td>
+<td><strong>Very high</strong></td>
+<td>Almost exactly the combination of subnetting and forwarding-table construction reported in the newer exam.</td>
+</tr>
+<tr class="odd">
+<td><strong>4</strong></td>
+<td>Converting address ranges to prefixes; prefix order; longest-prefix matching</td>
+<td>Binary calculation + routing-table reasoning</td>
+<td><strong>Very high</strong></td>
+<td><strong>Very high</strong></td>
+<td>Excellent preparation for prefix manipulation and routing decisions, especially overlapping prefixes.</td>
+</tr>
+<tr class="even">
+<td><strong>5</strong></td>
+<td>Dijkstra’s shortest-path algorithm</td>
+<td>Algorithm execution + table calculation</td>
+<td><strong>Very high</strong></td>
+<td><strong>Extremely high</strong></td>
+<td>Directly matches both reference exams: execute Dijkstra and fill in the algorithm’s table.</td>
+</tr>
+<tr class="odd">
+<td><strong>6a</strong></td>
+<td>Optimal substructure of shortest paths</td>
+<td>Proof + theory</td>
+<td><strong>Medium</strong></td>
+<td><strong>Medium</strong></td>
+<td>Useful theoretical justification, but less likely than executing the algorithm.</td>
+</tr>
+<tr class="even">
+<td><strong>6b</strong></td>
+<td>Traceroute and changing routes</td>
+<td>Conceptual application</td>
+<td><strong>Low–medium</strong></td>
+<td><strong>Low–medium</strong></td>
+<td>Tests understanding that routes and routing information can change over time.</td>
+</tr>
+<tr class="odd">
+<td><strong>6c</strong></td>
+<td>Bellman–Ford equation and shortest-path decomposition</td>
+<td>Conceptual theory</td>
+<td><strong>High</strong></td>
+<td><strong>Medium–high</strong></td>
+<td>Bellman–Ford appeared in the 2016 exam, although there it was used for a concrete distance-vector update.</td>
+</tr>
+<tr class="even">
+<td><strong>6d</strong></td>
+<td>Negative edge weights and limitations of Dijkstra</td>
+<td>Algorithmic reasoning</td>
+<td><strong>Medium</strong></td>
+<td><strong>Medium</strong></td>
+<td>Important for understanding Dijkstra, but less directly reflected in the reference exams.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="evidence-from-the-reference-exams" class="level3">
+<h3 class="anchored" data-anchor-id="evidence-from-the-reference-exams">Evidence from the reference exams</h3>
+<p>The newer memory protocol explicitly lists, in a single routing exercise:</p>
+<ul>
+<li>performing Dijkstra,</li>
+<li>filling a routing/forwarding table,</li>
+<li>dividing a network into subnets,</li>
+<li>determining prefixes and subnet masks.</li>
+</ul>
+<p>That makes Exercises <strong>2–5</strong> unusually strong direct preparation. 13-Ged-chtnisprotokoll_Klausur_-IBN_Ersttermin.pdf</p>
+<p>The 2016 exam independently confirms the importance of:</p>
+<ul>
+<li>executing Dijkstra in tabular form,</li>
+<li>deriving forwarding entries from predecessor pointers,</li>
+<li>explaining and applying the Bellman–Ford equation,</li>
+<li>using a subnet mask to determine whether two hosts belong to the same subnet.</li>
+</ul>
+<p>Thus Exercise <strong>5</strong> is almost an exact match, while Exercises <strong>2–4</strong> and <strong>6c</strong> cover closely related examinable skills. 12-ibn-klausur-2016.pdf</p>
+</section>
+<section id="recommended-study-priority-1" class="level3">
+<h3 class="anchored" data-anchor-id="recommended-study-priority-1">Recommended study priority</h3>
+<ol type="1">
+<li><strong>Exercise 5</strong> — exact Dijkstra exam practice<br>
+</li>
+<li><strong>Exercise 3</strong> — strongest combined subnetting and forwarding-table exercise<br>
+</li>
+<li><strong>Exercise 2</strong> — essential subnetting calculations<br>
+</li>
+<li><strong>Exercise 4</strong> — prefixes and longest-prefix matching<br>
+</li>
+<li><strong>Exercise 6c</strong> — Bellman–Ford connection<br>
+</li>
+<li><strong>Exercises 6a and 6d</strong> — conceptual reinforcement<br>
+</li>
+<li><strong>Exercise 1 and 6b</strong> — supplementary practical context</li>
+</ol>
+<p>Overall, <strong>Exercises 2–5 form the exam core of Sheet 10</strong>. If time is limited, those should all be completed carefully rather than merely read.</p>
+</section>
+</section>
+<section id="overview" class="level2">
+<h2 class="anchored" data-anchor-id="overview">Overview</h2>
+<p>The third column is useful, especially if it contains only the exercises with the strongest combination of <strong>topic relevance</strong> and <strong>exam-like format</strong>.</p>
+<p>Here, “A” means <em>Aufgabe</em>. The ratings are absolute, not merely relative to the other exercises on the same sheet.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 40%">
+<col style="width: 30%">
+<col style="width: 30%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: right;">Sheet</th>
+<th>Main syllabus topics</th>
+<th>Most exam-like and exam-relevant exercises</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;"><strong>1</strong> 02-ueb01-ibn-SS2025.pdf</td>
+<td>OS foundations; CPU registers and powers of two; protection and privilege modes; interrupts and system calls; kernel stack; POSIX/Unix interfaces; shell scripting</td>
+<td><strong>A2(ii)</strong> — powers-of-two calculations (<strong>medium–high</strong>); <strong>A3–4</strong> — protection, kernel mode and kernel stack (<strong>medium</strong>)</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><strong>2</strong> 03-ueb02-ibn-SS2025.pdf</td>
+<td>Processes and threads; PCB; <code>fork()</code> and process hierarchies; process states; <code>exec()</code>; context switches; pthreads</td>
+<td><strong>A2(a)</strong> — tracing <code>fork()</code> and drawing the process tree (<strong>very high</strong>); <strong>A3</strong> — process hierarchy and process states (<strong>very high</strong>)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><strong>3</strong> 11-ueb03-ibn-SS2025.pdf</td>
+<td>Process synchronization; race conditions; critical sections; semaphores, mutexes and condition variables; producer–consumer; readers–writers</td>
+<td><strong>A1</strong> — detect and prevent a race condition (<strong>very high</strong>); <strong>A2</strong> — synchronization primitives (<strong>high</strong>); <strong>A4(a–b)</strong> — trace and correct semaphore-based synchronization (<strong>high</strong>)</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><strong>4</strong> 04-ueb04-ibn-SS2025.pdf</td>
+<td>Interprocess communication and pipes; I/O redirection; memory management; fragmentation and swapping; contiguous allocation; logical and physical addresses; paging basics</td>
+<td><strong>A5</strong> — core memory-management distinctions (<strong>high</strong>); <strong>A6</strong> — First/Best/Worst Fit calculation (<strong>medium–high</strong>); <strong>A7</strong> — page number and offset (<strong>high</strong>)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><strong>5</strong> 05-ueb05-ibn-SS2025.pdf</td>
+<td>Paging and address translation; page tables; hierarchical and inverted page tables; TLB; address-space calculations; effective access time</td>
+<td><strong>A2</strong> — construct page-table entries from address mappings (<strong>very high</strong>); <strong>A6</strong> — direct and inverted page-table size (<strong>very high</strong>); <strong>A8</strong> — multilevel page tables (<strong>very high</strong>)</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><strong>6</strong> 06-ueb06-ibn-SS2025.pdf</td>
+<td>Virtual memory; page replacement; FIFO, LRU, Clock and OPT; reference bits; working sets; segmentation versus paging</td>
+<td><strong>A1</strong> — execute FIFO/LRU/Clock-style replacement (<strong>very high</strong>); <strong>A4</strong> — reference bits and LRU approximation (<strong>high</strong>); <strong>A5</strong> — working-set concept (<strong>medium</strong>)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><strong>7</strong> 07-ueb07-ibn-SS2025.pdf</td>
+<td>File systems; hard and symbolic links; FAT; i-nodes; directory traversal; disk performance and scheduling; RAID</td>
+<td><strong>A4</strong> — maximum file size from direct/indirect i-node pointers (<strong>very high</strong>); <strong>A5</strong> — directory traversal and disk operations (<strong>very high</strong>); <strong>A2</strong> — FAT structure (<strong>high relevance</strong>, but implementation format is less exam-like)</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><strong>8</strong> 08-ueb08-ibn-SS2025.pdf</td>
+<td>Deadlocks; necessary deadlock conditions; resource-allocation graphs; Banker’s algorithm; CPU scheduling; starvation</td>
+<td><strong>A2</strong> — semaphore deadlock, conditions and prevention (<strong>very high</strong>); <strong>A4</strong> — resource graph, matrices and Banker’s algorithm by hand (<strong>extremely high</strong>); <strong>A3</strong> — Banker’s algorithm (<strong>high relevance</strong>, but programming format is less exam-like)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><strong>9</strong> 09-ueb09-ibn-SS2025.pdf</td>
+<td>Network performance and delays; packet switching; protocol layers; encapsulation and addressing; TCP; HTTP and cookies; IPv4 fragmentation</td>
+<td><strong>A4</strong> — layers, encapsulation, endpoints and addressing (<strong>extremely high</strong>); <strong>A9</strong> — IPv4 fragmentation calculation (<strong>high</strong>); <strong>A2</strong> — queueing-delay calculation (<strong>medium–high</strong>)</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><strong>10</strong> 10-ueb10-ibn-SS2025.pdf</td>
+<td>IPv4 addressing and subnetting; CIDR and prefixes; forwarding tables; longest-prefix matching; Dijkstra; Bellman–Ford and distance-vector routing</td>
+<td><strong>A2</strong> — subnet masks and network/host IDs (<strong>very high</strong>); <strong>A3</strong> — subnet allocation and forwarding tables (<strong>extremely high</strong>); <strong>A4</strong> — prefixes and longest-prefix matching (<strong>very high</strong>); <strong>A5</strong> — Dijkstra table (<strong>extremely high</strong>)</td>
+</tr>
+</tbody>
+</table>
+<p>The syllabus classification follows the organization and terminology of the course summary. 01-ibn-zusammenfassung.pdf</p>
+<p>The “exam-like” judgments are based particularly on the direct matches in the 2016 exam—race conditions and semaphores, page tables, deadlocks, protocol layers, Dijkstra and Bellman–Ford—and in the newer memory protocol—<code>fork()</code>, race conditions, Banker’s algorithm, FAT/i-nodes, paging, subnetting, forwarding tables and Dijkstra. 12-ibn-klausur-2016.pdf 13-Ged-chtnisprotokoll_Klausur_-IBN_Ersttermin.pdf</p>
+<section id="strongest-sheets-overall" class="level3">
+<h3 class="anchored" data-anchor-id="strongest-sheets-overall">Strongest sheets overall</h3>
+<p>If you prioritize entire sheets rather than individual exercises:</p>
+<ol type="1">
+<li><strong>Sheet 10</strong> — subnetting, forwarding tables and Dijkstra<br>
+</li>
+<li><strong>Sheet 8</strong> — deadlocks, resource graphs and Banker’s algorithm<br>
+</li>
+<li><strong>Sheet 5</strong> — paging and page tables<br>
+</li>
+<li><strong>Sheet 3</strong> — race conditions and synchronization<br>
+</li>
+<li><strong>Sheet 2</strong> — <code>fork()</code> and process states<br>
+</li>
+<li><strong>Sheet 7</strong> — FAT and i-nodes<br>
+</li>
+<li><strong>Sheet 9</strong> — network layers and addressing</li>
+</ol>
+<p>Sheets <strong>1, 4 and 6</strong> still contain useful exam material, but their exercises have fewer direct matches with the two reference exams.</p>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../../index.html" class="pagination-link" aria-label="Preface">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text">Preface</span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../../exam/notes/plan.html" class="pagination-link" aria-label="Plan">
+        <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Plan</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

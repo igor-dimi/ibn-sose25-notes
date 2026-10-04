@@ -6,10 +6,8 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="author" content="Igor Dimitrov">
-<meta name="dcterms.date" content="2024-12-18">
 
-<title>Operating Systems and Networks SoSe 25 Notes</title>
+<title>2&nbsp; Plan – Operating Systems and Networks SoSe 25 Notes</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -25,24 +23,25 @@ ul.task-list li input[type="checkbox"] {
 </style>
 
 
-<script src="site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="site_libs/quarto-nav/headroom.min.js"></script>
-<script src="site_libs/clipboard/clipboard.min.js"></script>
-<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="site_libs/quarto-search/fuse.min.js"></script>
-<script src="site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="./">
-<link href="./exam/notes/assignment_overview.html" rel="next">
-<script src="site_libs/quarto-html/quarto.js" type="module"></script>
-<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
-<script src="site_libs/quarto-html/popper.min.js"></script>
-<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="site_libs/quarto-html/anchor.min.js"></script>
-<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting-e1a5c8363afafaef2c763b6775fbf3ca.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap-b330ada5220959fbd7d7e7c55953a312.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../exam/notes/processes_and_fork.html" rel="next">
+<link href="../../exam/notes/assignment_overview.html" rel="prev">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-e1a5c8363afafaef2c763b6775fbf3ca.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-b330ada5220959fbd7d7e7c55953a312.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -71,6 +70,35 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
@@ -83,7 +111,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html">Preface</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../exam/notes/assignment_overview.html">Exam Notes</a></li><li class="breadcrumb-item"><a href="../../exam/notes/plan.html"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Plan</span></a></li></ol></nav>
         <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
@@ -98,9 +126,9 @@ ul.task-list li input[type="checkbox"] {
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
     <div class="pt-lg-2 mt-2 text-left sidebar-header">
     <div class="sidebar-title mb-0 py-0">
-      <a href="./">Operating Systems and Networks SoSe 25 Notes</a> 
+      <a href="../../">Operating Systems and Networks SoSe 25 Notes</a> 
         <div class="sidebar-tools-main">
-    <a href="./Operating-Systems-and-Networks-SoSe-25-Notes.pdf" title="Download PDF" class="quarto-navigation-tool px-1" aria-label="Download PDF"><i class="bi bi-file-pdf"></i></a>
+    <a href="../../Operating-Systems-and-Networks-SoSe-25-Notes.pdf" title="Download PDF" class="quarto-navigation-tool px-1" aria-label="Download PDF"><i class="bi bi-file-pdf"></i></a>
   <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
   <div class="quarto-reader-toggle-btn">
   <i class="bi"></i>
@@ -118,7 +146,7 @@ ul.task-list li input[type="checkbox"] {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./index.html" class="sidebar-item-text sidebar-link active">
+  <a href="../../index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Preface</span></a>
   </div>
 </li>
@@ -133,25 +161,25 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./exam/notes/assignment_overview.html" class="sidebar-item-text sidebar-link">
+  <a href="../../exam/notes/assignment_overview.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Assignment Sheets Overview</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./exam/notes/plan.html" class="sidebar-item-text sidebar-link">
+  <a href="../../exam/notes/plan.html" class="sidebar-item-text sidebar-link active">
  <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Plan</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./exam/notes/processes_and_fork.html" class="sidebar-item-text sidebar-link">
+  <a href="../../exam/notes/processes_and_fork.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Processes and <code>fork()</code></span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./exam/notes/synchronization.html" class="sidebar-item-text sidebar-link">
+  <a href="../../exam/notes/synchronization.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Race conditions, semaphores and synchronization</span></span></a>
   </div>
 </li>
@@ -167,35 +195,34 @@ ul.task-list li input[type="checkbox"] {
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#preface" id="toc-preface" class="nav-link active" data-scroll-target="#preface">Preface</a></li>
+  <li><a href="#priority-hierarchy" id="toc-priority-hierarchy" class="nav-link active" data-scroll-target="#priority-hierarchy">Priority hierarchy</a>
+  <ul class="collapse">
+  <li><a href="#priority-1-direct-reference-exam-matches" id="toc-priority-1-direct-reference-exam-matches" class="nav-link" data-scroll-target="#priority-1-direct-reference-exam-matches">Priority 1: direct reference-exam matches</a></li>
+  <li><a href="#priority-2-likely-supporting-material" id="toc-priority-2-likely-supporting-material" class="nav-link" data-scroll-target="#priority-2-likely-supporting-material">Priority 2: likely supporting material</a></li>
+  <li><a href="#priority-3-postpone-unless-time-remains" id="toc-priority-3-postpone-unless-time-remains" class="nav-link" data-scroll-target="#priority-3-postpone-unless-time-remains">Priority 3: postpone unless time remains</a></li>
+  </ul></li>
+  <li><a href="#ten-day-core-plan" id="toc-ten-day-core-plan" class="nav-link" data-scroll-target="#ten-day-core-plan">Ten-day core plan</a></li>
+  <li><a href="#if-you-have-1113-days" id="toc-if-you-have-1113-days" class="nav-link" data-scroll-target="#if-you-have-1113-days">If you have 11–13 days</a></li>
+  <li><a href="#how-to-structure-each-study-day" id="toc-how-to-structure-each-study-day" class="nav-link" data-scroll-target="#how-to-structure-each-study-day">How to structure each study day</a></li>
+  <li><a href="#build-an-error-log-not-another-long-summary" id="toc-build-an-error-log-not-another-long-summary" class="nav-link" data-scroll-target="#build-an-error-log-not-another-long-summary">Build an error log, not another long summary</a></li>
+  <li><a href="#learn-reusable-solution-templates" id="toc-learn-reusable-solution-templates" class="nav-link" data-scroll-target="#learn-reusable-solution-templates">Learn reusable solution templates</a></li>
+  <li><a href="#the-most-important-rule" id="toc-the-most-important-rule" class="nav-link" data-scroll-target="#the-most-important-rule">The most important rule</a></li>
   </ul>
 </nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default">
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../exam/notes/assignment_overview.html">Exam Notes</a></li><li class="breadcrumb-item"><a href="../../exam/notes/plan.html"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Plan</span></a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title">Operating Systems and Networks SoSe 25 Notes</h1>
+<h1 class="title"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Plan</span></h1>
 </div>
 
 
 
 <div class="quarto-title-meta">
 
-    <div>
-    <div class="quarto-title-meta-heading">Author</div>
-    <div class="quarto-title-meta-contents">
-             <p>Igor Dimitrov </p>
-          </div>
-  </div>
     
-    <div>
-    <div class="quarto-title-meta-heading">Published</div>
-    <div class="quarto-title-meta-contents">
-      <p class="date">December 18, 2024</p>
-    </div>
-  </div>
   
     
   </div>
@@ -205,8 +232,221 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<section id="preface" class="level1 unnumbered">
-<h1 class="unnumbered">Preface</h1>
+<p>Yes—this is still realistic, especially because you solved the material before. You are <strong>reactivating knowledge</strong>, not learning the entire course from zero.</p>
+<p>The crucial change is: <strong>do not redo all ten sheets sequentially</strong>. They contain research, programming, and practical tasks that are useful pedagogically but inefficient for a written exam. The sheets collapse into about seven examinable clusters.</p>
+<section id="priority-hierarchy" class="level2">
+<h2 class="anchored" data-anchor-id="priority-hierarchy">Priority hierarchy</h2>
+<section id="priority-1-direct-reference-exam-matches" class="level3">
+<h3 class="anchored" data-anchor-id="priority-1-direct-reference-exam-matches">Priority 1: direct reference-exam matches</h3>
+<p>These should become automatic:</p>
+<ul>
+<li><code>fork()</code>, process trees and process states</li>
+<li>Race conditions, semaphores and synchronization</li>
+<li>Deadlocks, resource-allocation graphs and Banker’s algorithm</li>
+<li>Paging, page-table calculations and address translation</li>
+<li>FAT and i-nodes</li>
+<li>Protocol layers, encapsulation and addressing</li>
+<li>Subnetting, prefixes and forwarding tables</li>
+<li>Dijkstra and Bellman–Ford</li>
+</ul>
+</section>
+<section id="priority-2-likely-supporting-material" class="level3">
+<h3 class="anchored" data-anchor-id="priority-2-likely-supporting-material">Priority 2: likely supporting material</h3>
+<ul>
+<li>Page replacement: FIFO, LRU and Clock</li>
+<li>TLB and reference bits</li>
+<li>CPU scheduling</li>
+<li>IP fragmentation</li>
+<li>Disk scheduling and RAID</li>
+<li>Memory fragmentation and allocation algorithms</li>
+</ul>
+</section>
+<section id="priority-3-postpone-unless-time-remains" class="level3">
+<h3 class="anchored" data-anchor-id="priority-3-postpone-unless-time-remains">Priority 3: postpone unless time remains</h3>
+<ul>
+<li>Long programming exercises</li>
+<li>Internet research and API-detail questions</li>
+<li>Traceroute, Whois and Wireshark experiments</li>
+<li>Historical hardware details</li>
+<li>Learning-methodology questions</li>
+<li>Reimplementing FAT, Banker, LRU or producer–consumer in code</li>
+</ul>
+<p>For programming exercises, understand the underlying algorithm and execute it <strong>by hand</strong>. Do not spend hours coding it again.</p>
+</section>
+</section>
+<section id="ten-day-core-plan" class="level2">
+<h2 class="anchored" data-anchor-id="ten-day-core-plan">Ten-day core plan</h2>
+<p>Assume approximately 4–6 focused hours per day. If you have 11–13 days, use the extra days for consolidation rather than expanding the syllabus.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 40%">
+<col style="width: 30%">
+<col style="width: 30%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: right;">Day</th>
+<th>Focus</th>
+<th>Essential exercises and outcomes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;"><strong>1</strong></td>
+<td>Diagnostic + processes</td>
+<td>Attempt the 2016 exam under time pressure, even if incomplete. Then review Sheet 2 A2(a), A3. Know <code>fork()</code> return values, process trees and the five process states.</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><strong>2</strong></td>
+<td>Synchronization</td>
+<td>Sheet 3 A1, A2 and A4(a–b). Trace a race condition instruction by instruction; repair it with semaphores; understand <code>wait</code>, <code>signal</code>, mutexes and condition variables.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><strong>3</strong></td>
+<td>Paging fundamentals</td>
+<td>Sheet 4 A5, A7; Sheet 5 A2, A6. Split addresses into page number/offset, construct page-table entries, and calculate normal/inverted page-table sizes.</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><strong>4</strong></td>
+<td>Advanced paging and virtual memory</td>
+<td>Sheet 5 A8; Sheet 6 A1, A4. Multilevel tables, TLB, FIFO/LRU/Clock and reference-bit approximation.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><strong>5</strong></td>
+<td>Deadlocks and scheduling</td>
+<td>Sheet 8 A2 and A4 first; A6 if time remains. Know the four deadlock conditions, resource graphs, Banker matrices and hand execution.</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><strong>6</strong></td>
+<td>File systems</td>
+<td>Sheet 7 A4 and A5; review the FAT mechanism from A2 without implementing it. Practise i-node maximum-file-size and pathname traversal calculations.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><strong>7</strong></td>
+<td>Network stack</td>
+<td>Sheet 9 A4 and A9. Reconstruct encapsulation, endpoints and addressing at each layer; then practise IP fragmentation.</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><strong>8</strong></td>
+<td>Subnetting and forwarding</td>
+<td>Sheet 10 A2, A3 and A4. Work entirely from scratch: masks, address counts, network/host IDs, prefixes and longest-prefix matching.</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;"><strong>9</strong></td>
+<td>Routing algorithms</td>
+<td>Sheet 10 A5 and A6(c); 2016 exam Question 5. Complete Dijkstra tables, derive next hops from predecessor pointers, and perform Bellman–Ford updates.</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;"><strong>10</strong></td>
+<td>Timed mixed mock + repair</td>
+<td>Assemble unused exercise parts into a 90-minute mock. Mark it immediately. Redo every incorrect question from a blank page without consulting the solution.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="if-you-have-1113-days" class="level2">
+<h2 class="anchored" data-anchor-id="if-you-have-1113-days">If you have 11–13 days</h2>
+<p>Use the additional days as follows:</p>
+<ul>
+<li><strong>Day 11:</strong> Repair your weakest two topics.</li>
+<li><strong>Day 12:</strong> Second full timed mock covering all major clusters.</li>
+<li><strong>Day 13:</strong> Light closed-book recall, formulas and common mistakes. No major new topics.</li>
+</ul>
+<p>If you have only ten days, the core plan already covers the important material. Do not sacrifice mock-exam practice to squeeze in every supplementary topic.</p>
+</section>
+<section id="how-to-structure-each-study-day" class="level2">
+<h2 class="anchored" data-anchor-id="how-to-structure-each-study-day">How to structure each study day</h2>
+<p>A good five-hour day would look like this:</p>
+<ol type="1">
+<li><strong>30 minutes: closed-book retrieval</strong>
+<ul>
+<li>Write everything remembered from yesterday.</li>
+<li>Reproduce algorithms, definitions and calculation procedures.</li>
+</ul></li>
+<li><strong>60–75 minutes: targeted theory recovery</strong>
+<ul>
+<li>Use the summary only to repair what you could not recall.</li>
+<li>Avoid reading an entire chapter passively.</li>
+</ul></li>
+<li><strong>Two 75-minute problem blocks</strong>
+<ul>
+<li>Solve selected exercises without notes.</li>
+<li>Work in a handwritten, exam-style format.</li>
+<li>Impose time limits.</li>
+</ul></li>
+<li><strong>30 minutes: correction and error log</strong>
+<ul>
+<li>Record each substantive mistake.</li>
+<li>Classify its cause: forgotten fact, wrong method, arithmetic error or misreading.</li>
+</ul></li>
+<li><strong>20–30 minutes: delayed repetition</strong>
+<ul>
+<li>Reattempt one problem from two or three days earlier.</li>
+</ul></li>
+</ol>
+<p>If you have only three hours, keep the same structure but shorten the theory section—not the problem-solving section.</p>
+</section>
+<section id="build-an-error-log-not-another-long-summary" class="level2">
+<h2 class="anchored" data-anchor-id="build-an-error-log-not-another-long-summary">Build an error log, not another long summary</h2>
+<p>Use five columns:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Topic</th>
+<th>Mistake</th>
+<th>Cause</th>
+<th>Correct rule/method</th>
+<th>Retest</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Subnetting</td>
+<td>Used <span class="math inline">\(2^h\)</span> as usable-host count</td>
+<td>Forgot network/broadcast addresses</td>
+<td>Normally <span class="math inline">\(2^h-2\)</span>, unless stated otherwise</td>
+<td>Tomorrow</td>
+</tr>
+<tr class="even">
+<td>Dijkstra</td>
+<td>Updated an already-finalized node</td>
+<td>Algorithm rule forgotten</td>
+<td>Nodes in <span class="math inline">\(N'\)</span> are final</td>
+<td>In two days</td>
+</tr>
+</tbody>
+</table>
+<p>Your final revision should be driven primarily by this list.</p>
+</section>
+<section id="learn-reusable-solution-templates" class="level2">
+<h2 class="anchored" data-anchor-id="learn-reusable-solution-templates">Learn reusable solution templates</h2>
+<p>For each major exam type, have a standard procedure:</p>
+<ul>
+<li><strong><code>fork()</code>:</strong> draw one branch per call; label parent and child return values.</li>
+<li><strong>Race condition:</strong> expand operations into load–modify–store and show the interleaving.</li>
+<li><strong>Banker:</strong> calculate available resources, find a satisfiable process, release its allocation, repeat.</li>
+<li><strong>Paging:</strong> derive offset bits from page size, then split the logical address.</li>
+<li><strong>I-node:</strong> calculate pointers per indirect block before calculating capacity.</li>
+<li><strong>Subnetting:</strong> determine required host bits, then prefix length, block size and aligned boundaries.</li>
+<li><strong>Longest-prefix matching:</strong> list all matching prefixes and choose the longest.</li>
+<li><strong>Dijkstra:</strong> maintain <span class="math inline">\(N'\)</span>, <span class="math inline">\(D(v)\)</span> and <span class="math inline">\(p(v)\)</span> systematically.</li>
+<li><strong>Bellman–Ford:</strong> minimize link cost plus the neighbour’s advertised distance.</li>
+</ul>
+</section>
+<section id="the-most-important-rule" class="level2">
+<h2 class="anchored" data-anchor-id="the-most-important-rule">The most important rule</h2>
+<p>Do not measure progress by “pages read” or “sheets reviewed.” Measure it by:</p>
+<blockquote class="blockquote">
+<p>Can I solve this problem from a blank page, correctly and within exam time?</p>
+</blockquote>
+<p>After about five days, some topics will already feel substantially more familiar. That is the advantage of having solved the sheets before. A focused ten-day recovery is much more plausible than the current breadth of the material makes it appear.</p>
 
 
 </section>
@@ -613,10 +853,13 @@ ul.task-list li input[type="checkbox"] {
   </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
+      <a href="../../exam/notes/assignment_overview.html" class="pagination-link" aria-label="Assignment Sheets Overview">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Assignment Sheets Overview</span></span>
+      </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./exam/notes/assignment_overview.html" class="pagination-link" aria-label="Assignment Sheets Overview">
-        <span class="nav-page-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Assignment Sheets Overview</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../../exam/notes/processes_and_fork.html" class="pagination-link" aria-label="Processes and `fork()`">
+        <span class="nav-page-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Processes and <code>fork()</code></span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

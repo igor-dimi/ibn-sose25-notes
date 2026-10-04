@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.31">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>4&nbsp; Race conditions, semaphores and synchronization – Operating Systems and Networks SoSe 25 Notes</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../exam/notes/processes_and_fork.html" rel="prev">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-e1a5c8363afafaef2c763b6775fbf3ca.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-b330ada5220959fbd7d7e7c55953a312.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+
+</head>
+
+<body class="nav-sidebar floating quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../exam/notes/assignment_overview.html">Exam Notes</a></li><li class="breadcrumb-item"><a href="../../exam/notes/synchronization.html"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Race conditions, semaphores and synchronization</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../../">Operating Systems and Networks SoSe 25 Notes</a> 
+        <div class="sidebar-tools-main">
+    <a href="../../Operating-Systems-and-Networks-SoSe-25-Notes.pdf" title="Download PDF" class="quarto-navigation-tool px-1" aria-label="Download PDF"><i class="bi bi-file-pdf"></i></a>
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Exam Notes</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../exam/notes/assignment_overview.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Assignment Sheets Overview</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../exam/notes/plan.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Plan</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../exam/notes/processes_and_fork.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Processes and <code>fork()</code></span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../exam/notes/synchronization.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Race conditions, semaphores and synchronization</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active" data-toc-expanded="-1">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#why-synchronization-is-necessary" id="toc-why-synchronization-is-necessary" class="nav-link active" data-scroll-target="#why-synchronization-is-necessary">Why synchronization is necessary</a></li>
+  <li><a href="#race-conditions" id="toc-race-conditions" class="nav-link" data-scroll-target="#race-conditions">Race conditions</a>
+  <ul class="collapse">
+  <li><a href="#critical-region" id="toc-critical-region" class="nav-link" data-scroll-target="#critical-region">Critical region</a></li>
+  <li><a href="#requirements-of-a-good-mutual-exclusion-solution" id="toc-requirements-of-a-good-mutual-exclusion-solution" class="nav-link" data-scroll-target="#requirements-of-a-good-mutual-exclusion-solution">Requirements of a good mutual-exclusion solution</a></li>
+  </ul></li>
+  <li><a href="#atomicity" id="toc-atomicity" class="nav-link" data-scroll-target="#atomicity">Atomicity</a></li>
+  <li><a href="#semaphores" id="toc-semaphores" class="nav-link" data-scroll-target="#semaphores">Semaphores</a>
+  <ul class="collapse">
+  <li><a href="#waits" id="toc-waits" class="nav-link" data-scroll-target="#waits"><code>wait(S)</code></a></li>
+  <li><a href="#signals" id="toc-signals" class="nav-link" data-scroll-target="#signals"><code>signal(S)</code></a></li>
+  <li><a href="#binary-and-counting-semaphores" id="toc-binary-and-counting-semaphores" class="nav-link" data-scroll-target="#binary-and-counting-semaphores">Binary and counting semaphores</a></li>
+  </ul></li>
+  <li><a href="#mutual-exclusion-with-a-semaphore" id="toc-mutual-exclusion-with-a-semaphore" class="nav-link" data-scroll-target="#mutual-exclusion-with-a-semaphore">Mutual exclusion with a semaphore</a>
+  <ul class="collapse">
+  <li><a href="#mutex-versus-binary-semaphore" id="toc-mutex-versus-binary-semaphore" class="nav-link" data-scroll-target="#mutex-versus-binary-semaphore">Mutex versus binary semaphore</a></li>
+  </ul></li>
+  <li><a href="#enforcing-an-execution-order" id="toc-enforcing-an-execution-order" class="nav-link" data-scroll-target="#enforcing-an-execution-order">Enforcing an execution order</a></li>
+  <li><a href="#blocking-versus-busy-waiting" id="toc-blocking-versus-busy-waiting" class="nav-link" data-scroll-target="#blocking-versus-busy-waiting">Blocking versus busy waiting</a>
+  <ul class="collapse">
+  <li><a href="#busy-waiting" id="toc-busy-waiting" class="nav-link" data-scroll-target="#busy-waiting">Busy waiting</a></li>
+  <li><a href="#blocking" id="toc-blocking" class="nav-link" data-scroll-target="#blocking">Blocking</a></li>
+  </ul></li>
+  <li><a href="#condition-variables" id="toc-condition-variables" class="nav-link" data-scroll-target="#condition-variables">Condition variables</a>
+  <ul class="collapse">
+  <li><a href="#why-while-not-if" id="toc-why-while-not-if" class="nav-link" data-scroll-target="#why-while-not-if">Why <code>while</code>, not <code>if</code>?</a></li>
+  <li><a href="#signal-versus-broadcast" id="toc-signal-versus-broadcast" class="nav-link" data-scroll-target="#signal-versus-broadcast"><code>signal</code> versus <code>broadcast</code></a></li>
+  <li><a href="#condition-variables-do-not-remember-notifications" id="toc-condition-variables-do-not-remember-notifications" class="nav-link" data-scroll-target="#condition-variables-do-not-remember-notifications">Condition variables do not remember notifications</a></li>
+  <li><a href="#why-update-and-signal-under-the-mutex" id="toc-why-update-and-signal-under-the-mutex" class="nav-link" data-scroll-target="#why-update-and-signal-under-the-mutex">Why update and signal under the mutex?</a></li>
+  </ul></li>
+  <li><a href="#producerconsumer-pattern" id="toc-producerconsumer-pattern" class="nav-link" data-scroll-target="#producerconsumer-pattern">Producer–consumer pattern</a></li>
+  <li><a href="#simplified-readwrite-lock" id="toc-simplified-readwrite-lock" class="nav-link" data-scroll-target="#simplified-readwrite-lock">Simplified read–write lock</a></li>
+  <li><a href="#common-exam-traps" id="toc-common-exam-traps" class="nav-link" data-scroll-target="#common-exam-traps">Common exam traps</a></li>
+  <li><a href="#exam-like-exercises" id="toc-exam-like-exercises" class="nav-link" data-scroll-target="#exam-like-exercises">Exam-like exercises</a>
+  <ul class="collapse">
+  <li><a href="#exercise-1-race-condition-and-semaphore-repair" id="toc-exercise-1-race-condition-and-semaphore-repair" class="nav-link" data-scroll-target="#exercise-1-race-condition-and-semaphore-repair">Exercise 1: Race condition and semaphore repair</a></li>
+  <li><a href="#exercise-2-ordering-and-condition-variables" id="toc-exercise-2-ordering-and-condition-variables" class="nav-link" data-scroll-target="#exercise-2-ordering-and-condition-variables">Exercise 2: Ordering and condition variables</a></li>
+  <li><a href="#exercise-3-debugging-a-semaphore-construction" id="toc-exercise-3-debugging-a-semaphore-construction" class="nav-link" data-scroll-target="#exercise-3-debugging-a-semaphore-construction">Exercise 3: Debugging a semaphore construction</a></li>
+  </ul></li>
+  <li><a href="#answers" id="toc-answers" class="nav-link" data-scroll-target="#answers">Answers</a>
+  <ul class="collapse">
+  <li><a href="#exercise-1" id="toc-exercise-1" class="nav-link" data-scroll-target="#exercise-1">Exercise 1</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../exam/notes/assignment_overview.html">Exam Notes</a></li><li class="breadcrumb-item"><a href="../../exam/notes/synchronization.html"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Race conditions, semaphores and synchronization</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Race conditions, semaphores and synchronization</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>This is one of the highest-priority units. The 2016 exam devoted an entire 11-point problem to instruction-level race tracing, semaphore repair, semaphore semantics and execution ordering. 12-ibn-klausur-2016.pdf The recent exam protocol also reports an independent pseudocode-based race-condition problem. 13-Ged-chtnisprotokoll_Klausur_-IBN_Ersttermin.pdf</p>
+<p>The coverage below follows Day 2 of your plan and the selected Sheet 3 exercises. 15-Operating-Systems-and-Networks-SoSe-25-Notes.pdf 11-ueb03-ibn-SS2025.pdf</p>
+<section id="why-synchronization-is-necessary" class="level2">
+<h2 class="anchored" data-anchor-id="why-synchronization-is-necessary">Why synchronization is necessary</h2>
+<p>Threads belonging to the same process have:</p>
+<ul>
+<li>separate registers and stacks;</li>
+<li>a shared address space containing global variables, heap objects and other shared resources.</li>
+</ul>
+<p>Sharing makes communication inexpensive, but it allows multiple threads to access the same data concurrently.</p>
+<p>Consider:</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>counter = counter + 1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Although this looks like one operation, it normally consists conceptually of:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>LOAD  counter into register R</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>ADD   1 to R</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>STORE R into counter</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>A thread can be interrupted between any two of these instructions.</p>
+<p>Suppose <code>counter = 0</code> and two threads both increment it:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: right;">Step</th>
+<th>Thread A</th>
+<th>Thread B</th>
+<th style="text-align: right;">Shared <code>counter</code></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td>Load <code>counter</code> into <code>RA</code> (<code>RA=0</code>)</td>
+<td></td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td></td>
+<td>Load <code>counter</code> into <code>RB</code> (<code>RB=0</code>)</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td>Add 1 to <code>RA</code> (<code>RA=1</code>)</td>
+<td></td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4</td>
+<td>Store <code>RA</code></td>
+<td></td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">5</td>
+<td></td>
+<td>Add 1 to <code>RB</code> (<code>RB=1</code>)</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">6</td>
+<td></td>
+<td>Store <code>RB</code></td>
+<td style="text-align: right;">1</td>
+</tr>
+</tbody>
+</table>
+<p>The correct result would be 2, but the final result is 1. One increment has been overwritten: a <strong>lost update</strong>.</p>
+<p>This can happen on a single-core CPU. The threads do not need to execute physically at the same instant; preemption and interleaving are enough.</p>
+</section>
+<section id="race-conditions" class="level2">
+<h2 class="anchored" data-anchor-id="race-conditions">Race conditions</h2>
+<p>A <strong>race condition</strong> exists when the correctness or result of a program unintentionally depends on the timing or execution order of concurrent operations.</p>
+<p>A typical race condition requires:</p>
+<ol type="1">
+<li>shared state;</li>
+<li>concurrent accesses to that state;</li>
+<li>at least one access that modifies it;</li>
+<li>insufficient synchronization.</li>
+</ol>
+<p>The output may differ between executions because the scheduler can produce different interleavings.</p>
+<section id="critical-region" class="level3">
+<h3 class="anchored" data-anchor-id="critical-region">Critical region</h3>
+<p>A <strong>critical region</strong> or <strong>critical section</strong> is a part of a program that accesses shared data and must not be executed simultaneously with a conflicting critical region.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>entry protocol</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>critical region</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>exit protocol</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>non-critical region</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The entry and exit protocols are implemented using a mutex, semaphore or another synchronization primitive.</p>
+</section>
+<section id="requirements-of-a-good-mutual-exclusion-solution" class="level3">
+<h3 class="anchored" data-anchor-id="requirements-of-a-good-mutual-exclusion-solution">Requirements of a good mutual-exclusion solution</h3>
+<p>A correct solution should provide:</p>
+<ul>
+<li><strong>Mutual exclusion:</strong> conflicting threads are never simultaneously inside their critical regions.</li>
+<li><strong>Progress:</strong> a thread outside its critical region must not unnecessarily prevent others from entering.</li>
+<li><strong>No timing assumptions:</strong> correctness must not depend on CPU speed or the number of cores.</li>
+<li><strong>No starvation/bounded waiting:</strong> a thread requesting entry should not be postponed forever.</li>
+</ul>
+<p>The first is a safety property: “nothing bad happens.” Progress and absence of starvation are liveness properties: “something good eventually happens.”</p>
+</section>
+</section>
+<section id="atomicity" class="level2">
+<h2 class="anchored" data-anchor-id="atomicity">Atomicity</h2>
+<p>An operation is <strong>atomic</strong> if other threads cannot observe or interrupt a partially completed execution of that operation.</p>
+<p>For example, the abstract operation</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>wait(S)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>must itself be atomic. If two threads could simultaneously test and decrement the semaphore non-atomically, the semaphore would not provide synchronization.</p>
+<p>Protecting a critical region does not mean that all its ordinary instructions become individually atomic. It means that the entry protocol ensures that only the permitted thread or threads can execute that region.</p>
+</section>
+<section id="semaphores" class="level2">
+<h2 class="anchored" data-anchor-id="semaphores">Semaphores</h2>
+<p>A semaphore contains:</p>
+<ul>
+<li>a nonnegative count representing available permits or resource instances;</li>
+<li>an associated queue of blocked threads;</li>
+<li>two atomic operations, conventionally called <code>wait</code> and <code>signal</code>.</li>
+</ul>
+<p>Other common names are:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Operation</th>
+<th>Alternative names</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>wait(S)</code></td>
+<td><code>P(S)</code>, <code>down(S)</code>, <code>sem_wait(S)</code></td>
+</tr>
+<tr class="even">
+<td><code>signal(S)</code></td>
+<td><code>V(S)</code>, <code>up(S)</code>, <code>post(S)</code>, <code>sem_post(S)</code></td>
+</tr>
+</tbody>
+</table>
+<section id="waits" class="level3">
+<h3 class="anchored" data-anchor-id="waits"><code>wait(S)</code></h3>
+<p>Conceptually:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>if a permit is available:</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    consume one permit</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    continue</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>else:</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    block until a permit becomes available</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Thus, <code>wait</code> may block.</p>
+</section>
+<section id="signals" class="level3">
+<h3 class="anchored" data-anchor-id="signals"><code>signal(S)</code></h3>
+<p>Conceptually:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>make one permit available</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>if a thread is waiting:</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>    wake one waiting thread</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><code>signal</code> does not normally block.</p>
+<p>The implementation may represent blocked threads using negative values or separate queues, but exam solutions should normally describe the abstract behaviour rather than depend on a particular representation.</p>
+</section>
+<section id="binary-and-counting-semaphores" class="level3">
+<h3 class="anchored" data-anchor-id="binary-and-counting-semaphores">Binary and counting semaphores</h3>
+<p>A <strong>binary semaphore</strong> has at most one available permit:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>Semaphore mutex = 1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>A <strong>counting semaphore</strong> can represent several identical resource instances:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>Semaphore printers = 3</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Up to three successful <code>wait(printers)</code> operations can occur before another thread must release a permit.</p>
+</section>
+</section>
+<section id="mutual-exclusion-with-a-semaphore" class="level2">
+<h2 class="anchored" data-anchor-id="mutual-exclusion-with-a-semaphore">Mutual exclusion with a semaphore</h2>
+<p>Initialize the semaphore to 1:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>Semaphore mutex = 1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Every thread uses:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>wait(mutex)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    // critical region</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>signal(mutex)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The first thread consumes the only permit. Other threads calling <code>wait(mutex)</code> must block until the first thread calls <code>signal(mutex)</code>.</p>
+<p>The protected operation must lie entirely between <code>wait</code> and <code>signal</code>:</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>wait(mutex)</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>counter = counter + 1</span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>signal(mutex)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Protecting only the load or only the store would still allow an unsafe interleaving.</p>
+<section id="mutex-versus-binary-semaphore" class="level3">
+<h3 class="anchored" data-anchor-id="mutex-versus-binary-semaphore">Mutex versus binary semaphore</h3>
+<p>At the level required by many introductory exercises, a mutex can be viewed as a binary lock. More precisely:</p>
+<ul>
+<li>a mutex normally has an owner;</li>
+<li>only the thread that locked it should unlock it;</li>
+<li>a semaphore represents permits and does not necessarily have ownership.</li>
+</ul>
+<p>Semaphores can consequently express both mutual exclusion and dependencies between different threads.</p>
+</section>
+</section>
+<section id="enforcing-an-execution-order" class="level2">
+<h2 class="anchored" data-anchor-id="enforcing-an-execution-order">Enforcing an execution order</h2>
+<p>Suppose block <code>X</code> in Thread 1 may execute only after block <code>Y</code> in Thread 2.</p>
+<p>Initialize a semaphore to zero:</p>
+<div class="sourceCode" id="cb12"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>Semaphore finished_Y = 0</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Thread 1:</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>wait(finished_Y)</span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>X</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Thread 2:</p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>Y</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>signal(finished_Y)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Why initialize it to zero?</p>
+<ul>
+<li>If Thread 1 reaches <code>wait</code> first, it blocks.</li>
+<li>After Thread 2 completes <code>Y</code>, <code>signal</code> provides the permit.</li>
+<li>If Thread 2 finishes first, the semaphore retains the permit. Thread 1’s later <code>wait</code> consumes it and continues immediately.</li>
+</ul>
+<p>This is what is meant by saying that a semaphore has <strong>memory</strong>: an earlier signal can be remembered in its counter.</p>
+</section>
+<section id="blocking-versus-busy-waiting" class="level2">
+<h2 class="anchored" data-anchor-id="blocking-versus-busy-waiting">Blocking versus busy waiting</h2>
+<p>A primitive can wait in two ways.</p>
+<section id="busy-waiting" class="level3">
+<h3 class="anchored" data-anchor-id="busy-waiting">Busy waiting</h3>
+<div class="sourceCode" id="cb15"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>while lock is unavailable:</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a>    repeatedly test lock</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The thread remains runnable and consumes CPU time. A lock implemented this way is often called a <strong>spinlock</strong>.</p>
+<p>Busy waiting can be reasonable for extremely short waits inside kernels or multiprocessor code, but it is inefficient for long waits.</p>
+</section>
+<section id="blocking" class="level3">
+<h3 class="anchored" data-anchor-id="blocking">Blocking</h3>
+<p>If the resource is unavailable:</p>
+<ol type="1">
+<li>the thread is placed in a waiting queue;</li>
+<li>its state becomes <code>Waiting/Blocked</code>;</li>
+<li>another runnable thread receives the CPU;</li>
+<li>a later <code>signal</code> makes the blocked thread <code>Ready</code>.</li>
+</ol>
+<p>Notice that waking a thread normally produces:</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>Waiting → Ready</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>not immediately <code>Waiting → Running</code>.</p>
+</section>
+</section>
+<section id="condition-variables" class="level2">
+<h2 class="anchored" data-anchor-id="condition-variables">Condition variables</h2>
+<p>A condition variable allows a thread to sleep until some condition involving shared state may have become true.</p>
+<p>It must be used together with:</p>
+<ul>
+<li>a <strong>predicate</strong>, such as <code>count &gt; 0</code> or <code>production_done</code>;</li>
+<li>a mutex protecting that predicate;</li>
+<li>the condition variable on which threads wait.</li>
+</ul>
+<p>Canonical pattern:</p>
+<div class="sourceCode" id="cb17"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>lock(mutex)</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>while (!condition) {</span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a>    cond_wait(condition_variable, mutex)</span>
+<span id="cb17-5"><a href="#cb17-5" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb17-6"><a href="#cb17-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-7"><a href="#cb17-7" aria-hidden="true" tabindex="-1"></a>// condition is true; access shared state</span>
+<span id="cb17-8"><a href="#cb17-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb17-9"><a href="#cb17-9" aria-hidden="true" tabindex="-1"></a>unlock(mutex)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p><code>cond_wait(cv, mutex)</code> performs three important actions:</p>
+<ol type="1">
+<li>atomically releases <code>mutex</code> and puts the caller to sleep;</li>
+<li>waits for a notification;</li>
+<li>reacquires <code>mutex</code> before returning.</li>
+</ol>
+<p>The atomic release-and-sleep step prevents the following lost-wakeup race:</p>
+<ol type="1">
+<li>waiter checks that the condition is false;</li>
+<li>notifier makes it true and sends a signal;</li>
+<li>waiter goes to sleep after the signal;</li>
+<li>no future signal arrives.</li>
+</ol>
+<section id="why-while-not-if" class="level3">
+<h3 class="anchored" data-anchor-id="why-while-not-if">Why <code>while</code>, not <code>if</code>?</h3>
+<p>After waking, the thread must check the predicate again because:</p>
+<ul>
+<li>wakeups may be spurious;</li>
+<li>another awakened thread may acquire the mutex first and consume the resource;</li>
+<li>a notification means “the condition may now be true,” not “the condition is guaranteed to remain true.”</li>
+</ul>
+<p>Correct:</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>while (count == 0)</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>    cond_wait(not_empty, mutex)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Unsafe:</p>
+<div class="sourceCode" id="cb19"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>if (count == 0)</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>    cond_wait(not_empty, mutex)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="signal-versus-broadcast" class="level3">
+<h3 class="anchored" data-anchor-id="signal-versus-broadcast"><code>signal</code> versus <code>broadcast</code></h3>
+<ul>
+<li><code>cond_signal(cv)</code> wakes at least one waiting thread.</li>
+<li><code>cond_broadcast(cv)</code> wakes all threads waiting on <code>cv</code>.</li>
+</ul>
+<p>A producer adding one item normally needs to wake only one consumer. If <code>production_done</code> becomes true and every consumer must notice it and terminate, a broadcast is appropriate.</p>
+<p>The awakened threads do not all enter the critical region simultaneously: each must first reacquire the mutex.</p>
+</section>
+<section id="condition-variables-do-not-remember-notifications" class="level3">
+<h3 class="anchored" data-anchor-id="condition-variables-do-not-remember-notifications">Condition variables do not remember notifications</h3>
+<p>If <code>cond_signal</code> or <code>cond_broadcast</code> is called while nobody is waiting, the notification disappears.</p>
+<p>This differs from a semaphore:</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>signal(S)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>with no waiter increments or preserves the semaphore’s permit count, so a later <code>wait(S)</code> can consume it.</p>
+<p>A mutex remembers whether it is currently locked, but an <code>unlock</code> is not a stored notification that a future thread can consume.</p>
+</section>
+<section id="why-update-and-signal-under-the-mutex" class="level3">
+<h3 class="anchored" data-anchor-id="why-update-and-signal-under-the-mutex">Why update and signal under the mutex?</h3>
+<p>The standard protocol is:</p>
+<div class="sourceCode" id="cb21"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>lock(mutex)</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a>done = true</span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>cond_broadcast(done_changed)</span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>unlock(mutex)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The mutex makes changing the predicate and notifying waiters part of one synchronized protocol. A waiter cannot slip between checking <code>done</code> and beginning to wait. When it wakes and reacquires the mutex, it sees a consistent value of <code>done</code>.</p>
+</section>
+</section>
+<section id="producerconsumer-pattern" class="level2">
+<h2 class="anchored" data-anchor-id="producerconsumer-pattern">Producer–consumer pattern</h2>
+<p>For a bounded buffer of capacity (N), a semaphore solution uses:</p>
+<div class="sourceCode" id="cb22"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>Semaphore empty = N</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>Semaphore full  = 0</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>Semaphore mutex = 1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Producer:</p>
+<div class="sourceCode" id="cb23"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>produce(item)</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>wait(empty)</span>
+<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>wait(mutex)</span>
+<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>insert(item)</span>
+<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>signal(mutex)</span>
+<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>signal(full)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Consumer:</p>
+<div class="sourceCode" id="cb24"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>wait(full)</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>wait(mutex)</span>
+<span id="cb24-3"><a href="#cb24-3" aria-hidden="true" tabindex="-1"></a>item = remove()</span>
+<span id="cb24-4"><a href="#cb24-4" aria-hidden="true" tabindex="-1"></a>signal(mutex)</span>
+<span id="cb24-5"><a href="#cb24-5" aria-hidden="true" tabindex="-1"></a>signal(empty)</span>
+<span id="cb24-6"><a href="#cb24-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb24-7"><a href="#cb24-7" aria-hidden="true" tabindex="-1"></a>consume(item)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Interpretation:</p>
+<ul>
+<li><code>empty</code> counts free slots;</li>
+<li><code>full</code> counts stored items;</li>
+<li><code>mutex</code> protects the buffer data structure.</li>
+</ul>
+<p>Do not acquire <code>mutex</code> before waiting for <code>empty</code> or <code>full</code>. Otherwise a thread might sleep while holding the buffer lock, preventing the other side from changing the condition it is waiting for.</p>
+</section>
+<section id="simplified-readwrite-lock" class="level2">
+<h2 class="anchored" data-anchor-id="simplified-readwrite-lock">Simplified read–write lock</h2>
+<p>Suppose:</p>
+<div class="sourceCode" id="cb25"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>Semaphore S = N</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>A reader consumes one permit:</p>
+<div class="sourceCode" id="cb26"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>lock_read:</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>    wait(S)</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>unlock_read:</span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>    signal(S)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>A writer attempts to consume all (N) permits:</p>
+<div class="sourceCode" id="cb27"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>lock_write:</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>    repeat N times:</span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a>        wait(S)</span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a>unlock_write:</span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a>    repeat N times:</span>
+<span id="cb27-7"><a href="#cb27-7" aria-hidden="true" tabindex="-1"></a>        signal(S)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>This appears to permit either:</p>
+<ul>
+<li>up to (N) simultaneous readers; or</li>
+<li>one writer holding every permit.</li>
+</ul>
+<p>But <code>lock_write</code> is not atomic.</p>
+<p>For (N=3), two writers could execute:</p>
+<div class="sourceCode" id="cb28"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a>W1: wait(S)   // S: 3 → 2</span>
+<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a>W2: wait(S)   // S: 2 → 1</span>
+<span id="cb28-3"><a href="#cb28-3" aria-hidden="true" tabindex="-1"></a>W1: wait(S)   // S: 1 → 0</span>
+<span id="cb28-4"><a href="#cb28-4" aria-hidden="true" tabindex="-1"></a>W2: wait(S)   // blocks</span>
+<span id="cb28-5"><a href="#cb28-5" aria-hidden="true" tabindex="-1"></a>W1: wait(S)   // blocks</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Neither writer can acquire all three permits, and neither can release its partial acquisition because it has not entered the critical region. This is a <strong>deadlock</strong>.</p>
+<p>A simple repair serializes writers while they collect the permits:</p>
+<div class="sourceCode" id="cb29"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>Semaphore S = N</span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>Semaphore writer_gate = 1</span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>lock_write:</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>    wait(writer_gate)</span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>    repeat N times:</span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>        wait(S)</span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>    signal(writer_gate)</span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>unlock_write:</span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>    repeat N times:</span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>        signal(S)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Only one writer may now attempt the multi-step acquisition.</p>
+<p>This repair prevents the writer–writer split deadlock, but it does not necessarily guarantee fairness: continuously arriving readers might still starve a writer.</p>
+<p>One correction to retain from your earlier work: your old Sheet 3 answer identified the interleaved writer acquisition, but described it as permitting simultaneous writing. The direct consequence is instead the deadlock shown above. 14-Operating-Systems-and-Networs-SoSe-25-Solutions.pdf</p>
+</section>
+<section id="common-exam-traps" class="level2">
+<h2 class="anchored" data-anchor-id="common-exam-traps">Common exam traps</h2>
+<ul>
+<li>Treating <code>counter++</code> as an indivisible operation.</li>
+<li>Thinking a race requires multiple CPU cores.</li>
+<li>Protecting different threads with different mutexes.</li>
+<li>Forgetting to initialize a mutex semaphore to 1.</li>
+<li>Initializing an ordering semaphore to 1 instead of 0.</li>
+<li>Forgetting that semaphore operations must themselves be atomic.</li>
+<li>Omitting <code>signal</code> on some control-flow path.</li>
+<li>Sleeping while holding a mutex needed by the thread that could wake you.</li>
+<li>Using <code>if</code> instead of <code>while</code> around <code>cond_wait</code>.</li>
+<li>Assuming condition-variable notifications are remembered.</li>
+<li>Confusing deadlock with starvation.</li>
+<li>Calling every timing-dependent output a race: nondeterministic ordering can be intentional and harmless.</li>
+</ul>
+<hr>
+</section>
+<section id="exam-like-exercises" class="level2">
+<h2 class="anchored" data-anchor-id="exam-like-exercises">Exam-like exercises</h2>
+<p>Do these closed-book. Allow approximately 35–45 minutes in total.</p>
+<section id="exercise-1-race-condition-and-semaphore-repair" class="level3">
+<h3 class="anchored" data-anchor-id="exercise-1-race-condition-and-semaphore-repair">Exercise 1: Race condition and semaphore repair</h3>
+<p>Two threads share:</p>
+<div class="sourceCode" id="cb30"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>integer counter = 0</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Thread A:</p>
+<div class="sourceCode" id="cb31"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>repeat 3 times:</span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>    counter = counter + 1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Thread B:</p>
+<div class="sourceCode" id="cb32"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>repeat 2 times:</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>    counter = counter + 1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Assume a single-core system and that an increment consists of:</p>
+<div class="sourceCode" id="cb33"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>LOAD counter into private register R</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>ADD 1 to R</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>STORE R into counter</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<section id="questions" class="level4">
+<h4 class="anchored" data-anchor-id="questions">Questions</h4>
+<ol type="1">
+<li>Define the term <strong>race condition</strong>.</li>
+<li>What should the final value of <code>counter</code> be?</li>
+<li>Give an instruction-level interleaving in which one update is lost.</li>
+<li>Explain why the race can occur despite there being only one CPU core.</li>
+<li>Repair the program using one semaphore. State its initial value.</li>
+<li>Explain completely but concisely what <code>wait</code> and <code>signal</code> do.</li>
+<li>Would it be sufficient for A and B to use two different mutexes? Explain.</li>
+</ol>
+<p>Use this table for Part 3:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: right;">Step</th>
+<th>Thread</th>
+<th>Instruction</th>
+<th style="text-align: right;">Private register</th>
+<th style="text-align: right;">Shared <code>counter</code></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td></td>
+<td></td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td></td>
+<td></td>
+<td style="text-align: right;"></td>
+<td style="text-align: right;"></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="exercise-2-ordering-and-condition-variables" class="level3">
+<h3 class="anchored" data-anchor-id="exercise-2-ordering-and-condition-variables">Exercise 2: Ordering and condition variables</h3>
+<section id="part-a-ordering" class="level4">
+<h4 class="anchored" data-anchor-id="part-a-ordering">Part A: Ordering</h4>
+<p>Block <code>send_result</code> in Thread A may execute only after Thread B has completed <code>calculate_result</code>.</p>
+<p>Write the simplest semaphore-based pseudocode for both threads. Give the semaphore’s initial value.</p>
+<p>Your solution must work regardless of which thread starts first.</p>
+</section>
+<section id="part-b-find-the-condition-variable-errors" class="level4">
+<h4 class="anchored" data-anchor-id="part-b-find-the-condition-variable-errors">Part B: Find the condition-variable errors</h4>
+<p>A consumer uses:</p>
+<div class="sourceCode" id="cb34"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a>lock(mutex)</span>
+<span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a>if (count == 0)</span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a>    cond_wait(not_empty, mutex)</span>
+<span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>item = remove_from_buffer()</span>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>count = count - 1</span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>unlock(mutex)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The producer uses:</p>
+<div class="sourceCode" id="cb35"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>add_to_buffer(item)</span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>count = count + 1</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>cond_signal(not_empty)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Answer:</p>
+<ol type="1">
+<li>Identify at least two synchronization errors.</li>
+<li>Rewrite the relevant consumer and producer pseudocode correctly.</li>
+<li>Why must the consumer test the condition in a <code>while</code> loop?</li>
+<li>What happens if <code>cond_signal(not_empty)</code> is called while nobody is waiting?</li>
+<li>What would happen in the analogous situation with <code>signal(S)</code> on a semaphore?</li>
+<li>When would <code>broadcast</code> be preferable to <code>signal</code>?</li>
+</ol>
+</section>
+</section>
+<section id="exercise-3-debugging-a-semaphore-construction" class="level3">
+<h3 class="anchored" data-anchor-id="exercise-3-debugging-a-semaphore-construction">Exercise 3: Debugging a semaphore construction</h3>
+<p>Let (N=4):</p>
+<div class="sourceCode" id="cb36"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a>Semaphore S = 4</span>
+<span id="cb36-2"><a href="#cb36-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-3"><a href="#cb36-3" aria-hidden="true" tabindex="-1"></a>lock_read:</span>
+<span id="cb36-4"><a href="#cb36-4" aria-hidden="true" tabindex="-1"></a>    wait(S)</span>
+<span id="cb36-5"><a href="#cb36-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-6"><a href="#cb36-6" aria-hidden="true" tabindex="-1"></a>unlock_read:</span>
+<span id="cb36-7"><a href="#cb36-7" aria-hidden="true" tabindex="-1"></a>    signal(S)</span>
+<span id="cb36-8"><a href="#cb36-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-9"><a href="#cb36-9" aria-hidden="true" tabindex="-1"></a>lock_write:</span>
+<span id="cb36-10"><a href="#cb36-10" aria-hidden="true" tabindex="-1"></a>    for i = 1 to 4:</span>
+<span id="cb36-11"><a href="#cb36-11" aria-hidden="true" tabindex="-1"></a>        wait(S)</span>
+<span id="cb36-12"><a href="#cb36-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb36-13"><a href="#cb36-13" aria-hidden="true" tabindex="-1"></a>unlock_write:</span>
+<span id="cb36-14"><a href="#cb36-14" aria-hidden="true" tabindex="-1"></a>    for i = 1 to 4:</span>
+<span id="cb36-15"><a href="#cb36-15" aria-hidden="true" tabindex="-1"></a>        signal(S)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<ol type="1">
+<li>Give an exact execution involving two writers that leads to failure.</li>
+<li>Classify the failure as:
+<ul>
+<li>mutual-exclusion violation,</li>
+<li>deadlock, or</li>
+<li>starvation.</li>
+</ul></li>
+<li>Explain precisely why neither writer can continue.</li>
+<li>Repair the construction using one additional semaphore or mutex.</li>
+<li>Does your repair also guarantee that a writer can never starve? Explain briefly.</li>
+</ol>
+</section>
+</section>
+<section id="answers" class="level2">
+<h2 class="anchored" data-anchor-id="answers">Answers</h2>
+<section id="exercise-1" class="level3">
+<h3 class="anchored" data-anchor-id="exercise-1">Exercise 1</h3>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../../exam/notes/processes_and_fork.html" class="pagination-link" aria-label="Processes and `fork()`">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Processes and <code>fork()</code></span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
