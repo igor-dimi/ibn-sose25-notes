@@ -356,6 +356,267 @@ unlock(mutex)
 
 The mutex makes changing the predicate and notifying waiters part of one synchronized protocol. A waiter cannot slip between checking `done` and beginning to wait. When it wakes and reacquires the mutex, it sees a consistent value of `done`.
 
+### Example: producer-consumer queue
+
+* producers create items / jobs and insert them into a shared queue.
+* consumers remove items
+* a consumer cannot remove an item while the queue is empty
+* instead of repeatedly checking the queue in a busy loop, it sleeps on `not_empty`
+
+#### Concrete Example: downloading and playing a video
+
+The producer downloads video chunks:
+
+```default
+network -> buffer
+```
+
+The consume decodes and siplays them
+
+```default
+buffer -> video player
+```
+
+1. the downloader puts some chunks into the buffer
+2. the player begins consuming them
+3. both continue concurrently
+
+Other canonical examples:
+
+* a network interface receives packets, while an application processes them
+* a web server accepts requests while worker threads handle earlier requests
+* one thread reads files, while another processes their contents.
+* keyboard input arriving while the application processe earlier input
+
+The general pattern is that 
+
+> a buffer crates a pipleline and absorbs temporary differences in speed between producers
+> and consumers 
+
+#### Benefits of concurrent production and consumption
+
+1. **lower latency**: the consumer can start as soon as the first item exists instead of waiting for
+   all items
+2. **higher throughput**: production and consumption may overlap
+   1. one core produces while another consumes
+   2. a network or disk operation runs while the cpu processes previous data
+3. **bounded memory use**: for a large or infinite stream, we may use a bounded buffer:
+
+   ```default
+   producer -> fixed-size buffer -> consumer
+   ```
+
+   A bounded buffer typically uses two predicates and two condition variables:
+
+   ```cpp
+   std::condition_variable not_empty; // consumers wait here
+   std::condition_variable not_full; // producers wait here
+   ```
+
+### Complete producer-consumer program
+
+```default
+shared Queue jobs
+shared Mutex mutex
+shared ConditionVariable not_empty
+shared Boolean production_done = false
+
+function producer():
+    for number from 1 to 10:
+        job = create_job(number)
+
+        lock(mutex) //begin critical region 1
+
+        jobs.push(job)
+        signal(not_empty)
+
+        unlock(mutex)
+
+        // end critical region 1
+
+    // no more jobs will be produced
+    lock(mutex) // begin critical region 2
+
+    production_done = true
+    broadcast(not_empty)
+
+    unlock(mutex) // end cr 2
+
+function consumer(worker_id):
+    while true:
+        lock(mutex)
+
+        while jobs.empty() and not production_done:
+            wait(not_empty, mutex)
+        
+        if jobs.empty() and production_done:
+            unlock(mutex)
+            return
+        
+        job = jobs.pop()
+
+        unlock(mutex)
+
+        // processing is done outside of critical region
+        process(job)
+
+function main():
+    producer_thread = start_thread(producer)
+    consumer_thread_1 = start_thread(consumer, 1)
+    consumer_thread_2 = start_thread(consumer, 2)
+
+    join(producer_thread)
+    join(consumer_thread_1)
+    join(consumer_thread_2)
+
+    print("all jobs completed")
+```
+
+### Bounded-buffer producer-consumer problem
+
+uses a shared queue with a **fixed maximum capacity**
+
+* consumers wait on `not_empty` when the buffer is empty
+* producers wait on `not_full` when the buffer is full
+* a mutex protexts the buffer and related shared state
+
+The bounded buffer provides **backpressure**: if consumers cannot keep up,
+producers are forced to wait instead of allowing the queue to grow indefiniely.
+
+#### Practical Example
+
+Consider a program that reads large imagems from disk and processes them:
+
+* the producer reads images and places them in memory
+* several consumers resize / transform or analyze the images
+* each image may occupy considerable memory
+
+An unbounded queue could consumer all abailable memory if disk reading is 
+temporarily faster than image processing. A buffer limited to, say,
+five images ensures that at most five unprocessed images are held in memory
+
+
+#### Complete typed pseudocode
+
+```default
+
+// shared state
+
+constant BUFFER_CAPACITY = 5
+constant NUMBER_OF_JOBS = 20
+constant NUMBER_OF_CONSUMERS = 2
+
+shared Queue<Job> jobs
+
+shared Mutex mutex
+shared ConditionVarialbe not_empty
+shared ConditionVarialbe not_full
+
+shared production_done = false
+
+
+// producer
+function producer() -> Void:
+    for job_number from 1 to NUMBER_OF_JOBS:
+        job = new Job(job_number)
+
+        lock(mutex)
+
+        while jobs.size() == BUFFER_CAPACITY:
+            wait(not_full, mutex)
+        
+        // buffer is not full
+        jobs.push(job)
+
+        // buffer is not empty
+        signal(not_empty)
+        
+        unlock(mutex)
+
+    lock(mutex)
+
+    production_done = true
+    // every sleeping consumer must discover that production is finished
+    broadcast(not_empty)
+
+    unlock(mutex)
+
+// consumer
+
+function consumer() -> Void:
+    while true:
+        lock(mutex)
+
+        while jobs.empty() and not production_done:
+            wait(not_empty, mutex)
+        
+        // no buffered jobs remain, and no new jobs will arrive
+        if jobs.empty() and production_done:
+            unlock(mutex)
+            return
+
+        // buffer not empty
+        job = jobs.pop()
+
+        // at least one producer may now be able to proceed
+        signal(not_full)
+
+        unlock(mutex)
+
+        process(job)
+
+
+// main program
+
+function main() -> Void:
+    consumers = new Array<Thread>(NUMBER_OF_CONSUMERS)
+
+    for i from 0 to NUMBER_OF_CONSUMERS - 1:
+        consumers[i] = start_thread(consumer)
+
+    producer_thread = start_thread(producer)
+
+    join(producer_thread)
+    
+    for i in [1, NUMBER_OF_CONSUMERS]:
+        join(consumers[i])
+
+    print("all jobs completed")
+```
+
+
+
+
+
+
+::: {.callout-note}
+# `join()`
+
+`join()` does not end the thread. It makes the calling thread wait
+until another thread has finished. 
+
+```default
+consumer_thread_1 = start_thread(consume, 1)
+
+... 
+
+join(consumer_thread_1)
+```
+
+1. start a new htread executing `consumer(1)`
+2. continue executing the main thread
+3. When `join(consumer_thread_1)` is reached, pause the main thread until `consumer_thread_1` terminates
+
+This guarantees that the main thread will not prematurely terminate before `consumer_thread_1` does,
+which would be possible because the scheduler can decide to execute the return or the final statement
+of main, ending the main thread, before `consumer_thread_1` is finished 
+
+:::
+
+
+
+
+
 ## Producer–consumer pattern
 
 For a bounded buffer of capacity \(N\), a semaphore solution uses:
@@ -618,7 +879,5 @@ unlock_write:
 
 
 ### Exercise 1
-
-
 
 
