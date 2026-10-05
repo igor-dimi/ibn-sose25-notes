@@ -6,10 +6,8 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="author" content="Igor Dimitrov">
-<meta name="dcterms.date" content="2024-12-18">
 
-<title>Operating Systems and Networks SoSe 25 Notes</title>
+<title>Operating Systems and Networks SoSe 25 Notes - 7&nbsp; OS Basics</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -25,23 +23,24 @@ ul.task-list li input[type="checkbox"] {
 </style>
 
 
-<script src="site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="site_libs/quarto-nav/headroom.min.js"></script>
-<script src="site_libs/clipboard/clipboard.min.js"></script>
-<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="site_libs/quarto-search/fuse.min.js"></script>
-<script src="site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="./">
-<link href="./exam/notes/assignment_overview.html" rel="next">
-<script src="site_libs/quarto-html/quarto.js"></script>
-<script src="site_libs/quarto-html/popper.min.js"></script>
-<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="site_libs/quarto-html/anchor.min.js"></script>
-<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../exam/2016.html" rel="next">
+<link href="../../exam/notes/00.html" rel="prev">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -82,7 +81,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html">Preface</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../exam/notes/00.html">Exam Notes</a></li><li class="breadcrumb-item"><a href="../../exam/notes/01.html"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">OS Basics</span></a></li></ol></nav>
         <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
@@ -97,14 +96,9 @@ ul.task-list li input[type="checkbox"] {
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
     <div class="pt-lg-2 mt-2 text-left sidebar-header">
     <div class="sidebar-title mb-0 py-0">
-      <a href="./">Operating Systems and Networks SoSe 25 Notes</a> 
+      <a href="../../">Operating Systems and Networks SoSe 25 Notes</a> 
         <div class="sidebar-tools-main">
-    <a href="./Operating-Systems-and-Networks-SoSe-25-Notes.pdf" title="Download PDF" class="quarto-navigation-tool px-1" aria-label="Download PDF"><i class="bi bi-file-pdf"></i></a>
-  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
-  <div class="quarto-reader-toggle-btn">
-  <i class="bi"></i>
-  </div>
-</a>
+    <a href="../../Operating-Systems-and-Networks-SoSe-25-Notes.pdf" title="Download PDF" class="quarto-navigation-tool px-1" aria-label="Download PDF"><i class="bi bi-file-pdf"></i></a>
 </div>
     </div>
       </div>
@@ -117,14 +111,14 @@ ul.task-list li input[type="checkbox"] {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./index.html" class="sidebar-item-text sidebar-link active">
+  <a href="../../index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Preface</span></a>
   </div>
 </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">
- <span class="menu-text">Exam Notes</span></a>
+ <span class="menu-text">Operating Systems</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
@@ -132,26 +126,78 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./exam/notes/assignment_overview.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Assignment Sheets Overview</span></span></a>
+  <a href="../../process.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Process Management</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./exam/notes/plan.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Plan</span></span></a>
+  <a href="../../memory.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Memory Management</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">
+ <span class="menu-text">Networks</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../networks-intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Network Fundamentals - Summary of Slides 1 - 45</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./exam/notes/processes_and_fork.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Processes and <code>fork()</code></span></span></a>
+  <a href="../../application-layer.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Intro to the Application Layer, Web and HTTP</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./exam/notes/synchronization.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Race conditions, semaphores and synchronization</span></span></a>
+  <a href="../../ip-layer-subnetting.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">IP Layer &amp; Subnetting</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true">
+ <span class="menu-text">Exam Notes</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../exam/notes/00.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Exam Notes</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../exam/notes/01.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">OS Basics</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../exam/notes/01.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">OS Basics</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../exam/2016.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Exam 2016</span></span></a>
   </div>
 </li>
       </ul>
@@ -162,39 +208,28 @@ ul.task-list li input[type="checkbox"] {
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc" class="toc-active" data-toc-expanded="-1">
+        <nav id="TOC" role="doc-toc" class="toc-active">
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#preface" id="toc-preface" class="nav-link active" data-scroll-target="#preface">Preface</a></li>
+  <li><a href="#notes" id="toc-notes" class="nav-link active" data-scroll-target="#notes">Notes</a></li>
+  <li><a href="#questions" id="toc-questions" class="nav-link" data-scroll-target="#questions">Questions</a></li>
   </ul>
 </nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default">
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../exam/notes/00.html">Exam Notes</a></li><li class="breadcrumb-item"><a href="../../exam/notes/01.html"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">OS Basics</span></a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title">Operating Systems and Networks SoSe 25 Notes</h1>
+<h1 class="title"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">OS Basics</span></h1>
 </div>
 
 
 
 <div class="quarto-title-meta">
 
-    <div>
-    <div class="quarto-title-meta-heading">Author</div>
-    <div class="quarto-title-meta-contents">
-             <p>Igor Dimitrov </p>
-          </div>
-  </div>
     
-    <div>
-    <div class="quarto-title-meta-heading">Published</div>
-    <div class="quarto-title-meta-contents">
-      <p class="date">December 18, 2024</p>
-    </div>
-  </div>
   
     
   </div>
@@ -204,8 +239,105 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<section id="preface" class="level1 unnumbered">
-<h1 class="unnumbered">Preface</h1>
+<section id="notes" class="level2">
+<h2 class="anchored" data-anchor-id="notes">Notes</h2>
+</section>
+<section id="questions" class="level2">
+<h2 class="anchored" data-anchor-id="questions">Questions</h2>
+<ol type="1">
+<li>What is an OS?
+<ul>
+<li>en: An OS is software layer between the hardware and application programs. It manages the resources such as the the processor, memory, and input / output devices, and provides easy-use-abstractions for accessing them.</li>
+<li>de: Ein BS ist eine Softwareschicht zwischen den Hardware und den Anwendungsprogrammen. Es verwaltet Ressources wie Prozessor, Speicher und I/O-Geraete und stellt dafuer</li>
+</ul></li>
+<li>What are the functions of an Operating System / Welche Aufgaben hat ein Betriebssystem?
+<ul>
+<li>de: Zwei Hauptaufgaben:
+<ol type="1">
+<li>Verwaltet und verteils es die Ressources wie CPU, Arbeitsspeicher und I/O zwischen Anwendungsprogrmmen. Dabei verhindert es Konflikte und sorgt fuer eine moeglichst faire Zuteilung.</li>
+<li>Stellt Abstraktionen wie Prozesse, Dateien und virtuelle Adressraeume bereit, damit Programme das Hardware einfacher nutzen koennen</li>
+</ol></li>
+<li>en: two main tasks:
+<ol type="1">
+<li>Manage hardware resources s.a. CPU, main memory, I/O devices and allocates them to application programs. Prevents conflicts between processes and ensures a fair allocation.</li>
+<li>provices abstractions s.a. processes, virtual address spaces, files, making the hardware easiwer to use</li>
+</ol></li>
+</ul></li>
+<li>What are Caches what do they work well?
+<ul>
+<li>de: Kleine, schnelle Speicher zwischen CPU und Hauptspeicher. Sie halten Kopien von Daten und Befehlen bereit, die die CPU wahrscheinlich bald benoetigt. So muss die CPU seltener auf den langsameren Hauptspeicher warten. Das funktioniert, weil Programme haeufig kuerzlich verwendete oder benachbarte Speicherstellen erneut nutzen. (zeitliche &amp; raeumliche Lokalitaet)</li>
+<li>en: a small &amp; fast memory that keeps copies of data and instructions that are likely to be accessed near the cpu. Cache access slower than register access but much faster than main memory access. It works well because or spatial and temporal locality of data.
+<ul>
+<li><strong>spatial locality</strong>: data near a recently accessed memory location is likely to be accessed soon</li>
+<li><strong>temporal locality</strong>: recently accessed data is likely to be accessed soon.</li>
+</ul></li>
+</ul></li>
+<li>What kind of CPU registers are there:
+<ul>
+<li>en:</li>
+<li><strong>general purpose registers</strong>:
+<ul>
+<li>data</li>
+<li>addresses</li>
+<li>intermediate results</li>
+</ul></li>
+<li><strong>instruction counter</strong>: address of the next instruction to execute</li>
+<li><strong>stack pointer</strong>: contains the address of the current top of the stack</li>
+<li><strong>status register</strong>: holds CPU status and control bits</li>
+<li>de:
+<ul>
+<li><strong>allgemeine arbeistregister</strong>: Daten, Addresen, Zwischenergebnisse</li>
+<li><strong>Befehlszaehler</strong>: enthaelt die Addresse des naechsten auszufuehrenden Befehls</li>
+<li><strong>Kellerregister</strong>: Enthalt die addresse der Spitze des Stacks</li>
+</ul></li>
+</ul></li>
+<li>RISC vs CISC:
+<ul>
+<li>en:
+<ul>
+<li>CISC: complex instruction set computer. Individual instructions are more powerful / complex operations, but may take more work to execute</li>
+<li>RISC: simpler more regular instructions; a task may require more instructions but each instruction is generally easier to execute efficiently.</li>
+</ul></li>
+<li>de:
+<ul>
+<li><strong>CISC</strong>: individuelle Befehle sind maechtiger &amp; complexer und fuehren mehr arbeit durch benoetigen aber mehr zeit</li>
+<li><strong>RISC</strong>: einfachere, einheitlichere Befehle. Erledigen atomare aufgaben aber sind schneller durzufuehren.</li>
+</ul></li>
+</ul></li>
+<li>What are the two execution modes of modern CPUs ?
+<ul>
+<li><strong>user mode</strong>: an application can access memory pages mapped for it with user persmissions. It cannot directly access another process’s private memory or execute priviliged instructions, such as chaging memory-management settings. Processes <em>can access</em> shared memory when the OS maps it into both of their address spaces.</li>
+<li><strong>kernel mode</strong>: the os can execute privileged instructions and access protected kernel memory.</li>
+</ul></li>
+</ol>
+<div class="callout callout-style-simple callout-none no-icon callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Mode vs Space
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<ul>
+<li><strong>user / kernel mode</strong>: the cpu’s current <strong>privilege level</strong>, what the executing code is allowed to do.</li>
+<li><strong>user space / kernel space</strong>: <strong>virtual memory areas</strong> used by applications and by the kernel</li>
+</ul>
+<p>An application runs in <strong>user mode</strong> and uses it <strong>user-space</strong> memory. When it makeks a system call, the CPU switches to <strong>kernel mode</strong> to run OS code, which can access <strong>kernel-space</strong> memory. The application cannot switch modes merely by jumping to a kernel address.</p>
+</div>
+</div>
+<ol start="7" type="1">
+<li>What happens during a system call (trap, passing parameters)
+<ul>
+<li>System calls let a program request services from the kernel.</li>
+<li>When a program makes a system call it issues a special CPU instruction s.a. <code>syscall</code> on x86-64. This causes a <strong>trap</strong>: The CPU switches from user mode to kernel mode and starts executing at a designated kernel entry point.</li>
+<li>The kernel entry point that handles system calls identifies the requested service, checks the parameters and performs the operation.</li>
+<li>the kernel places the result or error code where the program can receive it, then it returns.</li>
+<li>The CPU resumes the program in user mode.</li>
+</ul></li>
+<li>What are shells and what is their purpose in OSs?</li>
+</ol>
 
 
 </section>
@@ -622,10 +754,13 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
+      <a href="../../exam/notes/00.html" class="pagination-link" aria-label="Exam Notes">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Exam Notes</span></span>
+      </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./exam/notes/assignment_overview.html" class="pagination-link" aria-label="Assignment Sheets Overview">
-        <span class="nav-page-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Assignment Sheets Overview</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../../exam/2016.html" class="pagination-link" aria-label="Exam 2016">
+        <span class="nav-page-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Exam 2016</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>

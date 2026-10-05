@@ -6,10 +6,8 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="author" content="Igor Dimitrov">
-<meta name="dcterms.date" content="2024-12-18">
 
-<title>Operating Systems and Networks SoSe 25 Notes</title>
+<title>Operating Systems and Networks SoSe 25 Notes - 8&nbsp; Exam 2016</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -25,23 +23,23 @@ ul.task-list li input[type="checkbox"] {
 </style>
 
 
-<script src="site_libs/quarto-nav/quarto-nav.js"></script>
-<script src="site_libs/quarto-nav/headroom.min.js"></script>
-<script src="site_libs/clipboard/clipboard.min.js"></script>
-<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
-<script src="site_libs/quarto-search/fuse.min.js"></script>
-<script src="site_libs/quarto-search/quarto-search.js"></script>
-<meta name="quarto:offset" content="./">
-<link href="./exam/notes/assignment_overview.html" rel="next">
-<script src="site_libs/quarto-html/quarto.js"></script>
-<script src="site_libs/quarto-html/popper.min.js"></script>
-<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
-<script src="site_libs/quarto-html/anchor.min.js"></script>
-<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
-<script src="site_libs/bootstrap/bootstrap.min.js"></script>
-<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../exam/notes/01.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -70,6 +68,35 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
@@ -82,7 +109,7 @@ ul.task-list li input[type="checkbox"] {
       <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
-        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./index.html">Preface</a></li></ol></nav>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../exam/notes/00.html">Exam Notes</a></li><li class="breadcrumb-item"><a href="../exam/2016.html"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Exam 2016</span></a></li></ol></nav>
         <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
       <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
@@ -97,14 +124,9 @@ ul.task-list li input[type="checkbox"] {
   <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
     <div class="pt-lg-2 mt-2 text-left sidebar-header">
     <div class="sidebar-title mb-0 py-0">
-      <a href="./">Operating Systems and Networks SoSe 25 Notes</a> 
+      <a href="../">Operating Systems and Networks SoSe 25 Notes</a> 
         <div class="sidebar-tools-main">
-    <a href="./Operating-Systems-and-Networks-SoSe-25-Notes.pdf" title="Download PDF" class="quarto-navigation-tool px-1" aria-label="Download PDF"><i class="bi bi-file-pdf"></i></a>
-  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
-  <div class="quarto-reader-toggle-btn">
-  <i class="bi"></i>
-  </div>
-</a>
+    <a href="../Operating-Systems-and-Networks-SoSe-25-Notes.pdf" title="Download PDF" class="quarto-navigation-tool px-1" aria-label="Download PDF"><i class="bi bi-file-pdf"></i></a>
 </div>
     </div>
       </div>
@@ -117,14 +139,14 @@ ul.task-list li input[type="checkbox"] {
     <ul class="list-unstyled mt-1">
         <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./index.html" class="sidebar-item-text sidebar-link active">
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
  <span class="menu-text">Preface</span></a>
   </div>
 </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
             <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">
- <span class="menu-text">Exam Notes</span></a>
+ <span class="menu-text">Operating Systems</span></a>
           <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
@@ -132,26 +154,72 @@ ul.task-list li input[type="checkbox"] {
       <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./exam/notes/assignment_overview.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Assignment Sheets Overview</span></span></a>
+  <a href="../process.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Process Management</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./exam/notes/plan.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Plan</span></span></a>
+  <a href="../memory.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Memory Management</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true">
+ <span class="menu-text">Networks</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-2" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-2" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../networks-intro.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Network Fundamentals - Summary of Slides 1 - 45</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./exam/notes/processes_and_fork.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Processes and <code>fork()</code></span></span></a>
+  <a href="../application-layer.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Intro to the Application Layer, Web and HTTP</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
-  <a href="./exam/notes/synchronization.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Race conditions, semaphores and synchronization</span></span></a>
+  <a href="../ip-layer-subnetting.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">IP Layer &amp; Subnetting</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true">
+ <span class="menu-text">Exam Notes</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-3" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-3" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../exam/notes/00.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Exam Notes</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../exam/notes/01.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">OS Basics</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../exam/2016.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Exam 2016</span></span></a>
   </div>
 </li>
       </ul>
@@ -162,39 +230,31 @@ ul.task-list li input[type="checkbox"] {
 <div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
 <!-- margin-sidebar -->
     <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
-        <nav id="TOC" role="doc-toc" class="toc-active" data-toc-expanded="-1">
+        <nav id="TOC" role="doc-toc" class="toc-active">
     <h2 id="toc-title">Table of contents</h2>
    
   <ul>
-  <li><a href="#preface" id="toc-preface" class="nav-link active" data-scroll-target="#preface">Preface</a></li>
+  <li><a href="#process-synchronization-11p" id="toc-process-synchronization-11p" class="nav-link active" data-scroll-target="#process-synchronization-11p">Process Synchronization [11p]</a></li>
+  <li><a href="#memory-management-12p" id="toc-memory-management-12p" class="nav-link" data-scroll-target="#memory-management-12p">Memory Management [12p]</a></li>
+  <li><a href="#deadlocks-11p" id="toc-deadlocks-11p" class="nav-link" data-scroll-target="#deadlocks-11p">Deadlocks [11p]</a></li>
+  <li><a href="#network-protocols-and-layers" id="toc-network-protocols-and-layers" class="nav-link" data-scroll-target="#network-protocols-and-layers">Network Protocols and Layers</a></li>
+  <li><a href="#routing-algorithms-10p" id="toc-routing-algorithms-10p" class="nav-link" data-scroll-target="#routing-algorithms-10p">Routing Algorithms [10p]</a></li>
   </ul>
 </nav>
     </div>
 <!-- main -->
 <main class="content" id="quarto-document-content">
 
-<header id="title-block-header" class="quarto-title-block default">
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../exam/notes/00.html">Exam Notes</a></li><li class="breadcrumb-item"><a href="../exam/2016.html"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Exam 2016</span></a></li></ol></nav>
 <div class="quarto-title">
-<h1 class="title">Operating Systems and Networks SoSe 25 Notes</h1>
+<h1 class="title"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Exam 2016</span></h1>
 </div>
 
 
 
 <div class="quarto-title-meta">
 
-    <div>
-    <div class="quarto-title-meta-heading">Author</div>
-    <div class="quarto-title-meta-contents">
-             <p>Igor Dimitrov </p>
-          </div>
-  </div>
     
-    <div>
-    <div class="quarto-title-meta-heading">Published</div>
-    <div class="quarto-title-meta-contents">
-      <p class="date">December 18, 2024</p>
-    </div>
-  </div>
   
     
   </div>
@@ -204,8 +264,128 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<section id="preface" class="level1 unnumbered">
-<h1 class="unnumbered">Preface</h1>
+<section id="process-synchronization-11p" class="level2">
+<h2 class="anchored" data-anchor-id="process-synchronization-11p">Process Synchronization [11p]</h2>
+<ol type="1">
+<li><p>(1p) Two threads A and B of a webserver are using common global variable <code>counter</code>, in order to count the number of web page accesses. Provide an as simple as possible pseudocode implementation of programs for both the threads, such that a race condition can occur</p></li>
+<li><p>(2p) Provide an interleaving (execution trace), s.t. an undesired result occurs. (<code>counter</code> has the value 0 before the start of the execution). Explain how this problem occurs on the level of memory and register accesses, e.g. “The value of the varialbe <code>counter</code> is loaded to the register R”, etc. Assume a single core processor.</p></li>
+<li><p>(4p) Give an as simple as possible pseudocode implementation that prevents the race condition using semaphores. Explain succinctly but completely how semaphore-operations work and achieve the goal of preventing the race condition</p></li>
+<li><p>(2p) Now consider two processes P1, and P2. Provide the pseudoce that implements the following synchronization:</p>
+<p>“Code block X in P1 must be executed only after code block Y in P2.”</p></li>
+<li><p>(2p) Now consider the situation described in the 1st question above again. How large can be the difference between the wanted and unwanted results? Assume that a thread can be interrupted for an arbitrarily long time. Justify your answer</p></li>
+</ol>
+</section>
+<section id="memory-management-12p" class="level2">
+<h2 class="anchored" data-anchor-id="memory-management-12p">Memory Management [12p]</h2>
+<p>Assume a computer system that</p>
+<ul>
+<li>uses paging and virtual memory</li>
+<li>Has a 32 bit address bus</li>
+<li>2 GiB (<span class="math inline">\(2^31\)</span> Bytes) RAM</li>
+<li>Page size of 1 KiB (<span class="math inline">\(2^10\)</span> Bytes)</li>
+</ul>
+<ol type="1">
+<li>[2p] How much memory is required for the page table of single process when the system uses <strong>normal</strong> page tables, i.e.&nbsp;not inverted, nor hierarchical page tables? Assume that each entry of the table is 4 Bytes.</li>
+<li>[2p]
+<ol type="a">
+<li>What is the memory requirement of the inverted page table given an entry of the table is 4 Bytes?</li>
+<li>How many processes can run in the system simultaneously at most ? (assume a single inverted page table for all processes)</li>
+</ol></li>
+<li>[1p] The process with ID 5 addresses the logical address 1025, which is translated to the address 2049 by the MMU. What is the offset and the page index of the logical address? What is the <strong>frame number</strong> of the physical address?</li>
+<li>[3p] Considering the case in the above subtask (subtask 3) provide the relevant parts of the page tables for:
+<ol type="i">
+<li>a normal page table</li>
+<li>an inverted page table</li>
+</ol></li>
+<li>For some page replacement algorithms, like LRU, it is necessary to know approximately when the page was last used (i.e.&nbsp;when was a memory access within the page last made). Explain succinctly how this is efficiently achieved in modern processors architectures (like x86) <strong>notes</strong>:
+<ol type="1">
+<li>Only a an approximation of the time of the last access is asked, no details for page replacement algorithms.</li>
+<li>You should refer to hardware details in your explanation</li>
+</ol></li>
+</ol>
+</section>
+<section id="deadlocks-11p" class="level2">
+<h2 class="anchored" data-anchor-id="deadlocks-11p">Deadlocks [11p]</h2>
+<ol type="1">
+<li>[1p] Provide a common definition of a deadlock</li>
+<li>[4p] Incorrect usage of semaphores can cause a deadlock. Provide two simple code fragments with semaphores, one per thread, such that a deadlock can occur. Describe the execution sequence of a concrete scenario where a deadlock can actually occur.</li>
+<li>[3p] To detect deadlocks resource allocation graphs are typically used. (RAG). In such graphs multiple instances per resource type can occur. Draw an RAG for two following situations
+<ol type="i">
+<li>The RAG contains a cycle and there exists a deadlock</li>
+<li>The RAG contains a cycle but there’s no necessarily a deadlock</li>
+</ol></li>
+<li>[3p] Explain the purpose and the main idea of the Banking algorithm. What assumption is made in the algorithm? <strong>Tip</strong>: You can, but don’t have to use pseudocode. You don’t have to explain the data structures of this algorithm.</li>
+</ol>
+</section>
+<section id="network-protocols-and-layers" class="level2">
+<h2 class="anchored" data-anchor-id="network-protocols-and-layers">Network Protocols and Layers</h2>
+<p>A host (IP-Address 1.2.3.10) is located in a subnet (1.2.3.0/24) and is reachable from the internet over a gateway-router R. The IP-address of the routers interface facing the subnet is 1.2.3.1. A process on the Host A sends a message to another host B outside of the network using the UDP protocol. Assume that the contents of the message is <span class="math inline">\(N\)</span></p>
+<ol type="1">
+<li>[2p] Before the message leaves the host A it gets encapsulated / wrapped in various headers by the operating system. Sketch the complete message (frame), where each header must be named with the corresponsing network layer. Pay attention to the correct order of the headers.</li>
+<li>[3p] Each header from the above subtask contains address-like information - at least two per header. Provide these information in the context of this task that was introduced above (hosts A, B, router R, and processes A and B). You should associate this information with the corresponding headers w.r.t. the network layers.</li>
+<li>[3p] Now A wants to send a message to another host C with an IP-address 1.2.3.20. What can A deduce from the IP-address of C? How does A exactly make this deduction? What consequences does this have when constructing the complete message (Frame) when sending to C?</li>
+</ol>
+</section>
+<section id="routing-algorithms-10p" class="level2">
+<h2 class="anchored" data-anchor-id="routing-algorithms-10p">Routing Algorithms [10p]</h2>
+<p>Consider the following network graph:</p>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="./dijkstra.png" class="img-fluid figure-img" style="width:75.0%"></p>
+<figcaption>graph</figcaption>
+</figure>
+</div>
+<p>Carry out <strong>two steps</strong> of the dijkstra algorithm for computing the shortest path starting from the node / router <span class="math inline">\(u\)</span> in the above graph, by completing the following table with the intermediate values - one line per main iteration loop.</p>
+<table class="table">
+<colgroup>
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 16%">
+</colgroup>
+<thead>
+<tr class="header">
+<th><strong>Phase</strong></th>
+<th><strong>N’</strong></th>
+<th><strong>D(v) | p(v)</strong></th>
+<th><strong>D(w) | p(w)</strong></th>
+<th><strong>D(x) | p(x)</strong></th>
+<th><strong>D(y) | p(y)</strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Initialization</td>
+<td>{u}</td>
+<td>2 | u</td>
+<td>5 | u</td>
+<td>1 | u</td>
+<td><span class="math inline">\(\infty\)</span> | -</td>
+</tr>
+<tr class="even">
+<td>Step 1</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>Step 2</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>Reminder:</p>
+<ul>
+<li>N’: The subset of nodes to which</li>
+</ul>
 
 
 </section>
@@ -622,11 +802,11 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
 </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
+      <a href="../exam/notes/01.html" class="pagination-link" aria-label="OS Basics">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">OS Basics</span></span>
+      </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="./exam/notes/assignment_overview.html" class="pagination-link" aria-label="Assignment Sheets Overview">
-        <span class="nav-page-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Assignment Sheets Overview</span></span> <i class="bi bi-arrow-right-short"></i>
-      </a>
   </div>
 </nav>
 </div> <!-- /content -->
