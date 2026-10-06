@@ -969,8 +969,8 @@ unlock_write:
 
 ### Exercise 1
 
-1. the result of concurrently executing threads depends on the order of execution of individual instructions
-   in the threads, and if various interleaving may cause incorrect results.
+1. a race condition occurs when the reseult of a program depends on the timing or interleaving of unsynchronized 
+   accesses to shared state, with at least one acccess modifying that state, so that some interleavings can produce an incorrect result
 2. 5
 3. table:
 
@@ -988,29 +988,31 @@ unlock_write:
    | 10       | A          | load counter RA  | RA == 3              | 3                    |
    | 11       | A          | add 1 RA         | RA == 4              | 3                    |
    | 12       | B          | load counter RB  | RB == 3              | 3                    |
-   | 13       | B          | add 1 RB         | RB == 4              | 4                    |
+   | 13       | B          | add 1 RB         | RB == 4              | 3                    |
    | 14       | B          | store RB counter | RB == 4              | 4                    |
-   | 15       | A          | store RB counter | RA == 4              | 4                    |
+   | 15       | A          | store RA counter | RA == 4              | 4                    |
 
-4. in the above example both threads may be executed on a single cpu. But as the detailed interleaving
-   shows, if a threads A is scheduled before a thread B could store the updated value, causing 
-   thread A to load and operate on a past value the update of thread B is lost. 
+4. A race condition does not require physical parallelism. On a single-core CPU, the scheduler
+   may preempt one thread between its `LOAD` and `STORE` instruction and run the other thread.
+   The resulting interleaving allows both treads to operate on the same stale value
 5. code:
    
    ```default
    semaphore mutex = 1
 
    thread A:
-    wait(mutex)
-    repeat 3 times: counter = counter + 1
-    signal(mutex)
+    repeat 3 times: 
+        wait(mutex)
+        counter = counter + 1
+        signal(mutex)
    thread B:
-    wait(mutex)
-    repeat 3 times: counter = counter + 1
-    signal(mutex)
+    repeat 2 times: 
+        wait(mutex)
+        counter = counter + 1
+        signal(mutex)
    ```
 6. answer:
-   * wait: atomically decrements the value of a semaphore if it is possitive, or blocks the thread and puts 
+   * wait: atomically decrements the value of a semaphore if it is possitive, otherwise blocks the calling thread and places
      it in the waiting queue associated with the semaphore
    * signal: atomically increments the value of the semaphore if there are no waiting threads in the queue,
      or if the queue is not empty it wakes up a waiting thread
@@ -1070,11 +1072,17 @@ Thread B:
 
    scheduler may schedule it at an arbitrary point in time. Meanwhile another consumer previously in ready state might be scheduled and already consumed the item. Which means that the buffer may be empty again.
    But if we have an if-statement instead of a while loop, after `cond_wait(not_empty, mutex)` reacquires 
-   the mutex it will exit without rechecking the condition whether the buffer is empty and continue with the next statement, which is usually popping the item from the buffer. But this will cause an error since the buffer is empty. Therefore after exiting `cond_wait()` the consumer must recheck the condition, which is realized
-   with a while-loop
-4. The signal goes undetected, it is not stored or rememberd. But this is not wrong
-5. `S` is incremented, which means that the signal is 'remembered', in contrast with the condition variable case.
-6. when all waiting threads must be awaken simultaneously. For example if the buffer is empty and production is finished in the producer-consumer example, the sleeping threads must be all waken up. Otherwise they will wait indefinitely, since no new items will arrive and therefore the producer will not send a signal to wake them up.
+   the mutex it will exit without rechecking the condition whether the buffer is empty and continue with the next statement, which is usually popping the item from the buffer. But this will cause an error since the buffer is empty. Therefore after exiting `cond_wait()` the consumer must recheck the condition, which is realized 
+   with a while loop
+
+   more concisely: 
+
+   A notification only means that the predicate may now be true. Before the awakened consumer reacquires the mutex, another consumer may consume the item; wakeups may also be spurious. Therefore, the consumer must recheck count == 0 after every wakeup, which requires while, not if.
+4. The signal goes undetected, it is not stored or rememberd. This is not necessarily an error because the
+   shared predicate is persistent. A later consumer checks `count` while holding the mutex and will not wait if an
+   item is already available.
+5. `S` is incremented, which means that the signal is 'remembered', and a later `wait(S)` can consumer that permit
+6. when all waiting threads must be able continue. For example if the buffer is empty and production is finished in the producer-consumer example, the sleeping threads must all continue. Otherwise they will wait indefinitely, since no new items will arrive and therefore the producer will not send a signal to wake them up.
 
 ### Exercise 3
 
@@ -1090,11 +1098,7 @@ Thread B:
    ```
 
 2. deadlock
-3. when two writers are executing the wait statement in  their for loops concurrently, it is guaranteed 
-   that eventually both will be blocked, because there will be remaining for loop executions as S reaches 0,
-   as shown in the above concrete example. This will cause both of them to be blocked before reaching 
-   their critical region and subsequent signal(S) statements, which means that neither of them, nor any blocked
-   readers will be able to wake up. This is a deadlock
+3. In this interleaving, W1 and W2 each hold two permits, while S==0. Each needs two additional permits before it can enter the critical region. Neither reaches unlock_write, so neither can release its already acquired permits. Consequently, both remain blocked forever. More generally, a deadlock occurs if the permits are divided between the writers before either writer acquires all four
 4. answer
    
    ```default
@@ -1108,14 +1112,12 @@ Thread B:
     wait(writer_gate)
     repeat 4 times:
         wait(S)
+    signal(writer_gate)
     
     unlock_write:
-     repeat 4 timtes: signal(S)
-     signal(writer_gate)
+        repeat 4 timtes: signal(S)
     ```
-5. No, this doesn't guarantee that a writer never starves, because continuously arriving readers may
-   acquire and subsequently release S repeatedly, preventing a writer to progress through its for loop
-
+5. No. The gate prevents competing writers from splitting the permits, but it does not prevent newly arriving readers from repeatedly acquiring permits before the waiting writer. Therefore, writer starvation remains possible unless additional fairness—such as a common entry gate or an appropriate FIFO guarantee—is provided.
 
    
 
