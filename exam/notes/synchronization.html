@@ -232,7 +232,11 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#bounded-buffer-producer-consumer-problem" id="toc-bounded-buffer-producer-consumer-problem" class="nav-link" data-scroll-target="#bounded-buffer-producer-consumer-problem">Bounded-buffer producer-consumer problem</a></li>
   </ul></li>
   <li><a href="#producerconsumer-pattern" id="toc-producerconsumer-pattern" class="nav-link" data-scroll-target="#producerconsumer-pattern">Producer–consumer pattern</a></li>
-  <li><a href="#simplified-readwrite-lock" id="toc-simplified-readwrite-lock" class="nav-link" data-scroll-target="#simplified-readwrite-lock">Simplified read–write lock</a></li>
+  <li><a href="#simplified-readwrite-lock" id="toc-simplified-readwrite-lock" class="nav-link" data-scroll-target="#simplified-readwrite-lock">Simplified read–write lock</a>
+  <ul class="collapse">
+  <li><a href="#naive-solution" id="toc-naive-solution" class="nav-link" data-scroll-target="#naive-solution">Naive Solution</a></li>
+  <li><a href="#solving-fairness-problem" id="toc-solving-fairness-problem" class="nav-link" data-scroll-target="#solving-fairness-problem">Solving fairness Problem</a></li>
+  </ul></li>
   <li><a href="#common-exam-traps" id="toc-common-exam-traps" class="nav-link" data-scroll-target="#common-exam-traps">Common exam traps</a></li>
   <li><a href="#exam-like-exercises" id="toc-exam-like-exercises" class="nav-link" data-scroll-target="#exam-like-exercises">Exam-like exercises</a>
   <ul class="collapse">
@@ -243,6 +247,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#answers" id="toc-answers" class="nav-link" data-scroll-target="#answers">Answers</a>
   <ul class="collapse">
   <li><a href="#exercise-1" id="toc-exercise-1" class="nav-link" data-scroll-target="#exercise-1">Exercise 1</a></li>
+  <li><a href="#exercise-2" id="toc-exercise-2" class="nav-link" data-scroll-target="#exercise-2">Exercise 2</a></li>
+  <li><a href="#exercise-3" id="toc-exercise-3" class="nav-link" data-scroll-target="#exercise-3">Exercise 3</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -847,6 +853,25 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </section>
 <section id="simplified-readwrite-lock" class="level2">
 <h2 class="anchored" data-anchor-id="simplified-readwrite-lock">Simplified read–write lock</h2>
+<p>The reader-writer problem arises whenever many threads access the same shared data, where:</p>
+<ul>
+<li>readers only inspect the data and may safely run concurrently</li>
+<li>writers modify the data nad therefore need exclusive access</li>
+</ul>
+<div id="exm-reader-writer" class="theorem example">
+<p><span class="theorem-title"><strong>Example 4.1 (In-memory cache)</strong></span> A web server may maintain a shared cache</p>
+<ul>
+<li>readers: look up cached pages or database results</li>
+<li>writers:
+<ul>
+<li>insert new entries</li>
+<li>remove expoired entries</li>
+<li>refresh existing entries</li>
+</ul></li>
+</ul>
+</div>
+<section id="naive-solution" class="level3">
+<h3 class="anchored" data-anchor-id="naive-solution">Naive Solution</h3>
 <p>Suppose:</p>
 <div class="sourceCode" id="cb32"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a>Semaphore S = N</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>A reader consumes one permit:</p>
@@ -893,6 +918,65 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <p>This repair prevents the writer–writer split deadlock, but it does not necessarily guarantee fairness: continuously arriving readers might still starve a writer.</p>
 <p>One correction to retain from your earlier work: your old Sheet 3 answer identified the interleaved writer acquisition, but described it as permitting simultaneous writing. The direct consequence is instead the deadlock shown above. 14-Operating-Systems-and-Networs-SoSe-25-Solutions.pdf</p>
 </section>
+<section id="solving-fairness-problem" class="level3">
+<h3 class="anchored" data-anchor-id="solving-fairness-problem">Solving fairness Problem</h3>
+<section id="first-approach-sared-entrance-gate" class="level4">
+<h4 class="anchored" data-anchor-id="first-approach-sared-entrance-gate">First approach: sared entrance gate</h4>
+<div class="sourceCode" id="cb37"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>Semaphore S = N</span>
+<span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a>Semaphore entry_gate = 1</span>
+<span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-4"><a href="#cb37-4" aria-hidden="true" tabindex="-1"></a>// reader</span>
+<span id="cb37-5"><a href="#cb37-5" aria-hidden="true" tabindex="-1"></a>lock_read:</span>
+<span id="cb37-6"><a href="#cb37-6" aria-hidden="true" tabindex="-1"></a>    wait(entry_gate)</span>
+<span id="cb37-7"><a href="#cb37-7" aria-hidden="true" tabindex="-1"></a>    wait(S)</span>
+<span id="cb37-8"><a href="#cb37-8" aria-hidden="true" tabindex="-1"></a>    signal(entry_gate)</span>
+<span id="cb37-9"><a href="#cb37-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-10"><a href="#cb37-10" aria-hidden="true" tabindex="-1"></a>unlock_read:</span>
+<span id="cb37-11"><a href="#cb37-11" aria-hidden="true" tabindex="-1"></a>    signal(S)</span>
+<span id="cb37-12"><a href="#cb37-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-13"><a href="#cb37-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-14"><a href="#cb37-14" aria-hidden="true" tabindex="-1"></a>// writer</span>
+<span id="cb37-15"><a href="#cb37-15" aria-hidden="true" tabindex="-1"></a>lock_write:</span>
+<span id="cb37-16"><a href="#cb37-16" aria-hidden="true" tabindex="-1"></a>    wait(entry_gate)</span>
+<span id="cb37-17"><a href="#cb37-17" aria-hidden="true" tabindex="-1"></a>    repeat N times:</span>
+<span id="cb37-18"><a href="#cb37-18" aria-hidden="true" tabindex="-1"></a>        wait(S)</span>
+<span id="cb37-19"><a href="#cb37-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb37-20"><a href="#cb37-20" aria-hidden="true" tabindex="-1"></a>unlock_write:</span>
+<span id="cb37-21"><a href="#cb37-21" aria-hidden="true" tabindex="-1"></a>    repeat N times:</span>
+<span id="cb37-22"><a href="#cb37-22" aria-hidden="true" tabindex="-1"></a>        signal(S)</span>
+<span id="cb37-23"><a href="#cb37-23" aria-hidden="true" tabindex="-1"></a>    signal(entry_gate)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Here, once a writer acquires <code>entry_gate</code></p>
+<ul>
+<li>no new reader can beign acquiring a permit</li>
+<li>existing readers may finish and release their permits</li>
+<li>the writer eventually collects all N permits</li>
+<li>the writer holds both the entrance gate and all permits during its critical region</li>
+</ul>
+<p>But the fairness is still not guaranteed, if the semaphore is completely unfair. It is still possible for newly arriving readers repaetedly to acquire the gate before hte writer:</p>
+<div class="sourceCode" id="cb38"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>reader 1 releases gate</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>reader 2 immediately acquires it</span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>reader 2 releases gate</span>
+<span id="cb38-4"><a href="#cb38-4" aria-hidden="true" tabindex="-1"></a>reader 3 immediately acquires it</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>The the writer could still starve. But with a <strong>fair / FIFO</strong> semaphore</p>
+<div class="sourceCode" id="cb39"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>waiting order</span>
+<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>    writer -&gt; reader 2 -&gt; reader 3</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>new readers cannot overtake the writer.</p>
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+</div>
+<div class="callout-body-container callout-body">
+<p>A fair / FIFO alone would solve the starvation problem but the writer could still wait very long, because its wait requests in the loop could be often intersparsed with the requests of readers continiously arriving</p>
+</div>
+</div>
+</section>
+</section>
+</section>
 <section id="common-exam-traps" class="level2">
 <h2 class="anchored" data-anchor-id="common-exam-traps">Common exam traps</h2>
 <ul>
@@ -917,17 +1001,17 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="exercise-1-race-condition-and-semaphore-repair" class="level3">
 <h3 class="anchored" data-anchor-id="exercise-1-race-condition-and-semaphore-repair">Exercise 1: Race condition and semaphore repair</h3>
 <p>Two threads share:</p>
-<div class="sourceCode" id="cb37"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a>integer counter = 0</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb40"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>integer counter = 0</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Thread A:</p>
-<div class="sourceCode" id="cb38"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>repeat 3 times:</span>
-<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a>    counter = counter + 1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb41"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>repeat 3 times:</span>
+<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a>    counter = counter + 1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Thread B:</p>
-<div class="sourceCode" id="cb39"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a>repeat 2 times:</span>
-<span id="cb39-2"><a href="#cb39-2" aria-hidden="true" tabindex="-1"></a>    counter = counter + 1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb42"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>repeat 2 times:</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>    counter = counter + 1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Assume a single-core system and that an increment consists of:</p>
-<div class="sourceCode" id="cb40"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>LOAD counter into private register R</span>
-<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a>ADD 1 to R</span>
-<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>STORE R into counter</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb43"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>LOAD counter into private register R</span>
+<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a>ADD 1 to R</span>
+<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>STORE R into counter</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <section id="questions" class="level4">
 <h4 class="anchored" data-anchor-id="questions">Questions</h4>
 <ol type="1">
@@ -980,19 +1064,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="part-b-find-the-condition-variable-errors" class="level4">
 <h4 class="anchored" data-anchor-id="part-b-find-the-condition-variable-errors">Part B: Find the condition-variable errors</h4>
 <p>A consumer uses:</p>
-<div class="sourceCode" id="cb41"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb41-1"><a href="#cb41-1" aria-hidden="true" tabindex="-1"></a>lock(mutex)</span>
-<span id="cb41-2"><a href="#cb41-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb41-3"><a href="#cb41-3" aria-hidden="true" tabindex="-1"></a>if (count == 0)</span>
-<span id="cb41-4"><a href="#cb41-4" aria-hidden="true" tabindex="-1"></a>    cond_wait(not_empty, mutex)</span>
-<span id="cb41-5"><a href="#cb41-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb41-6"><a href="#cb41-6" aria-hidden="true" tabindex="-1"></a>item = remove_from_buffer()</span>
-<span id="cb41-7"><a href="#cb41-7" aria-hidden="true" tabindex="-1"></a>count = count - 1</span>
-<span id="cb41-8"><a href="#cb41-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb41-9"><a href="#cb41-9" aria-hidden="true" tabindex="-1"></a>unlock(mutex)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb44"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a>lock(mutex)</span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-3"><a href="#cb44-3" aria-hidden="true" tabindex="-1"></a>if (count == 0)</span>
+<span id="cb44-4"><a href="#cb44-4" aria-hidden="true" tabindex="-1"></a>    cond_wait(not_empty, mutex)</span>
+<span id="cb44-5"><a href="#cb44-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-6"><a href="#cb44-6" aria-hidden="true" tabindex="-1"></a>item = remove_from_buffer()</span>
+<span id="cb44-7"><a href="#cb44-7" aria-hidden="true" tabindex="-1"></a>count = count - 1</span>
+<span id="cb44-8"><a href="#cb44-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb44-9"><a href="#cb44-9" aria-hidden="true" tabindex="-1"></a>unlock(mutex)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>The producer uses:</p>
-<div class="sourceCode" id="cb42"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>add_to_buffer(item)</span>
-<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a>count = count + 1</span>
-<span id="cb42-3"><a href="#cb42-3" aria-hidden="true" tabindex="-1"></a>cond_signal(not_empty)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb45"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>add_to_buffer(item)</span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a>count = count + 1</span>
+<span id="cb45-3"><a href="#cb45-3" aria-hidden="true" tabindex="-1"></a>cond_signal(not_empty)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Answer:</p>
 <ol type="1">
 <li>Identify at least two synchronization errors.</li>
@@ -1007,21 +1091,21 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <section id="exercise-3-debugging-a-semaphore-construction" class="level3">
 <h3 class="anchored" data-anchor-id="exercise-3-debugging-a-semaphore-construction">Exercise 3: Debugging a semaphore construction</h3>
 <p>Let (N=4):</p>
-<div class="sourceCode" id="cb43"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb43-1"><a href="#cb43-1" aria-hidden="true" tabindex="-1"></a>Semaphore S = 4</span>
-<span id="cb43-2"><a href="#cb43-2" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb43-3"><a href="#cb43-3" aria-hidden="true" tabindex="-1"></a>lock_read:</span>
-<span id="cb43-4"><a href="#cb43-4" aria-hidden="true" tabindex="-1"></a>    wait(S)</span>
-<span id="cb43-5"><a href="#cb43-5" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb43-6"><a href="#cb43-6" aria-hidden="true" tabindex="-1"></a>unlock_read:</span>
-<span id="cb43-7"><a href="#cb43-7" aria-hidden="true" tabindex="-1"></a>    signal(S)</span>
-<span id="cb43-8"><a href="#cb43-8" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb43-9"><a href="#cb43-9" aria-hidden="true" tabindex="-1"></a>lock_write:</span>
-<span id="cb43-10"><a href="#cb43-10" aria-hidden="true" tabindex="-1"></a>    for i = 1 to 4:</span>
-<span id="cb43-11"><a href="#cb43-11" aria-hidden="true" tabindex="-1"></a>        wait(S)</span>
-<span id="cb43-12"><a href="#cb43-12" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb43-13"><a href="#cb43-13" aria-hidden="true" tabindex="-1"></a>unlock_write:</span>
-<span id="cb43-14"><a href="#cb43-14" aria-hidden="true" tabindex="-1"></a>    for i = 1 to 4:</span>
-<span id="cb43-15"><a href="#cb43-15" aria-hidden="true" tabindex="-1"></a>        signal(S)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode" id="cb46"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a>Semaphore S = 4</span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>lock_read:</span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>    wait(S)</span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-6"><a href="#cb46-6" aria-hidden="true" tabindex="-1"></a>unlock_read:</span>
+<span id="cb46-7"><a href="#cb46-7" aria-hidden="true" tabindex="-1"></a>    signal(S)</span>
+<span id="cb46-8"><a href="#cb46-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-9"><a href="#cb46-9" aria-hidden="true" tabindex="-1"></a>lock_write:</span>
+<span id="cb46-10"><a href="#cb46-10" aria-hidden="true" tabindex="-1"></a>    for i = 1 to 4:</span>
+<span id="cb46-11"><a href="#cb46-11" aria-hidden="true" tabindex="-1"></a>        wait(S)</span>
+<span id="cb46-12"><a href="#cb46-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb46-13"><a href="#cb46-13" aria-hidden="true" tabindex="-1"></a>unlock_write:</span>
+<span id="cb46-14"><a href="#cb46-14" aria-hidden="true" tabindex="-1"></a>    for i = 1 to 4:</span>
+<span id="cb46-15"><a href="#cb46-15" aria-hidden="true" tabindex="-1"></a>        signal(S)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <ol type="1">
 <li>Give an exact execution involving two writers that leads to failure.</li>
 <li>Classify the failure as:
@@ -1040,6 +1124,233 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <h2 class="anchored" data-anchor-id="answers">Answers</h2>
 <section id="exercise-1" class="level3">
 <h3 class="anchored" data-anchor-id="exercise-1">Exercise 1</h3>
+<ol type="1">
+<li><p>the result of concurrently executing threads depends on the order of execution of individual instructions in the threads, and if various interleaving may cause incorrect results.</p></li>
+<li><p>5</p></li>
+<li><p>table:</p>
+<table class="table">
+<colgroup>
+<col style="width: 10%">
+<col style="width: 13%">
+<col style="width: 21%">
+<col style="width: 27%">
+<col style="width: 27%">
+</colgroup>
+<thead>
+<tr class="header">
+<th><strong>step</strong></th>
+<th><strong>Thread</strong></th>
+<th><strong>Instruction</strong></th>
+<th><strong>private register</strong></th>
+<th><strong>shared <code>counter</code></strong></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>A</td>
+<td>load counter RA</td>
+<td>RA == 0</td>
+<td>0</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>A</td>
+<td>add 1 RA</td>
+<td>RA == 1</td>
+<td>0</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>A</td>
+<td>store RA counter</td>
+<td>RA == 1</td>
+<td>1</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>B</td>
+<td>load counter RB</td>
+<td>RB == 1</td>
+<td>1</td>
+</tr>
+<tr class="odd">
+<td>5</td>
+<td>B</td>
+<td>add 1 RB</td>
+<td>RB == 2</td>
+<td>1</td>
+</tr>
+<tr class="even">
+<td>6</td>
+<td>B</td>
+<td>store RB counter</td>
+<td>RB == 2</td>
+<td>2</td>
+</tr>
+<tr class="odd">
+<td>7</td>
+<td>A</td>
+<td>load counter RA</td>
+<td>RA == 2</td>
+<td>2</td>
+</tr>
+<tr class="even">
+<td>8</td>
+<td>A</td>
+<td>add 1 RA</td>
+<td>RA == 3</td>
+<td>2</td>
+</tr>
+<tr class="odd">
+<td>9</td>
+<td>A</td>
+<td>store RA counter</td>
+<td>RA == 3</td>
+<td>3</td>
+</tr>
+<tr class="even">
+<td>10</td>
+<td>A</td>
+<td>load counter RA</td>
+<td>RA == 3</td>
+<td>3</td>
+</tr>
+<tr class="odd">
+<td>11</td>
+<td>A</td>
+<td>add 1 RA</td>
+<td>RA == 4</td>
+<td>3</td>
+</tr>
+<tr class="even">
+<td>12</td>
+<td>B</td>
+<td>load counter RB</td>
+<td>RB == 3</td>
+<td>3</td>
+</tr>
+<tr class="odd">
+<td>13</td>
+<td>B</td>
+<td>add 1 RB</td>
+<td>RB == 4</td>
+<td>4</td>
+</tr>
+<tr class="even">
+<td>14</td>
+<td>B</td>
+<td>store RB counter</td>
+<td>RB == 4</td>
+<td>4</td>
+</tr>
+<tr class="odd">
+<td>15</td>
+<td>A</td>
+<td>store RB counter</td>
+<td>RA == 4</td>
+<td>4</td>
+</tr>
+</tbody>
+</table></li>
+<li><p>in the above example both threads may be executed on a single cpu. But as the detailed interleaving shows, if a threads A is scheduled before a thread B could store the updated value, causing thread A to load and operate on a past value the update of thread B is lost.</p></li>
+<li><p>code:</p>
+<div class="sourceCode" id="cb47"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>semaphore mutex = 1</span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a>thread A:</span>
+<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a> wait(mutex)</span>
+<span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a> repeat 3 times: counter = counter + 1</span>
+<span id="cb47-6"><a href="#cb47-6" aria-hidden="true" tabindex="-1"></a> signal(mutex)</span>
+<span id="cb47-7"><a href="#cb47-7" aria-hidden="true" tabindex="-1"></a>thread B:</span>
+<span id="cb47-8"><a href="#cb47-8" aria-hidden="true" tabindex="-1"></a> wait(mutex)</span>
+<span id="cb47-9"><a href="#cb47-9" aria-hidden="true" tabindex="-1"></a> repeat 3 times: counter = counter + 1</span>
+<span id="cb47-10"><a href="#cb47-10" aria-hidden="true" tabindex="-1"></a> signal(mutex)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p>answer:</p>
+<ul>
+<li>wait: atomically decrements the value of a semaphore if it is possitive, or blocks the thread and puts it in the waiting queue associated with the semaphore</li>
+<li>signal: atomically increments the value of the semaphore if there are no waiting threads in the queue, or if the queue is not empty it wakes up a waiting thread</li>
+</ul></li>
+<li><p>No, if thread A is holding mutexA and executing its critical region a thread B could still lock mutexB, because it is not held by thread A, and thus enter the critical region. This would mean both threads are executing in their conflicting critical regions.</p></li>
+</ol>
+</section>
+<section id="exercise-2" class="level3">
+<h3 class="anchored" data-anchor-id="exercise-2">Exercise 2</h3>
+<section id="part-a" class="level4">
+<h4 class="anchored" data-anchor-id="part-a">Part A</h4>
+<div class="sourceCode" id="cb48"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb48-1"><a href="#cb48-1" aria-hidden="true" tabindex="-1"></a>Semaphore result_ready = 0</span>
+<span id="cb48-2"><a href="#cb48-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-3"><a href="#cb48-3" aria-hidden="true" tabindex="-1"></a>Thread A:</span>
+<span id="cb48-4"><a href="#cb48-4" aria-hidden="true" tabindex="-1"></a>    wait(result_ready)</span>
+<span id="cb48-5"><a href="#cb48-5" aria-hidden="true" tabindex="-1"></a>    send_result()</span>
+<span id="cb48-6"><a href="#cb48-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb48-7"><a href="#cb48-7" aria-hidden="true" tabindex="-1"></a>Thread B:</span>
+<span id="cb48-8"><a href="#cb48-8" aria-hidden="true" tabindex="-1"></a>    calculate_result()</span>
+<span id="cb48-9"><a href="#cb48-9" aria-hidden="true" tabindex="-1"></a>    signal(result_ready)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</section>
+<section id="part-b" class="level4">
+<h4 class="anchored" data-anchor-id="part-b">Part B</h4>
+<ol type="1">
+<li><p>answer:</p>
+<ul>
+<li>Error 1: <code>cond_wait(not_empty, mutex)</code> should be checked inside a while loop and not an if statement</li>
+<li>Error 2: in producer the access to shared variables must be protected with a mutex lock</li>
+</ul></li>
+<li><p>correction:</p>
+<div class="sourceCode" id="cb49"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a>// consumer:</span>
+<span id="cb49-2"><a href="#cb49-2" aria-hidden="true" tabindex="-1"></a>lock(mutex)</span>
+<span id="cb49-3"><a href="#cb49-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-4"><a href="#cb49-4" aria-hidden="true" tabindex="-1"></a>while (count == 0) :</span>
+<span id="cb49-5"><a href="#cb49-5" aria-hidden="true" tabindex="-1"></a>    cond_wait(not_empty, mutex)</span>
+<span id="cb49-6"><a href="#cb49-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-7"><a href="#cb49-7" aria-hidden="true" tabindex="-1"></a>item = pop(buffer)</span>
+<span id="cb49-8"><a href="#cb49-8" aria-hidden="true" tabindex="-1"></a>count = count - 1</span>
+<span id="cb49-9"><a href="#cb49-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-10"><a href="#cb49-10" aria-hidden="true" tabindex="-1"></a>unlock(mutex)</span>
+<span id="cb49-11"><a href="#cb49-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb49-12"><a href="#cb49-12" aria-hidden="true" tabindex="-1"></a>// producer:</span>
+<span id="cb49-13"><a href="#cb49-13" aria-hidden="true" tabindex="-1"></a>lock(mutex)</span>
+<span id="cb49-14"><a href="#cb49-14" aria-hidden="true" tabindex="-1"></a>push(buffer, item)</span>
+<span id="cb49-15"><a href="#cb49-15" aria-hidden="true" tabindex="-1"></a>count = count + 1</span>
+<span id="cb49-16"><a href="#cb49-16" aria-hidden="true" tabindex="-1"></a>cond_signal(not_empty)</span>
+<span id="cb49-17"><a href="#cb49-17" aria-hidden="true" tabindex="-1"></a>unlock(mutex)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p>after a producer pushes an item into the buffer and sends a signal to <code>not_empty</code>, it doesn’t necessarily mean that a sleeping thread will immediately run. First it becomes ready to run:</p>
+<div class="sourceCode" id="cb50"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>blocked -&gt; ready</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>scheduler may schedule it at an arbitrary point in time. Meanwhile another consumer previously in ready state might be scheduled and already consumed the item. Which means that the buffer may be empty again. But if we have an if-statement instead of a while loop, after <code>cond_wait(not_empty, mutex)</code> reacquires the mutex it will exit without rechecking the condition whether the buffer is empty and continue with the next statement, which is usually popping the item from the buffer. But this will cause an error since the buffer is empty. Therefore after exiting <code>cond_wait()</code> the consumer must recheck the condition, which is realized with a while-loop</p></li>
+<li><p>The signal goes undetected, it is not stored or rememberd. But this is not wrong</p></li>
+<li><p><code>S</code> is incremented, which means that the signal is ‘remembered’, in contrast with the condition variable case.</p></li>
+<li><p>when all waiting threads must be awaken simultaneously. For example if the buffer is empty and production is finished in the producer-consumer example, the sleeping threads must be all waken up. Otherwise they will wait indefinitely, since no new items will arrive and therefore the producer will not send a signal to wake them up.</p></li>
+</ol>
+</section>
+</section>
+<section id="exercise-3" class="level3">
+<h3 class="anchored" data-anchor-id="exercise-3">Exercise 3</h3>
+<ol type="1">
+<li><p>answer:</p>
+<div class="sourceCode" id="cb51"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a>W1: wait(S) // S: 4 -&gt; 3</span>
+<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a>W1: wait(S) // S: 3 -&gt; 2</span>
+<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a>W2: wait(S) // S: 2 -&gt; 1</span>
+<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a>W2: wait(S) // S: 1 -&gt; 0</span>
+<span id="cb51-5"><a href="#cb51-5" aria-hidden="true" tabindex="-1"></a>W1: wait(S) // blocks</span>
+<span id="cb51-6"><a href="#cb51-6" aria-hidden="true" tabindex="-1"></a>W2: wait(S) // blocks</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p>deadlock</p></li>
+<li><p>when two writers are executing the wait statement in their for loops concurrently, it is guaranteed that eventually both will be blocked, because there will be remaining for loop executions as S reaches 0, as shown in the above concrete example. This will cause both of them to be blocked before reaching their critical region and subsequent signal(S) statements, which means that neither of them, nor any blocked readers will be able to wake up. This is a deadlock</p></li>
+<li><p>answer</p>
+<div class="sourceCode" id="cb52"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>Semaphore S = 4</span>
+<span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>Semaphore writer_gate = 1</span>
+<span id="cb52-3"><a href="#cb52-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb52-4"><a href="#cb52-4" aria-hidden="true" tabindex="-1"></a>lock_read: wait(S)</span>
+<span id="cb52-5"><a href="#cb52-5" aria-hidden="true" tabindex="-1"></a>unlock_read: signal(S)</span>
+<span id="cb52-6"><a href="#cb52-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb52-7"><a href="#cb52-7" aria-hidden="true" tabindex="-1"></a>lock_write:</span>
+<span id="cb52-8"><a href="#cb52-8" aria-hidden="true" tabindex="-1"></a> wait(writer_gate)</span>
+<span id="cb52-9"><a href="#cb52-9" aria-hidden="true" tabindex="-1"></a> repeat 4 times:</span>
+<span id="cb52-10"><a href="#cb52-10" aria-hidden="true" tabindex="-1"></a>     wait(S)</span>
+<span id="cb52-11"><a href="#cb52-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb52-12"><a href="#cb52-12" aria-hidden="true" tabindex="-1"></a> unlock_write:</span>
+<span id="cb52-13"><a href="#cb52-13" aria-hidden="true" tabindex="-1"></a>  repeat 4 timtes: signal(S)</span>
+<span id="cb52-14"><a href="#cb52-14" aria-hidden="true" tabindex="-1"></a>  signal(writer_gate)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p>No, this doesn’t guarantee that a writer never starves, because continuously arriving readers may acquire and subsequently release S repeatedly, preventing a writer to progress through its for loop</p></li>
+</ol>
 
 
 </section>
