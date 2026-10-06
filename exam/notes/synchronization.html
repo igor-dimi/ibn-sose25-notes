@@ -1125,7 +1125,7 @@ Note
 <section id="exercise-1" class="level3">
 <h3 class="anchored" data-anchor-id="exercise-1">Exercise 1</h3>
 <ol type="1">
-<li><p>the result of concurrently executing threads depends on the order of execution of individual instructions in the threads, and if various interleaving may cause incorrect results.</p></li>
+<li><p>a race condition occurs when the reseult of a program depends on the timing or interleaving of unsynchronized accesses to shared state, with at least one acccess modifying that state, so that some interleavings can produce an incorrect result</p></li>
 <li><p>5</p></li>
 <li><p>table:</p>
 <table class="table">
@@ -1235,7 +1235,7 @@ Note
 <td>B</td>
 <td>add 1 RB</td>
 <td>RB == 4</td>
-<td>4</td>
+<td>3</td>
 </tr>
 <tr class="even">
 <td>14</td>
@@ -1247,27 +1247,29 @@ Note
 <tr class="odd">
 <td>15</td>
 <td>A</td>
-<td>store RB counter</td>
+<td>store RA counter</td>
 <td>RA == 4</td>
 <td>4</td>
 </tr>
 </tbody>
 </table></li>
-<li><p>in the above example both threads may be executed on a single cpu. But as the detailed interleaving shows, if a threads A is scheduled before a thread B could store the updated value, causing thread A to load and operate on a past value the update of thread B is lost.</p></li>
+<li><p>A race condition does not require physical parallelism. On a single-core CPU, the scheduler may preempt one thread between its <code>LOAD</code> and <code>STORE</code> instruction and run the other thread. The resulting interleaving allows both treads to operate on the same stale value</p></li>
 <li><p>code:</p>
 <div class="sourceCode" id="cb47"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>semaphore mutex = 1</span>
 <span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a>thread A:</span>
-<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a> wait(mutex)</span>
-<span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a> repeat 3 times: counter = counter + 1</span>
-<span id="cb47-6"><a href="#cb47-6" aria-hidden="true" tabindex="-1"></a> signal(mutex)</span>
-<span id="cb47-7"><a href="#cb47-7" aria-hidden="true" tabindex="-1"></a>thread B:</span>
-<span id="cb47-8"><a href="#cb47-8" aria-hidden="true" tabindex="-1"></a> wait(mutex)</span>
-<span id="cb47-9"><a href="#cb47-9" aria-hidden="true" tabindex="-1"></a> repeat 3 times: counter = counter + 1</span>
-<span id="cb47-10"><a href="#cb47-10" aria-hidden="true" tabindex="-1"></a> signal(mutex)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a> repeat 3 times: </span>
+<span id="cb47-5"><a href="#cb47-5" aria-hidden="true" tabindex="-1"></a>     wait(mutex)</span>
+<span id="cb47-6"><a href="#cb47-6" aria-hidden="true" tabindex="-1"></a>     counter = counter + 1</span>
+<span id="cb47-7"><a href="#cb47-7" aria-hidden="true" tabindex="-1"></a>     signal(mutex)</span>
+<span id="cb47-8"><a href="#cb47-8" aria-hidden="true" tabindex="-1"></a>thread B:</span>
+<span id="cb47-9"><a href="#cb47-9" aria-hidden="true" tabindex="-1"></a> repeat 2 times: </span>
+<span id="cb47-10"><a href="#cb47-10" aria-hidden="true" tabindex="-1"></a>     wait(mutex)</span>
+<span id="cb47-11"><a href="#cb47-11" aria-hidden="true" tabindex="-1"></a>     counter = counter + 1</span>
+<span id="cb47-12"><a href="#cb47-12" aria-hidden="true" tabindex="-1"></a>     signal(mutex)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
 <li><p>answer:</p>
 <ul>
-<li>wait: atomically decrements the value of a semaphore if it is possitive, or blocks the thread and puts it in the waiting queue associated with the semaphore</li>
+<li>wait: atomically decrements the value of a semaphore if it is possitive, otherwise blocks the calling thread and places it in the waiting queue associated with the semaphore</li>
 <li>signal: atomically increments the value of the semaphore if there are no waiting threads in the queue, or if the queue is not empty it wakes up a waiting thread</li>
 </ul></li>
 <li><p>No, if thread A is holding mutexA and executing its critical region a thread B could still lock mutexB, because it is not held by thread A, and thus enter the critical region. This would mean both threads are executing in their conflicting critical regions.</p></li>
@@ -1315,10 +1317,12 @@ Note
 <span id="cb49-17"><a href="#cb49-17" aria-hidden="true" tabindex="-1"></a>unlock(mutex)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
 <li><p>after a producer pushes an item into the buffer and sends a signal to <code>not_empty</code>, it doesn’t necessarily mean that a sleeping thread will immediately run. First it becomes ready to run:</p>
 <div class="sourceCode" id="cb50"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb50-1"><a href="#cb50-1" aria-hidden="true" tabindex="-1"></a>blocked -&gt; ready</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<p>scheduler may schedule it at an arbitrary point in time. Meanwhile another consumer previously in ready state might be scheduled and already consumed the item. Which means that the buffer may be empty again. But if we have an if-statement instead of a while loop, after <code>cond_wait(not_empty, mutex)</code> reacquires the mutex it will exit without rechecking the condition whether the buffer is empty and continue with the next statement, which is usually popping the item from the buffer. But this will cause an error since the buffer is empty. Therefore after exiting <code>cond_wait()</code> the consumer must recheck the condition, which is realized with a while-loop</p></li>
-<li><p>The signal goes undetected, it is not stored or rememberd. But this is not wrong</p></li>
-<li><p><code>S</code> is incremented, which means that the signal is ‘remembered’, in contrast with the condition variable case.</p></li>
-<li><p>when all waiting threads must be awaken simultaneously. For example if the buffer is empty and production is finished in the producer-consumer example, the sleeping threads must be all waken up. Otherwise they will wait indefinitely, since no new items will arrive and therefore the producer will not send a signal to wake them up.</p></li>
+<p>scheduler may schedule it at an arbitrary point in time. Meanwhile another consumer previously in ready state might be scheduled and already consumed the item. Which means that the buffer may be empty again. But if we have an if-statement instead of a while loop, after <code>cond_wait(not_empty, mutex)</code> reacquires the mutex it will exit without rechecking the condition whether the buffer is empty and continue with the next statement, which is usually popping the item from the buffer. But this will cause an error since the buffer is empty. Therefore after exiting <code>cond_wait()</code> the consumer must recheck the condition, which is realized with a while loop</p>
+<p>more concisely:</p>
+<p>A notification only means that the predicate may now be true. Before the awakened consumer reacquires the mutex, another consumer may consume the item; wakeups may also be spurious. Therefore, the consumer must recheck count == 0 after every wakeup, which requires while, not if.</p></li>
+<li><p>The signal goes undetected, it is not stored or rememberd. This is not necessarily an error because the shared predicate is persistent. A later consumer checks <code>count</code> while holding the mutex and will not wait if an item is already available.</p></li>
+<li><p><code>S</code> is incremented, which means that the signal is ‘remembered’, and a later <code>wait(S)</code> can consumer that permit</p></li>
+<li><p>when all waiting threads must be able continue. For example if the buffer is empty and production is finished in the producer-consumer example, the sleeping threads must all continue. Otherwise they will wait indefinitely, since no new items will arrive and therefore the producer will not send a signal to wake them up.</p></li>
 </ol>
 </section>
 </section>
@@ -1333,7 +1337,7 @@ Note
 <span id="cb51-5"><a href="#cb51-5" aria-hidden="true" tabindex="-1"></a>W1: wait(S) // blocks</span>
 <span id="cb51-6"><a href="#cb51-6" aria-hidden="true" tabindex="-1"></a>W2: wait(S) // blocks</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
 <li><p>deadlock</p></li>
-<li><p>when two writers are executing the wait statement in their for loops concurrently, it is guaranteed that eventually both will be blocked, because there will be remaining for loop executions as S reaches 0, as shown in the above concrete example. This will cause both of them to be blocked before reaching their critical region and subsequent signal(S) statements, which means that neither of them, nor any blocked readers will be able to wake up. This is a deadlock</p></li>
+<li><p>In this interleaving, W1 and W2 each hold two permits, while S==0. Each needs two additional permits before it can enter the critical region. Neither reaches unlock_write, so neither can release its already acquired permits. Consequently, both remain blocked forever. More generally, a deadlock occurs if the permits are divided between the writers before either writer acquires all four</p></li>
 <li><p>answer</p>
 <div class="sourceCode" id="cb52"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a>Semaphore S = 4</span>
 <span id="cb52-2"><a href="#cb52-2" aria-hidden="true" tabindex="-1"></a>Semaphore writer_gate = 1</span>
@@ -1345,11 +1349,11 @@ Note
 <span id="cb52-8"><a href="#cb52-8" aria-hidden="true" tabindex="-1"></a> wait(writer_gate)</span>
 <span id="cb52-9"><a href="#cb52-9" aria-hidden="true" tabindex="-1"></a> repeat 4 times:</span>
 <span id="cb52-10"><a href="#cb52-10" aria-hidden="true" tabindex="-1"></a>     wait(S)</span>
-<span id="cb52-11"><a href="#cb52-11" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb52-12"><a href="#cb52-12" aria-hidden="true" tabindex="-1"></a> unlock_write:</span>
-<span id="cb52-13"><a href="#cb52-13" aria-hidden="true" tabindex="-1"></a>  repeat 4 timtes: signal(S)</span>
-<span id="cb52-14"><a href="#cb52-14" aria-hidden="true" tabindex="-1"></a>  signal(writer_gate)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
-<li><p>No, this doesn’t guarantee that a writer never starves, because continuously arriving readers may acquire and subsequently release S repeatedly, preventing a writer to progress through its for loop</p></li>
+<span id="cb52-11"><a href="#cb52-11" aria-hidden="true" tabindex="-1"></a> signal(writer_gate)</span>
+<span id="cb52-12"><a href="#cb52-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb52-13"><a href="#cb52-13" aria-hidden="true" tabindex="-1"></a> unlock_write:</span>
+<span id="cb52-14"><a href="#cb52-14" aria-hidden="true" tabindex="-1"></a>     repeat 4 timtes: signal(S)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div></li>
+<li><p>No.&nbsp;The gate prevents competing writers from splitting the permits, but it does not prevent newly arriving readers from repeatedly acquiring permits before the waiting writer. Therefore, writer starvation remains possible unless additional fairness—such as a common entry gate or an appropriate FIFO guarantee—is provided.</p></li>
 </ol>
 
 
