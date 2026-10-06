@@ -661,6 +661,25 @@ Do not acquire `mutex` before waiting for `empty` or `full`. Otherwise a thread 
 
 ## Simplified read–write lock
 
+The reader-writer problem arises whenever many threads access the same shared data, where:
+
+* readers only inspect the data and may safely run concurrently
+* writers modify the data nad therefore need exclusive access
+
+::: {#exm-reader-writer}
+## In-memory cache
+
+A web server may maintain a shared cache
+
+* readers: look up cached pages or database results
+* writers: 
+  * insert new entries
+  * remove expoired entries
+  * refresh existing entries
+:::
+
+### Naive Solution
+
 Suppose:
 
 ```default
@@ -730,6 +749,79 @@ Only one writer may now attempt the multi-step acquisition.
 This repair prevents the writer–writer split deadlock, but it does not necessarily guarantee fairness: continuously arriving readers might still starve a writer.
 
 One correction to retain from your earlier work: your old Sheet 3 answer identified the interleaved writer acquisition, but described it as permitting simultaneous writing. The direct consequence is instead the deadlock shown above. 14-Operating-Systems-and-Networs-SoSe-25-Solutions.pdf
+
+### Solving fairness Problem
+
+#### First approach: sared entrance gate
+
+```default
+Semaphore S = N
+Semaphore entry_gate = 1
+
+// reader
+lock_read:
+    wait(entry_gate)
+    wait(S)
+    signal(entry_gate)
+
+unlock_read:
+    signal(S)
+
+
+// writer
+lock_write:
+    wait(entry_gate)
+    repeat N times:
+        wait(S)
+
+unlock_write:
+    repeat N times:
+        signal(S)
+    signal(entry_gate)
+```
+
+Here, once a writer acquires `entry_gate`
+
+* no new reader can beign acquiring a permit
+* existing readers may finish and release their permits
+* the writer eventually collects all N permits
+* the writer holds both the entrance gate and all permits during its critical region
+
+But the fairness is still not guaranteed, if the semaphore is completely unfair. 
+It is still possible for newly arriving readers repaetedly to acquire the gate
+before hte writer:
+
+```default
+reader 1 releases gate
+reader 2 immediately acquires it
+reader 2 releases gate
+reader 3 immediately acquires it
+```
+
+The the writer could still starve. But with a **fair / FIFO** semaphore
+
+```default
+waiting order
+    writer -> reader 2 -> reader 3
+```
+
+new readers cannot overtake the writer. 
+
+::: {.callout-note}
+
+A fair / FIFO alone would solve the starvation problem
+but the writer could still wait very long, because its 
+wait requests in the loop could be often intersparsed 
+with the requests of readers continiously arriving
+
+:::
+
+
+
+
+
+
+
 
 ## Common exam traps
 
@@ -875,9 +967,156 @@ unlock_write:
 
 ## Answers 
 
-
-
-
 ### Exercise 1
+
+1. the result of concurrently executing threads depends on the order of execution of individual instructions
+   in the threads, and if various interleaving may cause incorrect results.
+2. 5
+3. table:
+
+   | **step** | **Thread** | **Instruction**  | **private register** | **shared `counter`** |
+   | -------- | ---------- | ---------------- | -------------------- | -------------------- |
+   | 1        | A          | load counter RA  | RA == 0              | 0                    |
+   | 2        | A          | add 1 RA         | RA == 1              | 0                    |
+   | 3        | A          | store RA counter | RA == 1              | 1                    |
+   | 4        | B          | load counter RB  | RB == 1              | 1                    |
+   | 5        | B          | add 1 RB         | RB == 2              | 1                    |
+   | 6        | B          | store RB counter | RB == 2              | 2                    |
+   | 7        | A          | load counter RA  | RA == 2              | 2                    |
+   | 8        | A          | add 1 RA         | RA == 3              | 2                    |
+   | 9        | A          | store RA counter | RA == 3              | 3                    |
+   | 10       | A          | load counter RA  | RA == 3              | 3                    |
+   | 11       | A          | add 1 RA         | RA == 4              | 3                    |
+   | 12       | B          | load counter RB  | RB == 3              | 3                    |
+   | 13       | B          | add 1 RB         | RB == 4              | 4                    |
+   | 14       | B          | store RB counter | RB == 4              | 4                    |
+   | 15       | A          | store RB counter | RA == 4              | 4                    |
+
+4. in the above example both threads may be executed on a single cpu. But as the detailed interleaving
+   shows, if a threads A is scheduled before a thread B could store the updated value, causing 
+   thread A to load and operate on a past value the update of thread B is lost. 
+5. code:
+   
+   ```default
+   semaphore mutex = 1
+
+   thread A:
+    wait(mutex)
+    repeat 3 times: counter = counter + 1
+    signal(mutex)
+   thread B:
+    wait(mutex)
+    repeat 3 times: counter = counter + 1
+    signal(mutex)
+   ```
+6. answer:
+   * wait: atomically decrements the value of a semaphore if it is possitive, or blocks the thread and puts 
+     it in the waiting queue associated with the semaphore
+   * signal: atomically increments the value of the semaphore if there are no waiting threads in the queue,
+     or if the queue is not empty it wakes up a waiting thread
+7. No, if thread A is holding mutexA and executing its critical region a thread B could still lock mutexB, 
+   because it is not held by thread A, and thus enter the critical region. This would mean both threads are
+   executing in their conflicting critical regions. 
+
+### Exercise 2
+
+#### Part A
+
+```default
+Semaphore result_ready = 0
+
+Thread A:
+    wait(result_ready)
+    send_result()
+
+Thread B:
+    calculate_result()
+    signal(result_ready)
+```
+
+#### Part B
+
+1. answer:
+    * Error 1: `cond_wait(not_empty, mutex)` should be checked inside a while loop
+    and not an if statement
+    * Error 2: in producer the access to shared variables must be protected with a mutex lock
+2. correction:
+
+    ```default
+    // consumer:
+    lock(mutex)
+
+    while (count == 0) :
+        cond_wait(not_empty, mutex)
+    
+    item = pop(buffer)
+    count = count - 1
+
+    unlock(mutex)
+
+    // producer:
+    lock(mutex)
+    push(buffer, item)
+    count = count + 1
+    cond_signal(not_empty)
+    unlock(mutex)
+    ```
+3. after a producer pushes an item into the buffer and sends  a signal to `not_empty`, it doesn't necessarily mean 
+   that a sleeping thread will immediately run. First it becomes ready to run: 
+
+   ```default
+   blocked -> ready
+   ```
+
+   scheduler may schedule it at an arbitrary point in time. Meanwhile another consumer previously in ready state might be scheduled and already consumed the item. Which means that the buffer may be empty again.
+   But if we have an if-statement instead of a while loop, after `cond_wait(not_empty, mutex)` reacquires 
+   the mutex it will exit without rechecking the condition whether the buffer is empty and continue with the next statement, which is usually popping the item from the buffer. But this will cause an error since the buffer is empty. Therefore after exiting `cond_wait()` the consumer must recheck the condition, which is realized
+   with a while-loop
+4. The signal goes undetected, it is not stored or rememberd. But this is not wrong
+5. `S` is incremented, which means that the signal is 'remembered', in contrast with the condition variable case.
+6. when all waiting threads must be awaken simultaneously. For example if the buffer is empty and production is finished in the producer-consumer example, the sleeping threads must be all waken up. Otherwise they will wait indefinitely, since no new items will arrive and therefore the producer will not send a signal to wake them up.
+
+### Exercise 3
+
+1. answer:
+   
+   ```default
+   W1: wait(S) // S: 4 -> 3
+   W1: wait(S) // S: 3 -> 2
+   W2: wait(S) // S: 2 -> 1
+   W2: wait(S) // S: 1 -> 0
+   W1: wait(S) // blocks
+   W2: wait(S) // blocks
+   ```
+
+2. deadlock
+3. when two writers are executing the wait statement in  their for loops concurrently, it is guaranteed 
+   that eventually both will be blocked, because there will be remaining for loop executions as S reaches 0,
+   as shown in the above concrete example. This will cause both of them to be blocked before reaching 
+   their critical region and subsequent signal(S) statements, which means that neither of them, nor any blocked
+   readers will be able to wake up. This is a deadlock
+4. answer
+   
+   ```default
+   Semaphore S = 4
+   Semaphore writer_gate = 1
+
+   lock_read: wait(S)
+   unlock_read: signal(S)
+
+   lock_write:
+    wait(writer_gate)
+    repeat 4 times:
+        wait(S)
+    
+    unlock_write:
+     repeat 4 timtes: signal(S)
+     signal(writer_gate)
+    ```
+5. No, this doesn't guarantee that a writer never starves, because continuously arriving readers may
+   acquire and subsequently release S repeatedly, preventing a writer to progress through its for loop
+
+
+   
 
 
