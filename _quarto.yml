@@ -25,6 +25,7 @@ book:
       - exam/notes/processes_and_fork.qmd
       - exam/notes/synchronization.qmd
       - exam/notes/paging_1.qmd
+      - exam/notes/paging_2.qmd
       # - exam/notes/assisted_review.qmd
       # - exam/notes/01.qmd
       # - exam/notes/02.qmd

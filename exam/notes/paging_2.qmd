@@ -1,0 +1,769 @@
+#  Advanced paging and virtual memory
+
+Day 3 established how a virtual page number maps to a physical frame. Today adds three mechanisms:
+
+- **Hierarchical page tables** organize large, mostly unused mapping tables.
+- **The TLB** speeds up address translation.
+- **Demand paging and page replacement** manage pages that are not all resident in RAM.
+
+The strongest direct Day 4 evidence in the **2016 exam** is the question about approximating last-access times using hardware reference bits. Multilevel tables, TLB calculations, and replacement traces are supported primarily by the assignments and the explicit study plan. The **2026 memory protocol** confirms paging’s importance but does not explicitly report these advanced mechanisms.
+
+Throughout this unit, memory is byte-addressable, page sizes are powers of two, and KiB/MiB use binary units.
+
+## 1. Hierarchical page tables
+
+### Why divide a page table into levels?
+
+A full flat page table contains one entry for **every possible virtual page**, including unused virtual regions.
+
+For example, 32-bit virtual addresses and 4 KiB pages give:
+
+$$
+2^{32-12}=2^{20}
+$$
+
+entries. At four bytes per entry, that is **4 MiB per process**, even if the process uses little memory.
+
+A hierarchical table divides this mapping into smaller tables. The root contains references to tables at the next level; only the final level contains mappings to **data frames**.
+
+Its main space advantage is:
+
+> Tables for unused virtual-address regions need not be allocated.
+
+Hierarchy does **not** make a fully populated table smaller. When every possible mapping is represented, the leaf entries still exist, and the upper levels add overhead.
+
+### Address decomposition and translation
+
+With $v$-bit virtual addresses, page size $2^n$ bytes, and $k$ table levels:
+
+$$
+\boxed{v=b_1+b_2+\cdots+b_k+n}
+$$
+
+Here, $b_i$ is the number of bits indexing level $i$; the final $n$ bits are the offset.
+
+For three levels:
+
+| Virtual-address field | Function |
+|---|---|
+| $i_1$: $b_1$ bits | Select an entry in the root table |
+| $i_2$: $b_2$ bits | Select an entry in the chosen level-2 table |
+| $i_3$: $b_3$ bits | Select an entry in the chosen leaf table |
+| $d$: $n$ bits | Select a byte within the mapped data frame |
+
+The translation proceeds as follows:
+
+1. The current process’s page-table root address identifies the root.
+2. Root entry $i_1$ identifies the physical base address of a level-2 table.
+3. Entry $i_2$ of that table identifies a leaf table.
+4. Leaf entry $i_3$ contains the data-frame number $f$, together with flags.
+5. Form the physical address:
+
+$$
+A=f\,2^n+d.
+$$
+
+**The offset remains unchanged.** The table levels collectively translate the virtual page number.
+
+If entries occupy $E_i$ bytes, the selected entry at level $i$ is located at:
+
+$$
+\text{table base}+i_iE_i.
+$$
+
+Intermediate entries identify **next-level tables**; leaf entries identify **data frames**. Confusing those contents is a common mistake.
+
+### Counting tables and entries
+
+An index with $b_i$ bits selects among $2^{b_i}$ entries in **one table** at that level.
+
+For a fully populated three-level hierarchy:
+
+| Level | Number of tables | Entries per table | Total entries at that level |
+|---|---:|---:|---:|
+| 1 | $1$ | $2^{b_1}$ | $2^{b_1}$ |
+| 2 | $2^{b_1}$ | $2^{b_2}$ | $2^{b_1+b_2}$ |
+| 3 | $2^{b_1+b_2}$ | $2^{b_3}$ | $2^{b_1+b_2+b_3}$ |
+
+Thus, with $E$ bytes per entry at every level:
+
+$$
+\boxed{
+T_{\max}
+=
+E\left(
+2^{b_1}
++
+2^{b_1+b_2}
++
+2^{b_1+b_2+b_3}
+\right)
+}
+$$
+
+More generally:
+
+$$
+T_{\max}
+=
+\sum_{i=1}^{k}E_i\,2^{b_1+\cdots+b_i}.
+$$
+
+This counts **page-table storage only**, excluding the process’s data pages.
+
+### Short worked example
+
+Suppose a system has:
+
+- 24-bit virtual addresses;
+- 256-byte pages;
+- two levels, each using eight index bits;
+- four-byte entries.
+
+The address split is:
+
+$$
+\underbrace{i_1}_{8}
+\mid
+\underbrace{i_2}_{8}
+\mid
+\underbrace{d}_{8}.
+$$
+
+Each table has 256 entries and occupies:
+
+$$
+256\cdot4=1\text{ KiB}.
+$$
+
+The maximum hierarchy contains one root and 256 leaf tables:
+
+$$
+T_{\max}=257\text{ KiB}.
+$$
+
+If the process uses pages in only **two root-index regions**, it needs one root and two leaf tables:
+
+$$
+T_{\text{allocated}}=3\text{ KiB}.
+$$
+
+This assumes complete tables are allocated and ignores allocator overhead. Even if only one entry in a leaf table is used, the whole leaf table occupies 1 KiB.
+
+**Do not assume a table occupies exactly one page.** That is a common design choice, but follows only when the specified entry count and entry size make it true.
+
+---
+
+## 2. The TLB: caching translations
+
+A **Translation Lookaside Buffer**, or TLB, is a small, fast hardware cache of page translations.
+
+Conceptually, an entry contains:
+
+$$
+(\text{address-space identity},\text{virtual page})
+\longrightarrow
+(\text{physical frame},\text{permissions}).
+$$
+
+It caches a **translation**, rather than the page’s data.
+
+### Hit and miss
+
+For a permitted access:
+
+| Event | What happens |
+|---|---|
+| **TLB hit** | Obtain the frame number from the TLB; access the data at $fP+d$ |
+| **TLB miss, page resident** | Walk the page table, obtain the mapping, refill the TLB, and complete the access |
+| **TLB miss, page nonresident** | The page-table lookup detects absence; a page fault transfers control to the OS |
+
+A TLB miss therefore **does not imply a page fault**.
+
+A page-table walk may be performed by hardware or by software, depending on the architecture. For these exercises, the essential point is the extra translation work on a miss.
+
+### Why a small TLB helps
+
+Programs exhibit:
+
+- **Temporal locality:** recently accessed pages are often accessed again.
+- **Spatial locality:** nearby addresses often lie within the same page.
+
+For example, a page-aligned array of four-byte integers contains 1,024 integers per 4 KiB page. Sequentially reading those integers reuses one translation many times.
+
+The TLB’s nominal **coverage**, sometimes called its reach, is:
+
+$$
+\text{TLB entries}\times\text{page size}.
+$$
+
+A 64-entry TLB with 4 KiB pages can cache translations covering 256 KiB.
+
+Coverage alone does not determine the miss rate. Access order, alignment, associativity, and replacement policy also matter. For a simplified fully associative LRU TLB, repeatedly cycling through more distinct pages than it can hold can produce a miss on every access.
+
+### Quantitative access time
+
+The course explicitly includes this calculation.
+
+Assume:
+
+- $k$ page-table levels;
+- one RAM access per level on a miss;
+- all pages and page tables are resident;
+- no additional caches or overlapping accesses;
+- TLB lookup time $t_{\mathrm{TLB}}$;
+- RAM access time $t_{\mathrm{RAM}}$;
+- TLB hit ratio $h$;
+- **every access first performs a TLB lookup**.
+
+Then:
+
+$$
+t_{\text{hit}}=t_{\mathrm{TLB}}+t_{\mathrm{RAM}},
+$$
+
+$$
+t_{\text{miss}}=t_{\mathrm{TLB}}+(k+1)t_{\mathrm{RAM}}.
+$$
+
+The $+1$ is the actual data access after the $k$ table accesses.
+
+Therefore:
+
+$$
+\boxed{
+\operatorname{EAT}
+=
+h\,t_{\text{hit}}+(1-h)t_{\text{miss}}
+=
+t_{\mathrm{TLB}}+\left[1+k(1-h)\right]t_{\mathrm{RAM}}
+}
+$$
+
+For two levels, $t_{\mathrm{TLB}}=5$ ns, $t_{\mathrm{RAM}}=80$ ns, and $h=0.95$:
+
+$$
+\operatorname{EAT}
+=
+5+[1+2(0.05)]80
+=
+93\text{ ns}.
+$$
+
+Without a TLB, the simplified two-level translation plus data access costs $3\cdot80=240$ ns.
+
+**Convention note:** the supplied solutions omit TLB lookup time from the miss branch. That requires a different timing assumption or an approximation. State your model; with the sequential lookup model above, it belongs in both branches.
+
+These formulas exclude page faults. Fetching a missing page can be much more expensive than a resident-page access.
+
+### Process and thread switches
+
+The same virtual page number can map to different frames in different processes.
+
+Without address-space tags, cached translations must be invalidated when switching address spaces. Otherwise, process B could use process A’s translation.
+
+With address-space identifiers, translations from multiple address spaces can coexist safely if correctly tagged.
+
+Switching between threads that share one address space does **not by itself** require a TLB flush.
+
+---
+
+## 3. Demand paging and page-fault handling
+
+Paging provides address translation. **Demand paging** additionally allows a valid virtual page to be absent from RAM until needed.
+
+A nonresident page may have contents in an executable file, another mapped file, or swap storage. A newly allocated page may instead be initialized with zeros. A page fault therefore does not always require reading an existing page from disk.
+
+For today’s replacement exercises, a **page fault** means that the referenced page is absent from the available frames.
+
+### The basic sequence
+
+When an access references a valid but nonresident page:
+
+1. The hardware detects the missing resident mapping and raises a page fault.
+2. The OS checks whether the access is valid and permitted.
+3. The OS obtains a frame:
+   - use a free frame if one is available;
+   - otherwise select a resident victim page.
+4. If necessary, preserve the victim’s modified contents.
+5. Load or initialize the requested page.
+6. Update page-table entries and invalidate stale cached translations.
+7. Restart the faulting instruction.
+
+An invalid address or forbidden operation cannot be repaired simply by loading a page.
+
+### Page fault versus replacement
+
+**A page fault requires replacement only when no suitable free frame is available.**
+
+Consequently:
+
+- Loading the first page into initially empty memory causes a page fault.
+- It does not evict another page.
+- Once all allocated frames are occupied, a fault requires a victim under the exercise’s fixed-frame model.
+
+There are also two distinct kinds of eviction:
+
+| Eviction | What is removed? |
+|---|---|
+| TLB-entry eviction | A cached translation |
+| Page replacement | A resident page’s contents from its frame |
+
+Removing a TLB entry leaves the page resident.
+
+### Reference and dirty bits
+
+Hardware maintains flags associated with pages:
+
+| Bit | Meaning | Set by |
+|---|---|---|
+| **R / accessed bit** | The page has been referenced since the bit was cleared | Hardware on access |
+| **M / dirty bit** | The page has been modified since its contents were made clean | Hardware on write |
+
+Reads and writes both count as references. A read alone does not make a page dirty.
+
+The OS clears bits when appropriate. A dirty victim generally needs its modified contents preserved before its frame is reused. A clean page with an unchanged backing copy can usually be discarded without write-back.
+
+---
+
+## 4. FIFO, LRU, and Clock
+
+All three policies select among **resident pages** when replacement is necessary.
+
+### FIFO: oldest arrival
+
+**First In, First Out** replaces the page that entered memory earliest.
+
+Maintain a queue from oldest to newest:
+
+- Hit: leave the queue unchanged.
+- Fault with free space: load the page and append it.
+- Fault with full memory: remove the oldest page and append the new page.
+
+A frequently accessed page can still be FIFO’s victim because hits do not renew its arrival time.
+
+### LRU: oldest last access
+
+**Least Recently Used** replaces the page whose most recent access occurred furthest in the past.
+
+For manual simulation, maintain an order from least to most recently used:
+
+- Hit: move the referenced page to the most-recent end.
+- Fault: load the page as most recently used.
+- If memory is full, first remove the least-recent page.
+
+Exact LRU needs recency information updated on **every reference**. Maintaining that precisely can be expensive; hardware bits support cheaper approximations.
+
+### One state illustrating the difference
+
+Suppose three frames receive:
+
+$$
+A,\ B,\ C,\ A.
+$$
+
+All three pages are resident.
+
+- FIFO order: $A,B,C$. Its next victim is **A**.
+- LRU order: $B,C,A$. Its next victim is **B**.
+
+FIFO asks **“Who arrived first?”** LRU asks **“Who was used least recently?”**
+
+### Clock / Second Chance
+
+Clock implements a second-chance policy using:
+
+- frames arranged in a circular order;
+- one reference bit per resident page;
+- a hand pointing to the next candidate.
+
+Use this explicit convention:
+
+- Every completed reference sets the page’s $R=1$, including the reference that loads it.
+- Hits do not move the hand.
+- On replacement:
+  - if the candidate has $R=0$, replace it;
+  - if it has $R=1$, clear the bit and advance;
+  - repeat until a victim is found.
+- Load the new page with $R=1$, then advance the hand to the next frame.
+
+Queue-based Second Chance applies the same idea by moving an oldest page with $R=1$ to the back after clearing its bit. Clock represents that rotation with a circular hand.
+
+**Initialization conventions can change a trace.** Some teaching examples initialize newly loaded pages differently. Always follow the stated convention.
+
+### Why Clock differs from exact LRU
+
+After $A,B,C,A$, suppose all bits are 1 and the hand points to A.
+
+On a fault for D, Clock:
+
+1. Clears A’s bit.
+2. Clears B’s bit.
+3. Clears C’s bit.
+4. Returns to A, now with $R=0$, and replaces it.
+
+Exact LRU would replace B.
+
+Clock knows that all three pages were referenced since their bits were cleared. It does not know the exact ordering of those references.
+
+### Reliable manual tracing
+
+For each reference:
+
+1. Check whether the page is already resident.
+2. Mark **hit** or **fault**.
+3. On a fault, fill a free frame or select a victim.
+4. Update the policy’s metadata.
+5. Record the complete state **after** the reference.
+
+Keep physical frame positions fixed in your table. Record FIFO/LRU order separately; changing recency order does not move page contents between frames.
+
+| Policy | Metadata you must update |
+|---|---|
+| FIFO | Arrival queue; unchanged on hits |
+| LRU | Recency order; updated on every reference |
+| Clock | R bits and hand position |
+
+FIFO can exhibit **Belady’s anomaly**: adding frames can increase faults for some reference strings. Exact LRU does not have this anomaly. Neither FIFO nor LRU wins on every individual reference string.
+
+---
+
+## 5. Approximating recency with R bits
+
+An R bit answers:
+
+> Has this page been referenced at least once since the bit was last cleared?
+
+It does **not** record:
+
+- how many references occurred;
+- their exact times;
+- their ordering relative to references to other pages.
+
+### Periodic sampling
+
+Divide time into **epochs**. At each epoch boundary, the OS conceptually performs:
+
+```text
+for each page-table entry being monitored:
+    if entry.R == 1:
+        entry.last_observed_epoch = current_epoch
+
+    entry.R = 0
+```
+
+During the next epoch, hardware sets the bit again if the page is accessed.
+
+A page with an older `last_observed_epoch` has not been observed in use for longer and is a plausible victim.
+
+However, two pages accessed in the same epoch receive the same approximate timestamp, even if one was accessed at its beginning and the other immediately before the scan.
+
+This is **LRU-like approximation**, not exact LRU.
+
+Real implementations must ensure that clearing the bit makes subsequent accesses observable despite cached translations. For exam purposes, assume the required synchronization and invalidation are included in the stated operation cost.
+
+### Sampling versus Clock
+
+Both use hardware reference bits, but differently:
+
+| Mechanism | When are bits inspected and cleared? |
+|---|---|
+| Periodic epoch sampling | At regular time intervals |
+| Basic Clock | While searching for a victim |
+
+Clock’s hand position and previous scans influence its information. Its bits do not necessarily describe one common sampling interval.
+
+### R-bit scanning overhead
+
+The Sheet 6 A4 model scans full flat page tables.
+
+Let:
+
+- $m$: number of processes;
+- $v$: virtual-address width;
+- $2^n$: page size;
+- $c$: cycles to sample and clear one entry;
+- $f_{\mathrm{CPU}}$: CPU cycles per second.
+
+Then:
+
+$$
+N_{\text{scan}}=m\,2^{v-n},
+$$
+
+$$
+C_{\text{scan}}=c\,m\,2^{v-n},
+$$
+
+$$
+\boxed{
+t_{\text{scan}}
+=
+\frac{c\,m\,2^{v-n}}{f_{\mathrm{CPU}}}
+}
+$$
+
+This counts entries in the stipulated tables. It does **not** require every virtual page to be resident or even allocated.
+
+For the original sheet’s parameters:
+
+$$
+t_{\text{scan}}
+=
+\frac{10\cdot20\cdot2^{20}}{10^9}
+\approx0.2097\text{ s}.
+$$
+
+If scans start every $T$ seconds, including scanning time within that interval, their CPU-time fraction is:
+
+$$
+\boxed{\alpha=\frac{t_{\text{scan}}}{T}}.
+$$
+
+To stay at or below a budget $\alpha_{\max}$:
+
+$$
+\boxed{T\ge\frac{t_{\text{scan}}}{\alpha_{\max}}}.
+$$
+
+For a 10% budget, the original parameters require at least about **2.10 seconds**, rather than exactly 2 seconds.
+
+The tradeoff is:
+
+- **Short epochs:** finer recency information, more scanning overhead.
+- **Long epochs:** less overhead, more references grouped into indistinguishable intervals.
+
+There is no universally correct epoch length. Derive it from the stated budget and explain the loss of precision.
+
+---
+
+## Common exam traps
+
+- **Counting one table instead of a whole level:** distinguish entries per table, tables per level, and total entries per level.
+- **Claiming hierarchy always saves memory:** sparse allocation saves memory; a fully populated hierarchy adds upper-level overhead.
+- **Confusing intermediate pointers with data-frame numbers.**
+- **Equating a TLB miss with a page fault**, or a page fault with an eviction.
+- **Forgetting the final data access** in TLB timing calculations.
+- **Updating FIFO on hits**, or failing to update LRU on hits.
+- **Tracing Clock without specifying the hand and R-bit conventions.**
+- **Treating R bits as exact timestamps:** they record occurrence within an interval, not access order.
+- **Scanning physical frames when the problem specifies full per-process flat tables**, or mixing CPU cycles with seconds.
+
+---
+
+# Exam-like exercises
+
+Allow approximately **55–70 minutes**. Show intermediate states and short explanations. Solutions are intentionally omitted so you can work through these first.
+
+## Exercise 1 — A sparse three-level address space
+
+A machine uses:
+
+- 30-bit virtual byte addresses;
+- 1 KiB pages;
+- three page-table levels with index widths **6, 7, and 7 bits**, from root to leaf;
+- four-byte entries at every level.
+
+Intermediate entries contain physical base addresses of next-level tables. Leaf entries contain data-frame numbers and flags. Complete tables are allocated; ignore alignment padding and other metadata.
+
+### A. Structure and translation
+
+1. Give the address decomposition, including the bit positions of all fields.
+2. Determine entries per table and bytes per table at each level.
+3. A virtual address has fields:
+
+$$
+i_1=5,\quad i_2=9,\quad i_3=17,\quad d=37.
+$$
+
+The root is based at physical address `0x4000`.
+
+- Root entry 5 contains next-table base `0x8000`.
+- Entry 9 of that table contains leaf-table base `0xA000`.
+- Leaf entry 17 maps to frame 73 and permits the access.
+
+Calculate:
+
+- the virtual byte address;
+- the physical address of each of the three selected entries;
+- the resulting physical data address.
+
+### B. Full versus sparse allocation
+
+4. For a fully populated hierarchy, calculate:
+   - the number of tables at each level;
+   - the total entries at each level;
+   - the total page-table memory.
+5. Compare this with a full flat table using four-byte entries. Explain the difference.
+
+The process actually has allocated virtual pages only at these index triples:
+
+$$
+(0,0,0),\quad(0,0,127),\quad(0,3,2),\quad(63,127,127).
+$$
+
+6. Determine the number of allocated tables at each level and the total table memory.
+7. The process additionally allocates page $(0,3,3)$. Does this require another page-table allocation? What about allocating $(0,4,0)$? Explain.
+
+---
+
+## Exercise 2 — Translation misses and missing pages
+
+A system uses two-level page tables and 4 KiB pages.
+
+For process P:
+
+| Virtual page | Page-table state |
+|---|---|
+| 0 | Resident in frame 8, readable |
+| 1 | Resident in frame 3, readable |
+| 2 | Valid and readable, but nonresident |
+
+Initially:
+
+- P’s TLB contains only page $0\rightarrow8$.
+- The TLB can hold all translations used in this exercise.
+- One free data frame, frame 6, is available.
+- Page-table pages are resident.
+- The OS loads page 2 into frame 6 when necessary.
+
+### A. Trace the mechanisms
+
+P performs these reads in order:
+
+$$
+0x0020,\quad0x1040,\quad0x1080,\quad0x2008,\quad0x200C.
+$$
+
+1. For each read, give:
+   - virtual page and offset;
+   - whether the **initial** TLB lookup hits or misses;
+   - whether a page-table walk occurs;
+   - whether a page fault occurs;
+   - whether a resident data page is evicted;
+   - the physical address after successful completion.
+2. Give the total initial TLB misses, page faults, and data-page evictions.
+
+### B. Timing and capacity
+
+Assume a sequential TLB lookup model with:
+
+$$
+t_{\mathrm{TLB}}=8\text{ ns},\qquad
+t_{\mathrm{RAM}}=70\text{ ns},\qquad
+h=0.90.
+$$
+
+3. Calculate hit time, resident-page miss time, and expected access time. Exclude page faults.
+4. A separate workload repeatedly reads one byte from pages:
+
+$$
+4,5,6,7,4,5,6,7,\ldots
+$$
+
+All four pages remain resident. Its initially empty TLB is fully associative, holds three translations, and uses exact LRU. Determine the hit/miss behavior and explain whether it implies page faults.
+
+### C. Address-space identity
+
+5. Process Q maps its page 0 to frame 12. Explain what could go wrong if an untagged TLB retains P’s page-0 translation when switching to Q.
+6. Does switching between two threads of P create the same problem? Explain.
+
+---
+
+## Exercise 3 — Complete FIFO, LRU, and Clock traces
+
+A process has **three initially empty frames**, numbered 0, 1, and 2. All referenced pages are valid. The reference string is:
+
+$$
+A,\ B,\ C,\ A,\ D,\ B,\ E,\ A,\ B,\ C,\ D,\ E.
+$$
+
+### A. FIFO and exact LRU
+
+1. Simulate FIFO and exact LRU separately.
+2. After **every reference**, record:
+   - all three frame contents;
+   - hit or fault;
+   - victim, if any;
+   - FIFO queue or LRU order.
+3. Count page faults and evictions for each policy.
+4. Identify the first reference at which their victim choices differ. Explain using their metadata.
+
+### B. Clock
+
+Use these conventions:
+
+- The hand initially points to frame 0.
+- Empty frames are filled at the hand, then the hand advances.
+- Every loaded or referenced page has $R=1$.
+- Hits leave the hand unchanged.
+- During replacement, clear and pass over candidates with $R=1$.
+- Replace the first candidate with $R=0$, set the new page’s bit to 1, and advance the hand.
+
+5. Simulate Clock for the same complete string.
+6. After each reference, record:
+   - frame contents and R bits;
+   - the hand position;
+   - hit/fault and victim.
+7. At the **first replacement**, list every frame inspected, including repeated inspections. Compare Clock’s victim with exact LRU’s.
+8. Explain why Clock can evict a page whose last access was more recent than another resident page’s last access.
+
+You may use this table layout separately for each policy:
+
+| Step | Reference | Frame 0 | Frame 1 | Frame 2 | Hit/fault | Victim | Policy metadata |
+|---:|---|---|---|---|---|---|---|
+
+---
+
+## Exercise 4 — R-bit evidence and its cost
+
+### A. What can sampling reveal?
+
+Four resident pages A, B, C, and D initially have:
+
+$$
+R=0,\qquad\text{last observed epoch}=0.
+$$
+
+At the end of each epoch, the OS updates the approximate timestamp of every page with $R=1$, then clears all R bits.
+
+The references are:
+
+| Epoch | References in chronological order |
+|---:|---|
+| 1 | A, B, A |
+| 2 | C, B |
+| 3 | A, C |
+
+1. Give every page’s R bit immediately before each scan and its approximate timestamp immediately after each scan.
+2. After epoch 3’s scan, which page would an “oldest observed epoch” policy select first?
+3. Suppose D has already been removed and another victim must immediately be selected among A, B, and C. Which page does exact LRU choose? Which page does the epoch approximation choose?
+4. The OS then needs to distinguish A from C. Can their epoch timestamps establish their exact LRU order? State the actual order from the reference history and explain what sampling lost.
+5. Does accessing A ten times during epoch 3 give its R bit a different value from accessing it once?
+
+### B. Scanning overhead
+
+A different system has:
+
+- 32-bit virtual addresses;
+- 8 KiB pages;
+- 12 processes, each with a full flat page table;
+- a 2 GHz CPU;
+- 16 CPU cycles to read, record, and clear one entry’s R bit.
+
+Assume a single CPU executes the scans sequentially. One scan occurs per epoch.
+
+6. Calculate:
+   - entries scanned per process;
+   - total entries;
+   - cycles per scan;
+   - scan time in milliseconds.
+7. The scan must consume at most **4%** of CPU time. Calculate the minimum epoch duration, measured from the start of one scan to the start of the next.
+8. What fraction of CPU time would scanning consume with 100 ms epochs?
+9. Explain why increasing the epoch duration solves the overhead problem while reducing recency precision.
+10. Only a small fraction of virtual pages are resident. Does that reduce the cost under the specified **full-table scanning model**? What would have to change in the scanning method to exploit sparse residency?
+
+---
+
+The unit follows the plan and prerequisite chapter in 15-Operating-Systems-and-Networks-SoSe-25-Notes.pdf, the mechanisms and calculations in 05-ueb05-ibn-SS2025.pdf and 06-ueb06-ibn-SS2025.pdf, checked against 14-Operating-Systems-and-Networs-SoSe-25-Solutions.pdf and the theoretical framing in 01-ibn-zusammenfassung.pdf. Exam calibration uses 12-ibn-klausur-2016.pdf and 13-Ged-chtnisprotokoll_Klausur\_-IBN_Ersttermin.pdf.
+
