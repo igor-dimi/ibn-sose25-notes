@@ -1,4 +1,4 @@
-# Day 3 — Paging fundamentals
+# Paging fundamentals
 
 The central skill for today is:
 
@@ -28,15 +28,15 @@ For example, virtual pages 0, 1 and 2 could occupy frames 7, 2 and 11. The progr
 
 **Internal fragmentation** is unused space inside an allocated unit. Paging can waste space in a partially used page, for example at the end of a page-aligned buffer.
 
-For a page-aligned region of \(L\) bytes and page size \(P\):
+For a page-aligned region of $L$ bytes and page size $P$:
 
-\[
+$$
 N=\left\lceil\frac{L}{P}\right\rceil,
 \qquad
 \text{allocated bytes}=NP,
 \qquad
 \text{unused bytes}=NP-L.
-\]
+$$
 
 Example: 5,000 bytes with 4 KiB pages require two pages, allocating 8,192 bytes and leaving 3,192 bytes unused.
 
@@ -48,62 +48,62 @@ Assume **byte-addressable memory**: one address identifies one byte. Page and fr
 
 | Symbol | Meaning |
 |---|---|
-| \(V\) | Virtual byte address |
-| \(A\) | Physical byte address |
-| \(P=2^n\) bytes | Page/frame size |
-| \(p\) | Virtual page number |
-| \(f\) | Physical frame number |
-| \(d\) | Offset within the page/frame |
-| \(v\) | Virtual address width in bits |
+| $V$ | Virtual byte address |
+| $A$ | Physical byte address |
+| $P=2^n$ bytes | Page/frame size |
+| $p$ | Virtual page number |
+| $f$ | Physical frame number |
+| $d$ | Offset within the page/frame |
+| $v$ | Virtual address width in bits |
 
 Division with remainder gives:
 
-\[
+$$
 V=pP+d,
-\]
+$$
 
 so:
 
-\[
+$$
 \boxed{p=\left\lfloor\frac{V}{P}\right\rfloor,\qquad d=V\bmod P.}
-\]
+$$
 
 The offset satisfies:
 
-\[
+$$
 0\le d<P.
-\]
+$$
 
-Because \(P=2^n\), the offset occupies the **lowest \(n\) bits**. The page number occupies the remaining **\(v-n\) bits**.
+Because $P=2^n$, the offset occupies the **lowest $n$ bits**. The page number occupies the remaining **$v-n$ bits**.
 
 | Address | Upper bits | Lower bits |
 |---|---|---|
-| Virtual, \(v\) bits | Page number: \(v-n\) bits | Offset: \(n\) bits |
-| Physical, \(w\) bits | Frame number: \(w-n\) bits | Offset: \(n\) bits |
+| Virtual, $v$ bits | Page number: $v-n$ bits | Offset: $n$ bits |
+| Physical, $w$ bits | Frame number: $w-n$ bits | Offset: $n$ bits |
 
-The reasoning is straightforward: \(n\) bits distinguish \(2^n\) byte positions inside one page.
+The reasoning is straightforward: $n$ bits distinguish $2^n$ byte positions inside one page.
 
-For a full \(v\)-bit virtual address space:
+For a full $v$-bit virtual address space:
 
-\[
+$$
 \text{virtual bytes}=2^v,
 \qquad
 \boxed{\text{virtual pages}=2^{v-n}.}
-\]
+$$
 
-For \(R\) bytes of physical RAM, assumed here to consist of complete, consecutively numbered frames:
+For $R$ bytes of physical RAM, assumed here to consist of complete, consecutively numbered frames:
 
-\[
+$$
 \boxed{F=\frac{R}{P}.}
-\]
+$$
 
-Representing \(F\) frame numbers requires:
+Representing $F$ frame numbers requires:
 
-\[
+$$
 \left\lceil\log_2F\right\rceil\text{ bits}.
-\]
+$$
 
-If \(R=2^r\) bytes, this is \(r-n\) bits.
+If $R=2^r$ bytes, this is $r-n$ bits.
 
 **A physical address width does not necessarily mean all those addresses have RAM installed.** Use the stated RAM capacity when counting physical frames.
 
@@ -117,72 +117,72 @@ Take:
 
 Then:
 
-\[
+$$
 P=2^{11}\text{ bytes}
-\]
+$$
 
 means **11 offset bits**.
 
 The virtual page number has:
 
-\[
+$$
 24-11=13\text{ bits},
-\]
+$$
 
-giving \(2^{13}\) possible virtual pages.
+giving $2^{13}$ possible virtual pages.
 
 The RAM contains:
 
-\[
+$$
 \frac{2^{23}}{2^{11}}=2^{12}
-\]
+$$
 
 frames, requiring **12 bits per frame number**.
 
-For \(V=6,197\):
+For $V=6,197$:
 
-\[
+$$
 6197=3\cdot2048+53,
-\]
+$$
 
 so:
 
-\[
+$$
 p=3,\qquad d=53.
-\]
+$$
 
 ### Units and useful calculations
 
 | Unit | Bytes |
 |---|---:|
-| 1 KiB | \(2^{10}=1,024\) |
-| 1 MiB | \(2^{20}=1,048,576\) |
-| 1 GiB | \(2^{30}=1,073,741,824\) |
-| 1 kB | \(10^3=1,000\) |
-| 1 MB | \(10^6=1,000,000\) |
-| 1 GB | \(10^9=1,000,000,000\) |
+| 1 KiB | $2^{10}=1,024$ |
+| 1 MiB | $2^{20}=1,048,576$ |
+| 1 GiB | $2^{30}=1,073,741,824$ |
+| 1 kB | $10^3=1,000$ |
+| 1 MB | $10^6=1,000,000$ |
+| 1 GB | $10^9=1,000,000,000$ |
 
 Also:
 
-\[
+$$
 8\text{ bits}=1\text{ byte}.
-\]
+$$
 
 Thus a **32-bit entry occupies 4 bytes**.
 
 Simplify powers before converting units:
 
-\[
+$$
 \frac{2^a}{2^b}=2^{a-b},
 \qquad
 2^a\cdot2^b=2^{a+b},
-\]
+$$
 
 and, for example:
 
-\[
+$$
 2^{22}\text{ bytes}=4\text{ MiB}.
-\]
+$$
 
 Some course sheets write “KB” while intending a binary page size. State that interpretation where necessary; this unit uses KiB explicitly.
 
@@ -193,7 +193,7 @@ page_number = V / P;
 offset      = V % P;
 ```
 
-For \(P=2^n\), the equivalent operations are `V >> n` and `V & (P - 1)`. Use integer types wide enough for the addresses and calculations.
+For $P=2^n$, the equivalent operations are `V >> n` and `V & (P - 1)`. Use integer types wide enough for the addresses and calculations.
 
 ## 3. Normal page tables and translation
 
@@ -201,9 +201,9 @@ A **normal/direct, single-level page table** (*normale/direkte, einstufige Seite
 
 In the simplified mapping-only model:
 
-\[
+$$
 \operatorname{PT}_{\mathrm{PID}}[p]=f.
-\]
+$$
 
 **The index is the page number; the entry contains the frame number.**
 
@@ -221,23 +221,23 @@ Whether the virtual page belongs to an allocated region must also be known. The 
 
 To translate a permitted access to a resident page:
 
-1. Split \(V\) into \(p\) and \(d\).
-2. Select the current process’s table and obtain \(f\) from entry \(p\).
+1. Split $V$ into $p$ and $d$.
+2. Select the current process’s table and obtain $f$ from entry $p$.
 3. Form the physical address:
 
-\[
+$$
 \boxed{A=fP+d.}
-\]
+$$
 
 **The offset is unchanged.** Paging moves an entire page to a frame while preserving each byte’s position inside it.
 
-Continuing the example, if \(\operatorname{PT}[3]=9\):
+Continuing the example, if $\operatorname{PT}[3]=9$:
 
-\[
+$$
 A=9\cdot2048+53=18,485.
-\]
+$$
 
-Frame 9 is a number; its base address is \(9P\). These are different quantities.
+Frame 9 is a number; its base address is $9P$. These are different quantities.
 
 **Frame 0 is a valid frame**, not automatically an indication that a page is absent.
 
@@ -250,27 +250,27 @@ Do not calculate a successful physical access from an absent or disallowed entry
 
 ### Reconstructing entries from address pairs
 
-If a successful mapping \(V\rightarrow A\) is given, calculate:
+If a successful mapping $V\rightarrow A$ is given, calculate:
 
-\[
+$$
 p=\left\lfloor V/P\right\rfloor,
 \qquad
 d=V\bmod P,
 \qquad
 f=\left\lfloor A/P\right\rfloor.
-\]
+$$
 
 First check:
 
-\[
+$$
 \boxed{V\bmod P=A\bmod P.}
-\]
+$$
 
 Different offsets make the pair **impossible under ordinary paging with that page size**.
 
 For a fixed mapping snapshot, two observations from the **same process and same virtual page** must also produce the same frame. A mapping can change over time, so the snapshot assumption matters.
 
-Once the checks pass, enter \(p\rightarrow f\) in that process’s table.
+Once the checks pass, enter $p\rightarrow f$ in that process’s table.
 
 Multiple observations from one page establish **one entry**, not one entry per observation. Unmentioned pages cannot be classified as unmapped merely because they do not appear in a partial trace.
 
@@ -280,9 +280,9 @@ An **inverted page table** (*invertierte Seitentabelle*) has one entry per **phy
 
 In the basic model with one recorded mapping per occupied frame:
 
-\[
+$$
 \operatorname{IPT}[f]=(\mathrm{PID},p).
-\]
+$$
 
 The frame number is the **index**, so it need not also be stored in the entry. The entry stores the process identifier and virtual page number, plus any specified flags.
 
@@ -291,26 +291,26 @@ The PID is necessary because different processes can use identical virtual page 
 | Property | Normal table | Basic inverted table |
 |---|---|---|
 | One entry for each | Virtual page | Physical frame |
-| Index | Page number \(p\) | Frame number \(f\) |
-| Mapping information stored | Frame number \(f\) | PID and page number \(p\) |
+| Index | Page number $p$ | Frame number $f$ |
+| Mapping information stored | Frame number $f$ | PID and page number $p$ |
 | Organization | One table per process/address space | One system-wide table |
-| Translation lookup | Index the process’s table with \(p\) | Find \((\mathrm{PID},p)\); its row index gives \(f\) |
+| Translation lookup | Index the process’s table with $p$ | Find $(\mathrm{PID},p)$; its row index gives $f$ |
 
 For PID 6 with page 3 in frame 9:
 
-\[
+$$
 \operatorname{PT}_6[3]=9,
 \qquad
 \operatorname{IPT}[9]=(6,3).
-\]
+$$
 
-An inverted table is **not directly indexed by the virtual page number**. Conceptually, translation searches for \((\mathrm{PID},p)\). Practical implementations can accelerate this search; those mechanisms are outside today’s scope.
+An inverted table is **not directly indexed by the virtual page number**. Conceptually, translation searches for $(\mathrm{PID},p)$. Practical implementations can accelerate this search; those mechanisms are outside today’s scope.
 
-Once \(f\) is found:
+Once $f$ is found:
 
-\[
+$$
 A=fP+d
-\]
+$$
 
 still applies.
 
@@ -318,15 +318,15 @@ still applies.
 
 Normal tables express shared memory directly:
 
-\[
+$$
 \operatorname{PT}_A[2]=11,
 \qquad
 \operatorname{PT}_B[5]=11.
-\]
+$$
 
 Both virtual pages map to frame 11. With equal offsets, they refer to the same physical byte.
 
-A basic inverted entry containing only **one** \((\mathrm{PID},p)\) pair cannot represent both mappings in row 11. Supporting this requires additional mapping information, for example a list of aliases or a separate structure.
+A basic inverted entry containing only **one** $(\mathrm{PID},p)$ pair cannot represent both mappings in row 11. Supporting this requires additional mapping information, for example a list of aliases or a separate structure.
 
 **Shared memory is problematic for this simple representation; it is not fundamentally impossible with inverted tables.**
 
@@ -334,7 +334,7 @@ A basic inverted entry containing only **one** \((\mathrm{PID},p)\) pair cannot 
 
 Always separate:
 
-\[
+$$
 \boxed{
 \text{table bytes}
 =
@@ -342,39 +342,39 @@ Always separate:
 \times
 \text{bytes per entry}.
 }
-\]
+$$
 
 ### Normal table
 
-For a **full, flat table** covering every page in a \(v\)-bit virtual address space, with page size \(2^n\) and \(E_N\) bytes per entry:
+For a **full, flat table** covering every page in a $v$-bit virtual address space, with page size $2^n$ and $E_N$ bytes per entry:
 
-\[
+$$
 \boxed{T_N=2^{v-n}E_N\text{ bytes per process}.}
-\]
+$$
 
 The entry count depends on the **virtual address space**, not RAM capacity or the number of resident pages.
 
 Unmapped pages still have slots in this full-table model.
 
-With \(k\) processes, each having its own such table:
+With $k$ processes, each having its own such table:
 
-\[
+$$
 T_{N,\mathrm{total}}=kT_N.
-\]
+$$
 
 ### Inverted table
 
-With \(R\) bytes of RAM, page size \(P\) and \(E_I\) bytes per inverted entry:
+With $R$ bytes of RAM, page size $P$ and $E_I$ bytes per inverted entry:
 
-\[
+$$
 \boxed{T_I=\frac{R}{P}E_I\text{ bytes system-wide}.}
-\]
+$$
 
 Its fraction of RAM is:
 
-\[
+$$
 \boxed{\frac{T_I}{R}=\frac{E_I}{P}.}
-\]
+$$
 
 Multiply by 100 to express this as a percentage.
 
@@ -394,51 +394,51 @@ Assume:
 
 The normal table requires:
 
-\[
+$$
 T_N=2^{28-12}\cdot4
 =2^{18}\text{ bytes}
 =256\text{ KiB per process}.
-\]
+$$
 
 The inverted table requires:
 
-\[
+$$
 T_I=\frac{2^{26}}{2^{12}}\cdot8
 =2^{17}\text{ bytes}
 =128\text{ KiB total}.
-\]
+$$
 
 Its fraction of RAM is:
 
-\[
+$$
 \frac{8}{4096}=\frac1{512},
-\]
+$$
 
 or approximately:
 
-\[
+$$
 0.1953\%.
-\]
+$$
 
 ### Address-field width is not complete entry size
 
-If there are \(2^{14}\) frames, a frame number needs **14 bits**.
+If there are $2^{14}$ frames, a frame number needs **14 bits**.
 
 That does not mean a complete normal PTE occupies 14 bytes, or even exactly 14 bits. Flags, storage alignment and the stipulated format also matter.
 
-If a question specifies a **4-byte entry**, use 4 bytes. If it does not, state your assumed entry size or leave the answer in terms of \(E_N\). This assumption is needed for Sheet 5 A6(1).
+If a question specifies a **4-byte entry**, use 4 bytes. If it does not, state your assumed entry size or leave the answer in terms of $E_N$. This assumption is needed for Sheet 5 A6(1).
 
-For a tightly packed \(B\)-bit inverted entry containing a \((v-n)\)-bit page number and \(s\) flag bits, the remaining PID capacity is:
+For a tightly packed $B$-bit inverted entry containing a $(v-n)$-bit page number and $s$ flag bits, the remaining PID capacity is:
 
-\[
+$$
 b_{\mathrm{PID}}=B-(v-n)-s,
-\]
+$$
 
 giving:
 
-\[
+$$
 2^{b_{\mathrm{PID}}}\text{ possible PID values}.
-\]
+$$
 
 This assumes no other fields and no reserved PID values. It bounds how many process identifiers the format can distinguish; the actual simultaneous process count also depends on other resources.
 
@@ -447,10 +447,10 @@ The frame number and offset need not be stored: **the row identifies the frame, 
 ## Common exam traps
 
 - **Confusing page size with offset width:** 4 KiB means 12 offset bits.
-- **Changing the offset during translation:** valid address pairs have the same remainder modulo \(P\).
-- **Mixing numbers and addresses:** the physical address is \(fP+d\), not \(f+d\).
+- **Changing the offset during translation:** valid address pairs have the same remainder modulo $P$.
+- **Mixing numbers and addresses:** the physical address is $fP+d$, not $f+d$.
 - **Ignoring the PID:** the same virtual address can translate differently in different processes.
-- **Swapping indices and contents:** normal \(p\rightarrow f\); inverted \(f\rightarrow(\mathrm{PID},p)\). Frame 0 is valid.
+- **Swapping indices and contents:** normal $p\rightarrow f$; inverted $f\rightarrow(\mathrm{PID},p)$. Frame 0 is valid.
 - **Confusing entries, bits and bytes:** multiply the entry count by the complete entry size in bytes.
 - **Counting the wrong address space:** normal tables count virtual pages; inverted tables count physical frames.
 - **Mixing binary and decimal units or rounding allocations down:** state KB conventions and use a ceiling for required pages.
@@ -473,7 +473,7 @@ A machine has **16-bit virtual addresses**, **32 KiB RAM** and **2 KiB pages**. 
 | 3 | Frame 0, present, R/W | Not allocated |
 
 1. Determine the offset width, page-number width, number of virtual pages per process, number of physical frames and minimum frame-number width.
-2. Complete the following table. For successful accesses, give \(p,d,f\) and the physical address. Otherwise explain why the access cannot complete normally.
+2. Complete the following table. For successful accesses, give $p,d,f$ and the physical address. Otherwise explain why the access cannot complete normally.
 
 | PID | Operation | Virtual address |
 |---:|---|---|
@@ -502,8 +502,8 @@ A system has **1 KiB pages** and **16 KiB RAM**. These reliable observations wer
 1. Construct the relevant entries of both processes’ normal tables. Show the page, offset and frame for each observation. Explain why five observations do not imply five distinct normal-table entries.
 2. Construct the known rows of one basic system-wide inverted table. Label the row index and contents precisely. Can the observations determine whether the remaining frames are free?
 3. Two additional records are proposed for the same snapshot:
-   - PID 4, \(V=2,100,\ A=11,322\);
-   - PID 4, \(V=1,600,\ A=8,768\).
+   - PID 4, $V=2,100,\ A=11,322$;
+   - PID 4, $V=1,600,\ A=8,768$.
 
    Assess each record. Their problems, if any, are different; explain each precisely.
 
@@ -535,4 +535,440 @@ The scope and style follow the assignment analysis, Day 3 plan and earlier study
 
 Aufgabe 2.1–2.4 of 12-ibn-klausur-2016.pdf directly supports address decomposition, table entries, table sizes and PID-capacity reasoning. Aufgabe 6 in 13-Ged-chtnisprotokoll_Klausur\_-IBN_Ersttermin.pdf additionally supports two-process problems, unit conversions, required-page counts and shared memory. The exercises above are original practice calibrated to that evidence.
 
-One important correction to 14-Operating-Systems-and-Networs-SoSe-25-Solutions.pdf: Sheet 5 A2 gives **\(8203\rightarrow12299\)**, implying **page 2 → frame 3**. The supplied solution changes the physical address and incorrectly concludes frame 2. Also, its Sheet 5 A6 result is exactly **4 MiB**, under the assumed 4-byte normal-entry size.
+One important correction to 14-Operating-Systems-and-Networs-SoSe-25-Solutions.pdf: Sheet 5 A2 gives **$8203\rightarrow12299$**, implying **page 2 → frame 3**. The supplied solution changes the physical address and incorrectly concludes frame 2. Also, its Sheet 5 A6 result is exactly **4 MiB**, under the assumed 4-byte normal-entry size.
+
+Here are the worked solutions, numbered to match the exercises. **All addresses below are decimal unless prefixed with `0x`.**
+
+## Solutions 
+
+### Exercise 1 — Two address spaces and a page boundary
+
+#### 1. Address widths and counts
+
+The page size is:
+
+$$
+P=2\text{ KiB}=2048=2^{11}\text{ bytes}.
+$$
+
+Therefore:
+
+| Quantity | Calculation | Result |
+|---|---|---:|
+| Offset width | $\log_2 2048$ | **11 bits** |
+| Page-number width | $16-11$ | **5 bits** |
+| Virtual pages per process | $2^5$ | **32** |
+| Physical frames | $32\text{ KiB}/2\text{ KiB}$ | **16** |
+| Minimum frame-number width | $\log_2 16$ | **4 bits** |
+
+Virtual page numbers range from 0 to 31; physical frame numbers range from 0 to 15.
+
+#### 2. Address translations and access checks
+
+Use:
+
+$$
+p=\lfloor V/2048\rfloor,\qquad d=V\bmod2048,\qquad A=f\cdot2048+d.
+$$
+
+In particular:
+
+$$
+\texttt{0x0834}=2100=1\cdot2048+52.
+$$
+
+| PID | Operation | Virtual address | $p$ | $d$ | Mapped frame | Result |
+|---:|---|---|---:|---:|---:|---|
+| 11 | Read | `0x0834` | 1 | 52 | 2 | **4,148 = `0x1034`** |
+| 22 | Write | `0x0834` | 1 | 52 | 7 | **14,388 = `0x3834`** |
+| 11 | Write | `0x0834` | 1 | 52 | 2 | **Protection fault:** page is read-only |
+| 11 | Read | `0x1000` | 2 | 0 | — | **Page fault:** allocated but not resident |
+| 22 | Read | `0x1800` | 3 | 0 | — | **Invalid access:** page is not allocated |
+| 11 | Read | `0x1800` | 3 | 0 | 0 | **Physical address 0** |
+
+For the successful accesses:
+
+$$
+2\cdot2048+52=4148,
+\qquad
+7\cdot2048+52=14388,
+\qquad
+0\cdot2048+0=0.
+$$
+
+The nonresident page may be loaded and the instruction retried. An unallocated page or forbidden write is a different situation: loading a page alone does not make that access valid.
+
+#### 3. Shared frame
+
+**Frame 7** is shared:
+
+$$
+\operatorname{PT}_{11}[0]=7,\qquad
+\operatorname{PT}_{22}[1]=7.
+$$
+
+At offset 52:
+
+| Process | Virtual address | Physical address |
+|---|---:|---:|
+| PID 11 | $0\cdot2048+52=\mathbf{52}$ | $7\cdot2048+52=\mathbf{14388}$ |
+| PID 22 | $1\cdot2048+52=\mathbf{2100}$ | $7\cdot2048+52=\mathbf{14388}$ |
+
+The virtual addresses differ because the shared frame is mapped at different virtual page numbers.
+
+#### 4. Crossing a page boundary
+
+For PID 11:
+
+$$
+2047=0\cdot2048+2047.
+$$
+
+Page 0 maps to frame 7:
+
+$$
+A_1=7\cdot2048+2047=\boxed{16383}.
+$$
+
+The next virtual address is:
+
+$$
+2048=1\cdot2048+0.
+$$
+
+Page 1 maps to frame 2:
+
+$$
+A_2=2\cdot2048+0=\boxed{4096}.
+$$
+
+Thus, **successive virtual bytes need not be successive physical bytes**. Within a page, offsets remain consecutive; crossing a page boundary can move to an entirely different physical frame.
+
+### Exercise 2 — Reconstruct and audit the mappings
+
+Here:
+
+$$
+P=1\text{ KiB}=1024\text{ bytes}.
+$$
+
+#### 1. Normal page-table entries
+
+Decompose both addresses:
+
+| PID | $V$ | Virtual page $p$ | Offset $d$ | $A$ | Frame $f$ | Physical offset |
+|---:|---:|---:|---:|---:|---:|---:|
+| 4 | 1,037 | 1 | 13 | 7,181 | 7 | 13 |
+| 9 | 1,037 | 1 | 13 | 2,061 | 2 | 13 |
+| 4 | 2,053 | 2 | 5 | 11,269 | 11 | 5 |
+| 9 | 4,105 | 4 | 9 | 9 | 0 | 9 |
+| 4 | 1,535 | 1 | 511 | 7,679 | 7 | 511 |
+
+For example:
+
+$$
+1037=1\cdot1024+13,\qquad
+7181=7\cdot1024+13.
+$$
+
+The relevant normal-table entries are:
+
+| Process | Entry index: virtual page | Entry content: frame |
+|---|---:|---:|
+| PID 4 | 1 | 7 |
+| PID 4 | 2 | 11 |
+| PID 9 | 1 | 2 |
+| PID 9 | 4 | 0 |
+
+There are **four distinct entries**. The first and fifth observations both describe PID 4’s page 1 mapping to frame 7; they merely access different offsets.
+
+#### 2. Inverted table
+
+The inverted table has:
+
+$$
+16\text{ KiB}/1\text{ KiB}=16
+$$
+
+rows, indexed by frame numbers 0–15.
+
+Its known rows are:
+
+| Row index: frame | Stored PID | Stored virtual page |
+|---:|---:|---:|
+| 0 | 9 | 4 |
+| 2 | 9 | 1 |
+| 7 | 4 | 1 |
+| 11 | 4 | 2 |
+
+Equivalently:
+
+$$
+\operatorname{IPT}[0]=(9,4),\quad
+\operatorname{IPT}[2]=(9,1),\quad
+\operatorname{IPT}[7]=(4,1),\quad
+\operatorname{IPT}[11]=(4,2).
+$$
+
+**The other frames cannot be classified as free.** A partial access trace does not reveal mappings that were never accessed.
+
+#### 3. Audit the additional records
+
+**Record A: PID 4, $V=2100,\ A=11322$**
+
+$$
+2100=2\cdot1024+52,
+$$
+
+but:
+
+$$
+11322=11\cdot1024+58.
+$$
+
+The offsets are **52 and 58**, so this mapping is impossible under the stated paging system. Translation must preserve the offset.
+
+**Record B: PID 4, $V=1600,\ A=8768$**
+
+$$
+1600=1\cdot1024+576,
+\qquad
+8768=8\cdot1024+576.
+$$
+
+The offsets agree, but the record claims:
+
+$$
+\operatorname{PT}_4[1]=8.
+$$
+
+The reliable observations establish:
+
+$$
+\operatorname{PT}_4[1]=7.
+$$
+
+It therefore **contradicts the fixed mapping snapshot**. Offset agreement is necessary, but it does not establish consistency with other observations.
+
+#### 4. Reverse lookup of physical address 2,258
+
+$$
+2258=2\cdot1024+210.
+$$
+
+Thus frame $f=2$, offset $d=210$. Since:
+
+$$
+\operatorname{IPT}[2]=(9,1),
+$$
+
+the corresponding process is **PID 9**, and its virtual address is:
+
+$$
+V=1\cdot1024+210=\boxed{1234}.
+$$
+
+#### 5. Adding shared memory
+
+The new normal-table entry is:
+
+$$
+\boxed{\operatorname{PT}_9[5]=11.}
+$$
+
+Frame 11 now represents both:
+
+$$
+(\mathrm{PID}=4,p=2)
+\quad\text{and}\quad
+(\mathrm{PID}=9,p=5).
+$$
+
+A basic inverted row storing only one pair cannot describe both. An extension could store both pairs in an alias list associated with frame 11.
+
+At offset 17:
+
+| Process | Virtual address |
+|---|---:|
+| PID 4 | $2\cdot1024+17=\mathbf{2065}$ |
+| PID 9 | $5\cdot1024+17=\mathbf{5137}$ |
+
+Their common physical address is:
+
+$$
+A=11\cdot1024+17=\boxed{11281}.
+$$
+
+### Exercise 3 — Memory requirements and entry formats
+
+Given:
+
+$$
+P=8\text{ KiB}=2^{13}\text{ bytes},
+\qquad
+R=512\text{ MiB}=2^{29}\text{ bytes}.
+$$
+
+#### 1. Page/frame counts and widths
+
+| Quantity | Calculation | Result |
+|---|---|---:|
+| Offset width | $\log_2P$ | **13 bits** |
+| Page-number width | $32-13$ | **19 bits** |
+| Virtual pages per process | $2^{19}$ | **524,288** |
+| Physical frames | $2^{29}/2^{13}=2^{16}$ | **65,536** |
+| Minimum frame-number width | $\log_2 2^{16}$ | **16 bits** |
+
+#### 2. Normal-table memory
+
+Each full normal table has $2^{19}$ entries of 4 bytes:
+
+$$
+T_N=2^{19}\cdot4
+=2^{21}\text{ bytes}
+=\boxed{2\text{ MiB per process}}.
+$$
+
+For 12 processes:
+
+$$
+T_{N,\mathrm{total}}=12\cdot2\text{ MiB}
+=\boxed{24\text{ MiB}}.
+$$
+
+As a percentage of RAM:
+
+$$
+\frac{24}{512}\cdot100\%
+=\boxed{4.6875\%}.
+$$
+
+**Only ten resident pages would not reduce these full, flat tables.** Every possible virtual page still has a table slot; nonresident or unallocated pages are represented by appropriate status information.
+
+#### 3. Inverted-table memory
+
+There are $2^{16}$ physical frames and 8 bytes per entry:
+
+$$
+T_I=2^{16}\cdot8
+=2^{19}\text{ bytes}
+=\boxed{512\text{ KiB}}.
+$$
+
+Its percentage of RAM is:
+
+$$
+\frac{2^{19}}{2^{29}}\cdot100\%
+=\frac1{1024}\cdot100\%
+=\boxed{0.09765625\%}.
+$$
+
+The direct consistency check gives:
+
+$$
+\frac{T_I}{R}=\frac{E_I}{P}
+=\frac8{8192}
+=\boxed{\frac1{1024}}.
+$$
+
+This is **one system-wide table**, so no multiplication by 12 is needed.
+
+#### 4. Proposed 32-bit inverted entry
+
+The entry contains:
+
+- virtual page number: **19 bits**;
+- present indicator: **1 bit**;
+- PID: the remaining bits.
+
+Therefore:
+
+$$
+b_{\mathrm{PID}}=32-19-1=\boxed{12\text{ bits}}.
+$$
+
+This accommodates:
+
+$$
+2^{12}=\boxed{4096\text{ PID values}},
+$$
+
+numbered 0–4095 under the assumption that none are reserved.
+
+The frame number is implicit in the **row index**. The offset comes from the **address being translated**.
+
+The result bounds how many process identities this format can distinguish. It does **not prove that 4,096 processes can simultaneously run**: their memory requirements and other resource limits also matter.
+
+#### 5. Buffer allocation and unit conversion
+
+For a **30,000-byte** page-aligned buffer:
+
+$$
+N=\left\lceil\frac{30000}{8192}\right\rceil=\boxed{4}.
+$$
+
+It needs **four data pages and four resident frames**.
+
+Allocated bytes:
+
+$$
+4\cdot8192=32768.
+$$
+
+Unused bytes:
+
+$$
+32768-30000=\boxed{2768\text{ bytes}}.
+$$
+
+For a **30 KiB** buffer:
+
+$$
+L=30\cdot1024=30720\text{ bytes}.
+$$
+
+It still requires four pages, but the unused space is:
+
+$$
+32768-30720=\boxed{2048\text{ bytes}=2\text{ KiB}}.
+$$
+
+Finally:
+
+$$
+512\text{ MiB}=512\cdot2^{20}=536870912\text{ bytes},
+$$
+
+so:
+
+$$
+\boxed{512\text{ MiB}=536.870912\text{ MB}}.
+$$
+
+#### 6. Increasing page size to 16 KiB
+
+The new page size is $2^{14}$ bytes. Doubling page size **halves both entry counts**, while the stipulated entry sizes remain unchanged.
+
+Normal table:
+
+$$
+T_N'=2^{32-14}\cdot4
+=2^{20}\text{ bytes}
+=\boxed{1\text{ MiB per process}}.
+$$
+
+For all 12 processes:
+
+$$
+\boxed{12\text{ MiB total}}.
+$$
+
+Inverted table:
+
+$$
+T_I'=\frac{2^{29}}{2^{14}}\cdot8
+=2^{18}\text{ bytes}
+=\boxed{256\text{ KiB}}.
+$$
+
+One potential cost is **greater internal fragmentation**: a partially used page can leave more allocated space unused.
