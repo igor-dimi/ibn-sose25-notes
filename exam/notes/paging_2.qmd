@@ -551,11 +551,11 @@ There is no universally correct epoch length. Derive it from the stated budget a
 
 ---
 
-# Exam-like exercises
+## Exam-like exercises
 
 Allow approximately **55–70 minutes**. Show intermediate states and short explanations. Solutions are intentionally omitted so you can work through these first.
 
-## Exercise 1 — A sparse three-level address space
+### Exercise 1 — A sparse three-level address space
 
 A machine uses:
 
@@ -566,7 +566,7 @@ A machine uses:
 
 Intermediate entries contain physical base addresses of next-level tables. Leaf entries contain data-frame numbers and flags. Complete tables are allocated; ignore alignment padding and other metadata.
 
-### A. Structure and translation
+#### A. Structure and translation
 
 1. Give the address decomposition, including the bit positions of all fields.
 2. Determine entries per table and bytes per table at each level.
@@ -588,7 +588,7 @@ Calculate:
 - the physical address of each of the three selected entries;
 - the resulting physical data address.
 
-### B. Full versus sparse allocation
+#### B. Full versus sparse allocation
 
 4. For a fully populated hierarchy, calculate:
    - the number of tables at each level;
@@ -607,7 +607,7 @@ $$
 
 ---
 
-## Exercise 2 — Translation misses and missing pages
+### Exercise 2 — Translation misses and missing pages
 
 A system uses two-level page tables and 4 KiB pages.
 
@@ -627,7 +627,7 @@ Initially:
 - Page-table pages are resident.
 - The OS loads page 2 into frame 6 when necessary.
 
-### A. Trace the mechanisms
+#### A. Trace the mechanisms
 
 P performs these reads in order:
 
@@ -644,7 +644,7 @@ $$
    - the physical address after successful completion.
 2. Give the total initial TLB misses, page faults, and data-page evictions.
 
-### B. Timing and capacity
+#### B. Timing and capacity
 
 Assume a sequential TLB lookup model with:
 
@@ -663,14 +663,14 @@ $$
 
 All four pages remain resident. Its initially empty TLB is fully associative, holds three translations, and uses exact LRU. Determine the hit/miss behavior and explain whether it implies page faults.
 
-### C. Address-space identity
+#### C. Address-space identity
 
 5. Process Q maps its page 0 to frame 12. Explain what could go wrong if an untagged TLB retains P’s page-0 translation when switching to Q.
 6. Does switching between two threads of P create the same problem? Explain.
 
 ---
 
-## Exercise 3 — Complete FIFO, LRU, and Clock traces
+### Exercise 3 — Complete FIFO, LRU, and Clock traces
 
 A process has **three initially empty frames**, numbered 0, 1, and 2. All referenced pages are valid. The reference string is:
 
@@ -678,7 +678,7 @@ $$
 A,\ B,\ C,\ A,\ D,\ B,\ E,\ A,\ B,\ C,\ D,\ E.
 $$
 
-### A. FIFO and exact LRU
+#### A. FIFO and exact LRU
 
 1. Simulate FIFO and exact LRU separately.
 2. After **every reference**, record:
@@ -689,7 +689,7 @@ $$
 3. Count page faults and evictions for each policy.
 4. Identify the first reference at which their victim choices differ. Explain using their metadata.
 
-### B. Clock
+#### B. Clock
 
 Use these conventions:
 
@@ -715,9 +715,9 @@ You may use this table layout separately for each policy:
 
 ---
 
-## Exercise 4 — R-bit evidence and its cost
+### Exercise 4 — R-bit evidence and its cost
 
-### A. What can sampling reveal?
+#### A. What can sampling reveal?
 
 Four resident pages A, B, C, and D initially have:
 
@@ -741,7 +741,7 @@ The references are:
 4. The OS then needs to distinguish A from C. Can their epoch timestamps establish their exact LRU order? State the actual order from the reference history and explain what sampling lost.
 5. Does accessing A ten times during epoch 3 give its R bit a different value from accessing it once?
 
-### B. Scanning overhead
+#### B. Scanning overhead
 
 A different system has:
 
@@ -766,4 +766,499 @@ Assume a single CPU executes the scans sequentially. One scan occurs per epoch.
 ---
 
 The unit follows the plan and prerequisite chapter in 15-Operating-Systems-and-Networks-SoSe-25-Notes.pdf, the mechanisms and calculations in 05-ueb05-ibn-SS2025.pdf and 06-ueb06-ibn-SS2025.pdf, checked against 14-Operating-Systems-and-Networs-SoSe-25-Solutions.pdf and the theoretical framing in 01-ibn-zusammenfassung.pdf. Exam calibration uses 12-ibn-klausur-2016.pdf and 13-Ged-chtnisprotokoll_Klausur\_-IBN_Ersttermin.pdf.
+
+## Solutions
+
+### Exercise 1 — A sparse three-level address space
+
+#### A. Structure and translation
+
+##### 1–2. Address fields and table sizes
+
+A 1 KiB page contains $2^{10}$ bytes, so the offset uses **10 bits**.
+
+$$
+\boxed{i_1:6\text{ bits}\mid i_2:7\text{ bits}\mid i_3:7\text{ bits}\mid d:10\text{ bits}}
+$$
+
+| Field | Bit positions |
+|---|---|
+| $i_1$ | 29–24 |
+| $i_2$ | 23–17 |
+| $i_3$ | 16–10 |
+| Offset $d$ | 9–0 |
+
+At four bytes per entry:
+
+| Level | Entries in one table | Bytes in one table |
+|---|---:|---:|
+| 1 | $2^6=64$ | $64\cdot4=256$ |
+| 2 | $2^7=128$ | $128\cdot4=512$ |
+| 3 | $2^7=128$ | $128\cdot4=512$ |
+
+These tables need not occupy whole page frames under this exercise’s assumptions.
+
+##### 3. Translation
+
+The virtual address is:
+
+$$
+\begin{aligned}
+V
+&=5\cdot2^{24}+9\cdot2^{17}+17\cdot2^{10}+37\\
+&=\boxed{85\,083\,173}.
+\end{aligned}
+$$
+
+Each selected entry is at its table’s base plus the index multiplied by four:
+
+| Selected entry | Physical address of entry | Entry content |
+|---|---|---|
+| Root entry 5 | `0x4000 + 5·4 = 0x4014` | Next table at `0x8000` |
+| Level-2 entry 9 | `0x8000 + 9·4 = 0x8024` | Leaf table at `0xA000` |
+| Leaf entry 17 | `0xA000 + 17·4 = 0xA044` | Data frame 73 |
+
+The physical data address is:
+
+$$
+A=73\cdot1024+37=\boxed{74\,789}.
+$$
+
+**Check:** the addresses of the table entries are intermediate lookup locations; none is the final data address.
+
+#### B. Full versus sparse allocation
+
+##### 4. Fully populated hierarchy
+
+| Level | Number of tables | Entries per table | Total entries | Total bytes |
+|---|---:|---:|---:|---:|
+| 1 | $1$ | $64$ | $64$ | $256$ |
+| 2 | $64$ | $128$ | $8\,192$ | $32\,768$ |
+| 3 | $8\,192$ | $128$ | $1\,048\,576$ | $4\,194\,304$ |
+
+Therefore:
+
+$$
+T_{\max}=256+32\,768+4\,194\,304
+=\boxed{4\,227\,328\text{ bytes}}.
+$$
+
+Equivalently:
+
+$$
+\boxed{4\text{ MiB}+32\text{ KiB}+256\text{ bytes}}.
+$$
+
+##### 5. Flat-table comparison
+
+There are:
+
+$$
+2^{30-10}=2^{20}
+$$
+
+virtual pages. A full flat table occupies:
+
+$$
+2^{20}\cdot4=\boxed{4\text{ MiB}}.
+$$
+
+The fully populated hierarchy uses **32 KiB + 256 bytes more**, because it contains the same number of leaf entries plus the upper-level entries.
+
+Its advantage appears when unused branches are not allocated.
+
+##### 6. Sparse allocation
+
+The mapped triples are:
+
+$$
+(0,0,0),\quad(0,0,127),\quad(0,3,2),\quad(63,127,127).
+$$
+
+Count distinct prefixes:
+
+- One root.
+- Two distinct first indices, $0$ and $63$: **two level-2 tables**.
+- Three distinct pairs, $(0,0),(0,3),(63,127)$: **three leaf tables**.
+
+Thus:
+
+$$
+T=256+2\cdot512+3\cdot512
+=\boxed{2\,816\text{ bytes}=2.75\text{ KiB}}.
+$$
+
+The first two mappings share a leaf table.
+
+##### 7. Additional mappings
+
+| New page | New table allocation? | Reason |
+|---|---|---|
+| $(0,3,3)$ | No | Leaf table for $(0,3)$ already exists |
+| $(0,4,0)$ | One new leaf table: **512 bytes** | Level-2 table for $i_1=0$ exists, but its branch $i_2=4$ needs a leaf |
+
+Allocating a data page also requires a data frame when made resident, but that is separate from the table-storage question.
+
+### Exercise 2 — Translation misses and missing pages
+
+#### A. Trace the mechanisms
+
+The page size is `0x1000` bytes.
+
+| Read | Page | Offset | Initial TLB | Table walk? | Page fault? | Data-page eviction? | Final physical address |
+|---|---:|---:|---|---|---|---|---|
+| `0x0020` | 0 | `0x020` | Hit | No | No | No | `0x8020` = 32,800 |
+| `0x1040` | 1 | `0x040` | Miss | Yes | No | No | `0x3040` = 12,352 |
+| `0x1080` | 1 | `0x080` | Hit | No | No | No | `0x3080` = 12,416 |
+| `0x2008` | 2 | `0x008` | Miss | Yes | Yes | No | `0x6008` = 24,584 |
+| `0x200C` | 2 | `0x00C` | Hit | No | No | No | `0x600C` = 24,588 |
+
+After the access to page 1, its translation is cached. Page 2 is loaded into the free frame 6, and its translation is made available for subsequent accesses.
+
+Totals:
+
+$$
+\boxed{2\text{ initial TLB misses},\quad1\text{ page fault},\quad0\text{ evictions}}.
+$$
+
+The fault does not require eviction because a free frame exists.
+
+#### B. Timing and capacity
+
+##### 3. Access times
+
+With two levels:
+
+$$
+t_{\text{hit}}=8+70=\boxed{78\text{ ns}},
+$$
+
+$$
+t_{\text{miss}}=8+3\cdot70=\boxed{218\text{ ns}}.
+$$
+
+The miss needs two table accesses and one data access.
+
+$$
+\operatorname{EAT}
+=0.9\cdot78+0.1\cdot218
+=\boxed{92\text{ ns}}.
+$$
+
+##### 4. Four pages cycling through a three-entry LRU TLB
+
+Reference sequence:
+
+$$
+4,5,6,7,4,5,6,7,\ldots
+$$
+
+**Every access misses.**
+
+After loading translations for 4, 5, and 6, accessing 7 evicts 4. The next access to 4 evicts 5, and so on. Each page is removed before its next reference.
+
+Nevertheless:
+
+$$
+\boxed{\text{No page faults and no data-page replacement.}}
+$$
+
+All data pages remain resident; only their cached translations are evicted.
+
+#### C. Address-space identity
+
+##### 5. Switching to Q
+
+An untagged cached entry for page 0 still says:
+
+$$
+0\rightarrow8.
+$$
+
+Q’s correct mapping is:
+
+$$
+0\rightarrow12.
+$$
+
+If the old entry remains usable, Q could access **frame 8 instead of frame 12**, accessing the wrong process’s memory.
+
+The OS must invalidate the relevant untagged translations when changing address spaces, or use correctly managed address-space tags.
+
+##### 6. Switching between P’s threads
+
+Threads sharing P’s address space use the same page mappings. Switching between them does **not itself** require invalidating those mappings.
+
+### Exercise 3 — Complete replacement traces
+
+In all tables:
+
+- States are recorded **after** the reference.
+- `—` denotes an empty frame or no victim.
+- **F** = page fault; **H** = hit.
+- Frame positions stay fixed.
+
+#### A. FIFO
+
+Queue order is **oldest arrival → newest arrival**.
+
+| Step | Ref. | Frame 0 | Frame 1 | Frame 2 | F/H | Victim | FIFO queue |
+|---:|---|---|---|---|---|---|---|
+| 1 | A | A | — | — | F | — | A |
+| 2 | B | A | B | — | F | — | A, B |
+| 3 | C | A | B | C | F | — | A, B, C |
+| 4 | A | A | B | C | H | — | A, B, C |
+| 5 | D | D | B | C | F | A | B, C, D |
+| 6 | B | D | B | C | H | — | B, C, D |
+| 7 | E | D | E | C | F | B | C, D, E |
+| 8 | A | D | E | A | F | C | D, E, A |
+| 9 | B | B | E | A | F | D | E, A, B |
+| 10 | C | B | C | A | F | E | A, B, C |
+| 11 | D | B | C | D | F | A | B, C, D |
+| 12 | E | E | C | D | F | B | C, D, E |
+
+$$
+\boxed{\text{FIFO: }10\text{ faults},\quad7\text{ evictions}}.
+$$
+
+Hits at steps 4 and 6 leave the arrival queue unchanged.
+
+#### Exact LRU
+
+Order is **least recently used → most recently used**.
+
+| Step | Ref. | Frame 0 | Frame 1 | Frame 2 | F/H | Victim | LRU order |
+|---:|---|---|---|---|---|---|---|
+| 1 | A | A | — | — | F | — | A |
+| 2 | B | A | B | — | F | — | A, B |
+| 3 | C | A | B | C | F | — | A, B, C |
+| 4 | A | A | B | C | H | — | B, C, A |
+| 5 | D | A | D | C | F | B | C, A, D |
+| 6 | B | A | D | B | F | C | A, D, B |
+| 7 | E | E | D | B | F | A | D, B, E |
+| 8 | A | E | A | B | F | D | B, E, A |
+| 9 | B | E | A | B | H | — | E, A, B |
+| 10 | C | C | A | B | F | E | A, B, C |
+| 11 | D | C | D | B | F | A | B, C, D |
+| 12 | E | C | D | E | F | B | C, D, E |
+
+$$
+\boxed{\text{LRU: }10\text{ faults},\quad7\text{ evictions}}.
+$$
+
+The first different victim choice is **step 5**:
+
+- FIFO evicts **A**, the oldest arrival.
+- LRU evicts **B**, because A was referenced again at step 4.
+
+Both algorithms happen to have equal total faults here, despite different victims and different hit locations.
+
+#### B. Clock
+
+Notation `A/1` means page A with reference bit 1. The hand column gives the **next candidate frame** after completing the reference.
+
+| Step | Ref. | Frame 0 | Frame 1 | Frame 2 | F/H | Victim | Hand |
+|---:|---|---|---|---|---|---|---:|
+| 1 | A | A/1 | — | — | F | — | 1 |
+| 2 | B | A/1 | B/1 | — | F | — | 2 |
+| 3 | C | A/1 | B/1 | C/1 | F | — | 0 |
+| 4 | A | A/1 | B/1 | C/1 | H | — | 0 |
+| 5 | D | D/1 | B/0 | C/0 | F | A | 1 |
+| 6 | B | D/1 | B/1 | C/0 | H | — | 1 |
+| 7 | E | D/1 | B/0 | E/1 | F | C | 0 |
+| 8 | A | D/0 | A/1 | E/1 | F | B | 2 |
+| 9 | B | B/1 | A/1 | E/0 | F | D | 1 |
+| 10 | C | B/1 | A/0 | C/1 | F | E | 0 |
+| 11 | D | B/0 | D/1 | C/1 | F | A | 2 |
+| 12 | E | E/1 | D/1 | C/0 | F | B | 1 |
+
+$$
+\boxed{\text{Clock: }10\text{ faults},\quad7\text{ evictions}}.
+$$
+
+For checking your hand movements, replacement scans inspect these frame sequences:
+
+| Step | Frames inspected, in order |
+|---:|---|
+| 5 | 0, 1, 2, 0 |
+| 7 | 1, 2 |
+| 8 | 0, 1 |
+| 9 | 2, 0 |
+| 10 | 1, 2 |
+| 11 | 0, 1 |
+| 12 | 2, 0 |
+
+##### First replacement: step 5
+
+Before D:
+
+- Frames contain A, B, C.
+- All bits are 1.
+- Hand points to frame 0.
+
+Clock:
+
+1. Inspects A in frame 0: clears $R=1$ to 0.
+2. Inspects B in frame 1: clears its bit.
+3. Inspects C in frame 2: clears its bit.
+4. Returns to A in frame 0: its bit is now 0, so replaces A.
+
+Exact LRU replaces **B** instead.
+
+##### Why Clock can evict a more recently used page
+
+A was last accessed at step 4; B at step 2. Nevertheless, Clock evicts A.
+
+The bits tell Clock that all three pages were referenced since their bits were cleared. They do not encode the order of those references. The hand breaks that ambiguity according to its circular scanning position.
+
+### Exercise 4 — R-bit evidence and scanning cost
+
+#### A. Sampling
+
+In the table below, each tuple lists values in order **A, B, C, D**.
+
+| Epoch | References | R bits immediately before scan | Approximate timestamps after scan |
+|---:|---|---|---|
+| Initially | — | $(0,0,0,0)$ | $(0,0,0,0)$ |
+| 1 | A, B, A | $(1,1,0,0)$ | $(1,1,0,0)$ |
+| 2 | C, B | $(0,1,1,0)$ | $(1,2,2,0)$ |
+| 3 | A, C | $(1,0,1,0)$ | $(3,2,3,0)$ |
+
+**After every scan, all R bits are cleared to zero.** The timestamps remain stored separately.
+
+##### 2. First victim
+
+D has the oldest timestamp:
+
+$$
+\boxed{D}.
+$$
+
+It was never referenced during these epochs.
+
+##### 3. After D has been removed
+
+Among A, B, and C, timestamps are:
+
+$$
+A:3,\qquad B:2,\qquad C:3.
+$$
+
+The approximation chooses **B**.
+
+Exact LRU also chooses **B**: its last reference was in epoch 2, while both A and C were referenced in epoch 3.
+
+##### 4. Distinguishing A from C
+
+Their approximate timestamps are tied at 3, so the sampling information **cannot establish their exact order**.
+
+The actual history ends with A, then C. Therefore:
+
+$$
+\boxed{\text{A is less recently used than C.}}
+$$
+
+Sampling loses the ordering of accesses within an epoch.
+
+##### 5. Ten accesses versus one
+
+Both produce:
+
+$$
+\boxed{R_A=1}.
+$$
+
+A single bit records whether at least one reference occurred, not the number of references.
+
+#### B. Scanning overhead
+
+##### 6. Entries, cycles, and time
+
+An 8 KiB page uses $13$ offset bits. Thus, per process:
+
+$$
+N_{\text{process}}=2^{32-13}
+=\boxed{2^{19}=524\,288\text{ entries}}.
+$$
+
+Across 12 processes:
+
+$$
+N_{\text{total}}
+=12\cdot524\,288
+=\boxed{6\,291\,456\text{ entries}}.
+$$
+
+At 16 cycles per entry:
+
+$$
+C=6\,291\,456\cdot16
+=\boxed{100\,663\,296\text{ cycles}}.
+$$
+
+At 2 GHz:
+
+$$
+t_{\text{scan}}
+=\frac{100\,663\,296}{2\cdot10^9}
+=0.050331648\text{ s}.
+$$
+
+$$
+\boxed{t_{\text{scan}}\approx50.33\text{ ms}}.
+$$
+
+##### 7. Maximum 4% overhead
+
+The epoch duration includes the scan:
+
+$$
+\frac{t_{\text{scan}}}{T}\le0.04.
+$$
+
+Therefore:
+
+$$
+T\ge\frac{0.050331648}{0.04}
+=\boxed{1.2582912\text{ s}}.
+$$
+
+A practical rounded choice is **1.26 seconds or longer**.
+
+##### 8. With 100 ms epochs
+
+$$
+\alpha
+=\frac{50.331648\text{ ms}}{100\text{ ms}}
+=0.50331648.
+$$
+
+$$
+\boxed{\text{Scanning consumes approximately }50.33\%\text{ of CPU time}.}
+$$
+
+##### 9. Longer epochs
+
+Increasing $T$ reduces the overhead fraction $t_{\text{scan}}/T$.
+
+However, accesses over a longer interval receive the same epoch timestamp. The approximation therefore loses more information about which page was accessed most recently.
+
+##### 10. Sparse residency
+
+**No reduction under the specified model.** It scans every entry of every full flat table, regardless of residency.
+
+To exploit sparse residency, the scanner would need to visit only relevant entries—for example, by maintaining a collection of resident-page mappings rather than scanning the full virtual-page range.
+
+---
+
+For a quick comparison, your main numerical checkpoints are:
+
+| Exercise | Key results |
+|---|---|
+| 1 | Maximum hierarchy **4,227,328 B**; sparse hierarchy **2,816 B**; physical data address **74,789** |
+| 2 | **2** initial TLB misses; **1** fault; **0** evictions; EAT **92 ns** |
+| 3 | FIFO, LRU, Clock each have **10 faults and 7 evictions**, with different traces |
+| 4 | Scan **50.33 ms**; minimum epoch **1.2583 s**; 100 ms epochs incur **50.33%** overhead |
+
+## Supplementary Matrial
 
