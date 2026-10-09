@@ -1,0 +1,2660 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.4.553">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Operating Systems and Networks SoSe 25 Notes - 6&nbsp; Advanced paging and virtual memory</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../exam/notes/paging_1.html" rel="prev">
+<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../exam/notes/assignment_overview.html">Exam Notes</a></li><li class="breadcrumb-item"><a href="../../exam/notes/paging_2.html"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Advanced paging and virtual memory</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../../">Operating Systems and Networks SoSe 25 Notes</a> 
+        <div class="sidebar-tools-main">
+    <a href="../../Operating-Systems-and-Networks-SoSe-25-Notes.pdf" title="Download PDF" class="quarto-navigation-tool px-1" aria-label="Download PDF"><i class="bi bi-file-pdf"></i></a>
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">
+ <span class="menu-text">Exam Notes</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../exam/notes/assignment_overview.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Assignment Sheets Overview</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../exam/notes/plan.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Plan</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../exam/notes/processes_and_fork.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Processes and <code>fork()</code></span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../exam/notes/synchronization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Race conditions, semaphores and synchronization</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../exam/notes/paging_1.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Paging fundamentals</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../exam/notes/paging_2.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Advanced paging and virtual memory</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active" data-toc-expanded="-1">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#hierarchical-page-tables" id="toc-hierarchical-page-tables" class="nav-link active" data-scroll-target="#hierarchical-page-tables">1. Hierarchical page tables</a>
+  <ul class="collapse">
+  <li><a href="#why-divide-a-page-table-into-levels" id="toc-why-divide-a-page-table-into-levels" class="nav-link" data-scroll-target="#why-divide-a-page-table-into-levels">Why divide a page table into levels?</a></li>
+  <li><a href="#address-decomposition-and-translation" id="toc-address-decomposition-and-translation" class="nav-link" data-scroll-target="#address-decomposition-and-translation">Address decomposition and translation</a></li>
+  <li><a href="#counting-tables-and-entries" id="toc-counting-tables-and-entries" class="nav-link" data-scroll-target="#counting-tables-and-entries">Counting tables and entries</a></li>
+  <li><a href="#short-worked-example" id="toc-short-worked-example" class="nav-link" data-scroll-target="#short-worked-example">Short worked example</a></li>
+  </ul></li>
+  <li><a href="#the-tlb-caching-translations" id="toc-the-tlb-caching-translations" class="nav-link" data-scroll-target="#the-tlb-caching-translations">2. The TLB: caching translations</a>
+  <ul class="collapse">
+  <li><a href="#hit-and-miss" id="toc-hit-and-miss" class="nav-link" data-scroll-target="#hit-and-miss">Hit and miss</a></li>
+  <li><a href="#why-a-small-tlb-helps" id="toc-why-a-small-tlb-helps" class="nav-link" data-scroll-target="#why-a-small-tlb-helps">Why a small TLB helps</a></li>
+  <li><a href="#quantitative-access-time" id="toc-quantitative-access-time" class="nav-link" data-scroll-target="#quantitative-access-time">Quantitative access time</a></li>
+  <li><a href="#process-and-thread-switches" id="toc-process-and-thread-switches" class="nav-link" data-scroll-target="#process-and-thread-switches">Process and thread switches</a></li>
+  </ul></li>
+  <li><a href="#demand-paging-and-page-fault-handling" id="toc-demand-paging-and-page-fault-handling" class="nav-link" data-scroll-target="#demand-paging-and-page-fault-handling">3. Demand paging and page-fault handling</a>
+  <ul class="collapse">
+  <li><a href="#the-basic-sequence" id="toc-the-basic-sequence" class="nav-link" data-scroll-target="#the-basic-sequence">The basic sequence</a></li>
+  <li><a href="#page-fault-versus-replacement" id="toc-page-fault-versus-replacement" class="nav-link" data-scroll-target="#page-fault-versus-replacement">Page fault versus replacement</a></li>
+  <li><a href="#reference-and-dirty-bits" id="toc-reference-and-dirty-bits" class="nav-link" data-scroll-target="#reference-and-dirty-bits">Reference and dirty bits</a></li>
+  </ul></li>
+  <li><a href="#fifo-lru-and-clock" id="toc-fifo-lru-and-clock" class="nav-link" data-scroll-target="#fifo-lru-and-clock">4. FIFO, LRU, and Clock</a>
+  <ul class="collapse">
+  <li><a href="#fifo-oldest-arrival" id="toc-fifo-oldest-arrival" class="nav-link" data-scroll-target="#fifo-oldest-arrival">FIFO: oldest arrival</a></li>
+  <li><a href="#lru-oldest-last-access" id="toc-lru-oldest-last-access" class="nav-link" data-scroll-target="#lru-oldest-last-access">LRU: oldest last access</a></li>
+  <li><a href="#one-state-illustrating-the-difference" id="toc-one-state-illustrating-the-difference" class="nav-link" data-scroll-target="#one-state-illustrating-the-difference">One state illustrating the difference</a></li>
+  <li><a href="#clock-second-chance" id="toc-clock-second-chance" class="nav-link" data-scroll-target="#clock-second-chance">Clock / Second Chance</a></li>
+  <li><a href="#why-clock-differs-from-exact-lru" id="toc-why-clock-differs-from-exact-lru" class="nav-link" data-scroll-target="#why-clock-differs-from-exact-lru">Why Clock differs from exact LRU</a></li>
+  <li><a href="#reliable-manual-tracing" id="toc-reliable-manual-tracing" class="nav-link" data-scroll-target="#reliable-manual-tracing">Reliable manual tracing</a></li>
+  </ul></li>
+  <li><a href="#approximating-recency-with-r-bits" id="toc-approximating-recency-with-r-bits" class="nav-link" data-scroll-target="#approximating-recency-with-r-bits">5. Approximating recency with R bits</a>
+  <ul class="collapse">
+  <li><a href="#periodic-sampling" id="toc-periodic-sampling" class="nav-link" data-scroll-target="#periodic-sampling">Periodic sampling</a></li>
+  <li><a href="#sampling-versus-clock" id="toc-sampling-versus-clock" class="nav-link" data-scroll-target="#sampling-versus-clock">Sampling versus Clock</a></li>
+  <li><a href="#r-bit-scanning-overhead" id="toc-r-bit-scanning-overhead" class="nav-link" data-scroll-target="#r-bit-scanning-overhead">R-bit scanning overhead</a></li>
+  </ul></li>
+  <li><a href="#common-exam-traps" id="toc-common-exam-traps" class="nav-link" data-scroll-target="#common-exam-traps">Common exam traps</a></li>
+  <li><a href="#exam-like-exercises" id="toc-exam-like-exercises" class="nav-link" data-scroll-target="#exam-like-exercises">Exam-like exercises</a>
+  <ul class="collapse">
+  <li><a href="#exercise-1-a-sparse-three-level-address-space" id="toc-exercise-1-a-sparse-three-level-address-space" class="nav-link" data-scroll-target="#exercise-1-a-sparse-three-level-address-space">Exercise 1 — A sparse three-level address space</a></li>
+  <li><a href="#exercise-2-translation-misses-and-missing-pages" id="toc-exercise-2-translation-misses-and-missing-pages" class="nav-link" data-scroll-target="#exercise-2-translation-misses-and-missing-pages">Exercise 2 — Translation misses and missing pages</a></li>
+  <li><a href="#exercise-3-complete-fifo-lru-and-clock-traces" id="toc-exercise-3-complete-fifo-lru-and-clock-traces" class="nav-link" data-scroll-target="#exercise-3-complete-fifo-lru-and-clock-traces">Exercise 3 — Complete FIFO, LRU, and Clock traces</a></li>
+  <li><a href="#exercise-4-r-bit-evidence-and-its-cost" id="toc-exercise-4-r-bit-evidence-and-its-cost" class="nav-link" data-scroll-target="#exercise-4-r-bit-evidence-and-its-cost">Exercise 4 — R-bit evidence and its cost</a></li>
+  </ul></li>
+  <li><a href="#solutions" id="toc-solutions" class="nav-link" data-scroll-target="#solutions">Solutions</a>
+  <ul class="collapse">
+  <li><a href="#exercise-1-a-sparse-three-level-address-space-1" id="toc-exercise-1-a-sparse-three-level-address-space-1" class="nav-link" data-scroll-target="#exercise-1-a-sparse-three-level-address-space-1">Exercise 1 — A sparse three-level address space</a></li>
+  <li><a href="#exercise-2-translation-misses-and-missing-pages-1" id="toc-exercise-2-translation-misses-and-missing-pages-1" class="nav-link" data-scroll-target="#exercise-2-translation-misses-and-missing-pages-1">Exercise 2 — Translation misses and missing pages</a></li>
+  <li><a href="#exercise-3-complete-replacement-traces" id="toc-exercise-3-complete-replacement-traces" class="nav-link" data-scroll-target="#exercise-3-complete-replacement-traces">Exercise 3 — Complete replacement traces</a></li>
+  <li><a href="#exercise-4-r-bit-evidence-and-scanning-cost" id="toc-exercise-4-r-bit-evidence-and-scanning-cost" class="nav-link" data-scroll-target="#exercise-4-r-bit-evidence-and-scanning-cost">Exercise 4 — R-bit evidence and scanning cost</a></li>
+  </ul></li>
+  <li><a href="#supplementary-matrial" id="toc-supplementary-matrial" class="nav-link" data-scroll-target="#supplementary-matrial">Supplementary Matrial</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../exam/notes/assignment_overview.html">Exam Notes</a></li><li class="breadcrumb-item"><a href="../../exam/notes/paging_2.html"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Advanced paging and virtual memory</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Advanced paging and virtual memory</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>Day 3 established how a virtual page number maps to a physical frame. Today adds three mechanisms:</p>
+<ul>
+<li><strong>Hierarchical page tables</strong> organize large, mostly unused mapping tables.</li>
+<li><strong>The TLB</strong> speeds up address translation.</li>
+<li><strong>Demand paging and page replacement</strong> manage pages that are not all resident in RAM.</li>
+</ul>
+<p>The strongest direct Day 4 evidence in the <strong>2016 exam</strong> is the question about approximating last-access times using hardware reference bits. Multilevel tables, TLB calculations, and replacement traces are supported primarily by the assignments and the explicit study plan. The <strong>2026 memory protocol</strong> confirms paging’s importance but does not explicitly report these advanced mechanisms.</p>
+<p>Throughout this unit, memory is byte-addressable, page sizes are powers of two, and KiB/MiB use binary units.</p>
+<section id="hierarchical-page-tables" class="level2">
+<h2 class="anchored" data-anchor-id="hierarchical-page-tables">1. Hierarchical page tables</h2>
+<section id="why-divide-a-page-table-into-levels" class="level3">
+<h3 class="anchored" data-anchor-id="why-divide-a-page-table-into-levels">Why divide a page table into levels?</h3>
+<p>A full flat page table contains one entry for <strong>every possible virtual page</strong>, including unused virtual regions.</p>
+<p>For example, 32-bit virtual addresses and 4 KiB pages give:</p>
+<p><span class="math display">\[
+2^{32-12}=2^{20}
+\]</span></p>
+<p>entries. At four bytes per entry, that is <strong>4 MiB per process</strong>, even if the process uses little memory.</p>
+<p>A hierarchical table divides this mapping into smaller tables. The root contains references to tables at the next level; only the final level contains mappings to <strong>data frames</strong>.</p>
+<p>Its main space advantage is:</p>
+<blockquote class="blockquote">
+<p>Tables for unused virtual-address regions need not be allocated.</p>
+</blockquote>
+<p>Hierarchy does <strong>not</strong> make a fully populated table smaller. When every possible mapping is represented, the leaf entries still exist, and the upper levels add overhead.</p>
+</section>
+<section id="address-decomposition-and-translation" class="level3">
+<h3 class="anchored" data-anchor-id="address-decomposition-and-translation">Address decomposition and translation</h3>
+<p>With <span class="math inline">\(v\)</span>-bit virtual addresses, page size <span class="math inline">\(2^n\)</span> bytes, and <span class="math inline">\(k\)</span> table levels:</p>
+<p><span class="math display">\[
+\boxed{v=b_1+b_2+\cdots+b_k+n}
+\]</span></p>
+<p>Here, <span class="math inline">\(b_i\)</span> is the number of bits indexing level <span class="math inline">\(i\)</span>; the final <span class="math inline">\(n\)</span> bits are the offset.</p>
+<p>For three levels:</p>
+<table class="table">
+<thead>
+<tr class="header">
+<th>Virtual-address field</th>
+<th>Function</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(i_1\)</span>: <span class="math inline">\(b_1\)</span> bits</td>
+<td>Select an entry in the root table</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(i_2\)</span>: <span class="math inline">\(b_2\)</span> bits</td>
+<td>Select an entry in the chosen level-2 table</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(i_3\)</span>: <span class="math inline">\(b_3\)</span> bits</td>
+<td>Select an entry in the chosen leaf table</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(d\)</span>: <span class="math inline">\(n\)</span> bits</td>
+<td>Select a byte within the mapped data frame</td>
+</tr>
+</tbody>
+</table>
+<p>The translation proceeds as follows:</p>
+<ol type="1">
+<li>The current process’s page-table root address identifies the root.</li>
+<li>Root entry <span class="math inline">\(i_1\)</span> identifies the physical base address of a level-2 table.</li>
+<li>Entry <span class="math inline">\(i_2\)</span> of that table identifies a leaf table.</li>
+<li>Leaf entry <span class="math inline">\(i_3\)</span> contains the data-frame number <span class="math inline">\(f\)</span>, together with flags.</li>
+<li>Form the physical address:</li>
+</ol>
+<p><span class="math display">\[
+A=f\,2^n+d.
+\]</span></p>
+<p><strong>The offset remains unchanged.</strong> The table levels collectively translate the virtual page number.</p>
+<p>If entries occupy <span class="math inline">\(E_i\)</span> bytes, the selected entry at level <span class="math inline">\(i\)</span> is located at:</p>
+<p><span class="math display">\[
+\text{table base}+i_iE_i.
+\]</span></p>
+<p>Intermediate entries identify <strong>next-level tables</strong>; leaf entries identify <strong>data frames</strong>. Confusing those contents is a common mistake.</p>
+</section>
+<section id="counting-tables-and-entries" class="level3">
+<h3 class="anchored" data-anchor-id="counting-tables-and-entries">Counting tables and entries</h3>
+<p>An index with <span class="math inline">\(b_i\)</span> bits selects among <span class="math inline">\(2^{b_i}\)</span> entries in <strong>one table</strong> at that level.</p>
+<p>For a fully populated three-level hierarchy:</p>
+<table class="table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 26%">
+<col style="width: 26%">
+<col style="width: 26%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Level</th>
+<th style="text-align: right;">Number of tables</th>
+<th style="text-align: right;">Entries per table</th>
+<th style="text-align: right;">Total entries at that level</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td style="text-align: right;"><span class="math inline">\(1\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(2^{b_1}\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(2^{b_1}\)</span></td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td style="text-align: right;"><span class="math inline">\(2^{b_1}\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(2^{b_2}\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(2^{b_1+b_2}\)</span></td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td style="text-align: right;"><span class="math inline">\(2^{b_1+b_2}\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(2^{b_3}\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(2^{b_1+b_2+b_3}\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>Thus, with <span class="math inline">\(E\)</span> bytes per entry at every level:</p>
+<p><span class="math display">\[
+\boxed{
+T_{\max}
+=
+E\left(
+2^{b_1}
++
+2^{b_1+b_2}
++
+2^{b_1+b_2+b_3}
+\right)
+}
+\]</span></p>
+<p>More generally:</p>
+<p><span class="math display">\[
+T_{\max}
+=
+\sum_{i=1}^{k}E_i\,2^{b_1+\cdots+b_i}.
+\]</span></p>
+<p>This counts <strong>page-table storage only</strong>, excluding the process’s data pages.</p>
+</section>
+<section id="short-worked-example" class="level3">
+<h3 class="anchored" data-anchor-id="short-worked-example">Short worked example</h3>
+<p>Suppose a system has:</p>
+<ul>
+<li>24-bit virtual addresses;</li>
+<li>256-byte pages;</li>
+<li>two levels, each using eight index bits;</li>
+<li>four-byte entries.</li>
+</ul>
+<p>The address split is:</p>
+<p><span class="math display">\[
+\underbrace{i_1}_{8}
+\mid
+\underbrace{i_2}_{8}
+\mid
+\underbrace{d}_{8}.
+\]</span></p>
+<p>Each table has 256 entries and occupies:</p>
+<p><span class="math display">\[
+256\cdot4=1\text{ KiB}.
+\]</span></p>
+<p>The maximum hierarchy contains one root and 256 leaf tables:</p>
+<p><span class="math display">\[
+T_{\max}=257\text{ KiB}.
+\]</span></p>
+<p>If the process uses pages in only <strong>two root-index regions</strong>, it needs one root and two leaf tables:</p>
+<p><span class="math display">\[
+T_{\text{allocated}}=3\text{ KiB}.
+\]</span></p>
+<p>This assumes complete tables are allocated and ignores allocator overhead. Even if only one entry in a leaf table is used, the whole leaf table occupies 1 KiB.</p>
+<p><strong>Do not assume a table occupies exactly one page.</strong> That is a common design choice, but follows only when the specified entry count and entry size make it true.</p>
+<hr>
+</section>
+</section>
+<section id="the-tlb-caching-translations" class="level2">
+<h2 class="anchored" data-anchor-id="the-tlb-caching-translations">2. The TLB: caching translations</h2>
+<p>A <strong>Translation Lookaside Buffer</strong>, or TLB, is a small, fast hardware cache of page translations.</p>
+<p>Conceptually, an entry contains:</p>
+<p><span class="math display">\[
+(\text{address-space identity},\text{virtual page})
+\longrightarrow
+(\text{physical frame},\text{permissions}).
+\]</span></p>
+<p>It caches a <strong>translation</strong>, rather than the page’s data.</p>
+<section id="hit-and-miss" class="level3">
+<h3 class="anchored" data-anchor-id="hit-and-miss">Hit and miss</h3>
+<p>For a permitted access:</p>
+<table class="table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Event</th>
+<th>What happens</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>TLB hit</strong></td>
+<td>Obtain the frame number from the TLB; access the data at <span class="math inline">\(fP+d\)</span></td>
+</tr>
+<tr class="even">
+<td><strong>TLB miss, page resident</strong></td>
+<td>Walk the page table, obtain the mapping, refill the TLB, and complete the access</td>
+</tr>
+<tr class="odd">
+<td><strong>TLB miss, page nonresident</strong></td>
+<td>The page-table lookup detects absence; a page fault transfers control to the OS</td>
+</tr>
+</tbody>
+</table>
+<p>A TLB miss therefore <strong>does not imply a page fault</strong>.</p>
+<p>A page-table walk may be performed by hardware or by software, depending on the architecture. For these exercises, the essential point is the extra translation work on a miss.</p>
+</section>
+<section id="why-a-small-tlb-helps" class="level3">
+<h3 class="anchored" data-anchor-id="why-a-small-tlb-helps">Why a small TLB helps</h3>
+<p>Programs exhibit:</p>
+<ul>
+<li><strong>Temporal locality:</strong> recently accessed pages are often accessed again.</li>
+<li><strong>Spatial locality:</strong> nearby addresses often lie within the same page.</li>
+</ul>
+<p>For example, a page-aligned array of four-byte integers contains 1,024 integers per 4 KiB page. Sequentially reading those integers reuses one translation many times.</p>
+<p>The TLB’s nominal <strong>coverage</strong>, sometimes called its reach, is:</p>
+<p><span class="math display">\[
+\text{TLB entries}\times\text{page size}.
+\]</span></p>
+<p>A 64-entry TLB with 4 KiB pages can cache translations covering 256 KiB.</p>
+<p>Coverage alone does not determine the miss rate. Access order, alignment, associativity, and replacement policy also matter. For a simplified fully associative LRU TLB, repeatedly cycling through more distinct pages than it can hold can produce a miss on every access.</p>
+</section>
+<section id="quantitative-access-time" class="level3">
+<h3 class="anchored" data-anchor-id="quantitative-access-time">Quantitative access time</h3>
+<p>The course explicitly includes this calculation.</p>
+<p>Assume:</p>
+<ul>
+<li><span class="math inline">\(k\)</span> page-table levels;</li>
+<li>one RAM access per level on a miss;</li>
+<li>all pages and page tables are resident;</li>
+<li>no additional caches or overlapping accesses;</li>
+<li>TLB lookup time <span class="math inline">\(t_{\mathrm{TLB}}\)</span>;</li>
+<li>RAM access time <span class="math inline">\(t_{\mathrm{RAM}}\)</span>;</li>
+<li>TLB hit ratio <span class="math inline">\(h\)</span>;</li>
+<li><strong>every access first performs a TLB lookup</strong>.</li>
+</ul>
+<p>Then:</p>
+<p><span class="math display">\[
+t_{\text{hit}}=t_{\mathrm{TLB}}+t_{\mathrm{RAM}},
+\]</span></p>
+<p><span class="math display">\[
+t_{\text{miss}}=t_{\mathrm{TLB}}+(k+1)t_{\mathrm{RAM}}.
+\]</span></p>
+<p>The <span class="math inline">\(+1\)</span> is the actual data access after the <span class="math inline">\(k\)</span> table accesses.</p>
+<p>Therefore:</p>
+<p><span class="math display">\[
+\boxed{
+\operatorname{EAT}
+=
+h\,t_{\text{hit}}+(1-h)t_{\text{miss}}
+=
+t_{\mathrm{TLB}}+\left[1+k(1-h)\right]t_{\mathrm{RAM}}
+}
+\]</span></p>
+<p>For two levels, <span class="math inline">\(t_{\mathrm{TLB}}=5\)</span> ns, <span class="math inline">\(t_{\mathrm{RAM}}=80\)</span> ns, and <span class="math inline">\(h=0.95\)</span>:</p>
+<p><span class="math display">\[
+\operatorname{EAT}
+=
+5+[1+2(0.05)]80
+=
+93\text{ ns}.
+\]</span></p>
+<p>Without a TLB, the simplified two-level translation plus data access costs <span class="math inline">\(3\cdot80=240\)</span> ns.</p>
+<p><strong>Convention note:</strong> the supplied solutions omit TLB lookup time from the miss branch. That requires a different timing assumption or an approximation. State your model; with the sequential lookup model above, it belongs in both branches.</p>
+<p>These formulas exclude page faults. Fetching a missing page can be much more expensive than a resident-page access.</p>
+</section>
+<section id="process-and-thread-switches" class="level3">
+<h3 class="anchored" data-anchor-id="process-and-thread-switches">Process and thread switches</h3>
+<p>The same virtual page number can map to different frames in different processes.</p>
+<p>Without address-space tags, cached translations must be invalidated when switching address spaces. Otherwise, process B could use process A’s translation.</p>
+<p>With address-space identifiers, translations from multiple address spaces can coexist safely if correctly tagged.</p>
+<p>Switching between threads that share one address space does <strong>not by itself</strong> require a TLB flush.</p>
+<hr>
+</section>
+</section>
+<section id="demand-paging-and-page-fault-handling" class="level2">
+<h2 class="anchored" data-anchor-id="demand-paging-and-page-fault-handling">3. Demand paging and page-fault handling</h2>
+<p>Paging provides address translation. <strong>Demand paging</strong> additionally allows a valid virtual page to be absent from RAM until needed.</p>
+<p>A nonresident page may have contents in an executable file, another mapped file, or swap storage. A newly allocated page may instead be initialized with zeros. A page fault therefore does not always require reading an existing page from disk.</p>
+<p>For today’s replacement exercises, a <strong>page fault</strong> means that the referenced page is absent from the available frames.</p>
+<section id="the-basic-sequence" class="level3">
+<h3 class="anchored" data-anchor-id="the-basic-sequence">The basic sequence</h3>
+<p>When an access references a valid but nonresident page:</p>
+<ol type="1">
+<li>The hardware detects the missing resident mapping and raises a page fault.</li>
+<li>The OS checks whether the access is valid and permitted.</li>
+<li>The OS obtains a frame:
+<ul>
+<li>use a free frame if one is available;</li>
+<li>otherwise select a resident victim page.</li>
+</ul></li>
+<li>If necessary, preserve the victim’s modified contents.</li>
+<li>Load or initialize the requested page.</li>
+<li>Update page-table entries and invalidate stale cached translations.</li>
+<li>Restart the faulting instruction.</li>
+</ol>
+<p>An invalid address or forbidden operation cannot be repaired simply by loading a page.</p>
+</section>
+<section id="page-fault-versus-replacement" class="level3">
+<h3 class="anchored" data-anchor-id="page-fault-versus-replacement">Page fault versus replacement</h3>
+<p><strong>A page fault requires replacement only when no suitable free frame is available.</strong></p>
+<p>Consequently:</p>
+<ul>
+<li>Loading the first page into initially empty memory causes a page fault.</li>
+<li>It does not evict another page.</li>
+<li>Once all allocated frames are occupied, a fault requires a victim under the exercise’s fixed-frame model.</li>
+</ul>
+<p>There are also two distinct kinds of eviction:</p>
+<table class="table">
+<thead>
+<tr class="header">
+<th>Eviction</th>
+<th>What is removed?</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>TLB-entry eviction</td>
+<td>A cached translation</td>
+</tr>
+<tr class="even">
+<td>Page replacement</td>
+<td>A resident page’s contents from its frame</td>
+</tr>
+</tbody>
+</table>
+<p>Removing a TLB entry leaves the page resident.</p>
+</section>
+<section id="reference-and-dirty-bits" class="level3">
+<h3 class="anchored" data-anchor-id="reference-and-dirty-bits">Reference and dirty bits</h3>
+<p>Hardware maintains flags associated with pages:</p>
+<table class="table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Bit</th>
+<th>Meaning</th>
+<th>Set by</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>R / accessed bit</strong></td>
+<td>The page has been referenced since the bit was cleared</td>
+<td>Hardware on access</td>
+</tr>
+<tr class="even">
+<td><strong>M / dirty bit</strong></td>
+<td>The page has been modified since its contents were made clean</td>
+<td>Hardware on write</td>
+</tr>
+</tbody>
+</table>
+<p>Reads and writes both count as references. A read alone does not make a page dirty.</p>
+<p>The OS clears bits when appropriate. A dirty victim generally needs its modified contents preserved before its frame is reused. A clean page with an unchanged backing copy can usually be discarded without write-back.</p>
+<hr>
+</section>
+</section>
+<section id="fifo-lru-and-clock" class="level2">
+<h2 class="anchored" data-anchor-id="fifo-lru-and-clock">4. FIFO, LRU, and Clock</h2>
+<p>All three policies select among <strong>resident pages</strong> when replacement is necessary.</p>
+<section id="fifo-oldest-arrival" class="level3">
+<h3 class="anchored" data-anchor-id="fifo-oldest-arrival">FIFO: oldest arrival</h3>
+<p><strong>First In, First Out</strong> replaces the page that entered memory earliest.</p>
+<p>Maintain a queue from oldest to newest:</p>
+<ul>
+<li>Hit: leave the queue unchanged.</li>
+<li>Fault with free space: load the page and append it.</li>
+<li>Fault with full memory: remove the oldest page and append the new page.</li>
+</ul>
+<p>A frequently accessed page can still be FIFO’s victim because hits do not renew its arrival time.</p>
+</section>
+<section id="lru-oldest-last-access" class="level3">
+<h3 class="anchored" data-anchor-id="lru-oldest-last-access">LRU: oldest last access</h3>
+<p><strong>Least Recently Used</strong> replaces the page whose most recent access occurred furthest in the past.</p>
+<p>For manual simulation, maintain an order from least to most recently used:</p>
+<ul>
+<li>Hit: move the referenced page to the most-recent end.</li>
+<li>Fault: load the page as most recently used.</li>
+<li>If memory is full, first remove the least-recent page.</li>
+</ul>
+<p>Exact LRU needs recency information updated on <strong>every reference</strong>. Maintaining that precisely can be expensive; hardware bits support cheaper approximations.</p>
+</section>
+<section id="one-state-illustrating-the-difference" class="level3">
+<h3 class="anchored" data-anchor-id="one-state-illustrating-the-difference">One state illustrating the difference</h3>
+<p>Suppose three frames receive:</p>
+<p><span class="math display">\[
+A,\ B,\ C,\ A.
+\]</span></p>
+<p>All three pages are resident.</p>
+<ul>
+<li>FIFO order: <span class="math inline">\(A,B,C\)</span>. Its next victim is <strong>A</strong>.</li>
+<li>LRU order: <span class="math inline">\(B,C,A\)</span>. Its next victim is <strong>B</strong>.</li>
+</ul>
+<p>FIFO asks <strong>“Who arrived first?”</strong> LRU asks <strong>“Who was used least recently?”</strong></p>
+</section>
+<section id="clock-second-chance" class="level3">
+<h3 class="anchored" data-anchor-id="clock-second-chance">Clock / Second Chance</h3>
+<p>Clock implements a second-chance policy using:</p>
+<ul>
+<li>frames arranged in a circular order;</li>
+<li>one reference bit per resident page;</li>
+<li>a hand pointing to the next candidate.</li>
+</ul>
+<p>Use this explicit convention:</p>
+<ul>
+<li>Every completed reference sets the page’s <span class="math inline">\(R=1\)</span>, including the reference that loads it.</li>
+<li>Hits do not move the hand.</li>
+<li>On replacement:
+<ul>
+<li>if the candidate has <span class="math inline">\(R=0\)</span>, replace it;</li>
+<li>if it has <span class="math inline">\(R=1\)</span>, clear the bit and advance;</li>
+<li>repeat until a victim is found.</li>
+</ul></li>
+<li>Load the new page with <span class="math inline">\(R=1\)</span>, then advance the hand to the next frame.</li>
+</ul>
+<p>Queue-based Second Chance applies the same idea by moving an oldest page with <span class="math inline">\(R=1\)</span> to the back after clearing its bit. Clock represents that rotation with a circular hand.</p>
+<p><strong>Initialization conventions can change a trace.</strong> Some teaching examples initialize newly loaded pages differently. Always follow the stated convention.</p>
+</section>
+<section id="why-clock-differs-from-exact-lru" class="level3">
+<h3 class="anchored" data-anchor-id="why-clock-differs-from-exact-lru">Why Clock differs from exact LRU</h3>
+<p>After <span class="math inline">\(A,B,C,A\)</span>, suppose all bits are 1 and the hand points to A.</p>
+<p>On a fault for D, Clock:</p>
+<ol type="1">
+<li>Clears A’s bit.</li>
+<li>Clears B’s bit.</li>
+<li>Clears C’s bit.</li>
+<li>Returns to A, now with <span class="math inline">\(R=0\)</span>, and replaces it.</li>
+</ol>
+<p>Exact LRU would replace B.</p>
+<p>Clock knows that all three pages were referenced since their bits were cleared. It does not know the exact ordering of those references.</p>
+</section>
+<section id="reliable-manual-tracing" class="level3">
+<h3 class="anchored" data-anchor-id="reliable-manual-tracing">Reliable manual tracing</h3>
+<p>For each reference:</p>
+<ol type="1">
+<li>Check whether the page is already resident.</li>
+<li>Mark <strong>hit</strong> or <strong>fault</strong>.</li>
+<li>On a fault, fill a free frame or select a victim.</li>
+<li>Update the policy’s metadata.</li>
+<li>Record the complete state <strong>after</strong> the reference.</li>
+</ol>
+<p>Keep physical frame positions fixed in your table. Record FIFO/LRU order separately; changing recency order does not move page contents between frames.</p>
+<table class="table">
+<thead>
+<tr class="header">
+<th>Policy</th>
+<th>Metadata you must update</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>FIFO</td>
+<td>Arrival queue; unchanged on hits</td>
+</tr>
+<tr class="even">
+<td>LRU</td>
+<td>Recency order; updated on every reference</td>
+</tr>
+<tr class="odd">
+<td>Clock</td>
+<td>R bits and hand position</td>
+</tr>
+</tbody>
+</table>
+<p>FIFO can exhibit <strong>Belady’s anomaly</strong>: adding frames can increase faults for some reference strings. Exact LRU does not have this anomaly. Neither FIFO nor LRU wins on every individual reference string.</p>
+<hr>
+</section>
+</section>
+<section id="approximating-recency-with-r-bits" class="level2">
+<h2 class="anchored" data-anchor-id="approximating-recency-with-r-bits">5. Approximating recency with R bits</h2>
+<p>An R bit answers:</p>
+<blockquote class="blockquote">
+<p>Has this page been referenced at least once since the bit was last cleared?</p>
+</blockquote>
+<p>It does <strong>not</strong> record:</p>
+<ul>
+<li>how many references occurred;</li>
+<li>their exact times;</li>
+<li>their ordering relative to references to other pages.</li>
+</ul>
+<section id="periodic-sampling" class="level3">
+<h3 class="anchored" data-anchor-id="periodic-sampling">Periodic sampling</h3>
+<p>Divide time into <strong>epochs</strong>. At each epoch boundary, the OS conceptually performs:</p>
+<pre class="text"><code>for each page-table entry being monitored:
+    if entry.R == 1:
+        entry.last_observed_epoch = current_epoch
+
+    entry.R = 0</code></pre>
+<p>During the next epoch, hardware sets the bit again if the page is accessed.</p>
+<p>A page with an older <code>last_observed_epoch</code> has not been observed in use for longer and is a plausible victim.</p>
+<p>However, two pages accessed in the same epoch receive the same approximate timestamp, even if one was accessed at its beginning and the other immediately before the scan.</p>
+<p>This is <strong>LRU-like approximation</strong>, not exact LRU.</p>
+<p>Real implementations must ensure that clearing the bit makes subsequent accesses observable despite cached translations. For exam purposes, assume the required synchronization and invalidation are included in the stated operation cost.</p>
+</section>
+<section id="sampling-versus-clock" class="level3">
+<h3 class="anchored" data-anchor-id="sampling-versus-clock">Sampling versus Clock</h3>
+<p>Both use hardware reference bits, but differently:</p>
+<table class="table">
+<thead>
+<tr class="header">
+<th>Mechanism</th>
+<th>When are bits inspected and cleared?</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Periodic epoch sampling</td>
+<td>At regular time intervals</td>
+</tr>
+<tr class="even">
+<td>Basic Clock</td>
+<td>While searching for a victim</td>
+</tr>
+</tbody>
+</table>
+<p>Clock’s hand position and previous scans influence its information. Its bits do not necessarily describe one common sampling interval.</p>
+</section>
+<section id="r-bit-scanning-overhead" class="level3">
+<h3 class="anchored" data-anchor-id="r-bit-scanning-overhead">R-bit scanning overhead</h3>
+<p>The Sheet 6 A4 model scans full flat page tables.</p>
+<p>Let:</p>
+<ul>
+<li><span class="math inline">\(m\)</span>: number of processes;</li>
+<li><span class="math inline">\(v\)</span>: virtual-address width;</li>
+<li><span class="math inline">\(2^n\)</span>: page size;</li>
+<li><span class="math inline">\(c\)</span>: cycles to sample and clear one entry;</li>
+<li><span class="math inline">\(f_{\mathrm{CPU}}\)</span>: CPU cycles per second.</li>
+</ul>
+<p>Then:</p>
+<p><span class="math display">\[
+N_{\text{scan}}=m\,2^{v-n},
+\]</span></p>
+<p><span class="math display">\[
+C_{\text{scan}}=c\,m\,2^{v-n},
+\]</span></p>
+<p><span class="math display">\[
+\boxed{
+t_{\text{scan}}
+=
+\frac{c\,m\,2^{v-n}}{f_{\mathrm{CPU}}}
+}
+\]</span></p>
+<p>This counts entries in the stipulated tables. It does <strong>not</strong> require every virtual page to be resident or even allocated.</p>
+<p>For the original sheet’s parameters:</p>
+<p><span class="math display">\[
+t_{\text{scan}}
+=
+\frac{10\cdot20\cdot2^{20}}{10^9}
+\approx0.2097\text{ s}.
+\]</span></p>
+<p>If scans start every <span class="math inline">\(T\)</span> seconds, including scanning time within that interval, their CPU-time fraction is:</p>
+<p><span class="math display">\[
+\boxed{\alpha=\frac{t_{\text{scan}}}{T}}.
+\]</span></p>
+<p>To stay at or below a budget <span class="math inline">\(\alpha_{\max}\)</span>:</p>
+<p><span class="math display">\[
+\boxed{T\ge\frac{t_{\text{scan}}}{\alpha_{\max}}}.
+\]</span></p>
+<p>For a 10% budget, the original parameters require at least about <strong>2.10 seconds</strong>, rather than exactly 2 seconds.</p>
+<p>The tradeoff is:</p>
+<ul>
+<li><strong>Short epochs:</strong> finer recency information, more scanning overhead.</li>
+<li><strong>Long epochs:</strong> less overhead, more references grouped into indistinguishable intervals.</li>
+</ul>
+<p>There is no universally correct epoch length. Derive it from the stated budget and explain the loss of precision.</p>
+<hr>
+</section>
+</section>
+<section id="common-exam-traps" class="level2">
+<h2 class="anchored" data-anchor-id="common-exam-traps">Common exam traps</h2>
+<ul>
+<li><strong>Counting one table instead of a whole level:</strong> distinguish entries per table, tables per level, and total entries per level.</li>
+<li><strong>Claiming hierarchy always saves memory:</strong> sparse allocation saves memory; a fully populated hierarchy adds upper-level overhead.</li>
+<li><strong>Confusing intermediate pointers with data-frame numbers.</strong></li>
+<li><strong>Equating a TLB miss with a page fault</strong>, or a page fault with an eviction.</li>
+<li><strong>Forgetting the final data access</strong> in TLB timing calculations.</li>
+<li><strong>Updating FIFO on hits</strong>, or failing to update LRU on hits.</li>
+<li><strong>Tracing Clock without specifying the hand and R-bit conventions.</strong></li>
+<li><strong>Treating R bits as exact timestamps:</strong> they record occurrence within an interval, not access order.</li>
+<li><strong>Scanning physical frames when the problem specifies full per-process flat tables</strong>, or mixing CPU cycles with seconds.</li>
+</ul>
+<hr>
+</section>
+<section id="exam-like-exercises" class="level2">
+<h2 class="anchored" data-anchor-id="exam-like-exercises">Exam-like exercises</h2>
+<p>Allow approximately <strong>55–70 minutes</strong>. Show intermediate states and short explanations. Solutions are intentionally omitted so you can work through these first.</p>
+<section id="exercise-1-a-sparse-three-level-address-space" class="level3">
+<h3 class="anchored" data-anchor-id="exercise-1-a-sparse-three-level-address-space">Exercise 1 — A sparse three-level address space</h3>
+<p>A machine uses:</p>
+<ul>
+<li>30-bit virtual byte addresses;</li>
+<li>1 KiB pages;</li>
+<li>three page-table levels with index widths <strong>6, 7, and 7 bits</strong>, from root to leaf;</li>
+<li>four-byte entries at every level.</li>
+</ul>
+<p>Intermediate entries contain physical base addresses of next-level tables. Leaf entries contain data-frame numbers and flags. Complete tables are allocated; ignore alignment padding and other metadata.</p>
+<section id="a.-structure-and-translation" class="level4">
+<h4 class="anchored" data-anchor-id="a.-structure-and-translation">A. Structure and translation</h4>
+<ol type="1">
+<li>Give the address decomposition, including the bit positions of all fields.</li>
+<li>Determine entries per table and bytes per table at each level.</li>
+<li>A virtual address has fields:</li>
+</ol>
+<p><span class="math display">\[
+i_1=5,\quad i_2=9,\quad i_3=17,\quad d=37.
+\]</span></p>
+<p>The root is based at physical address <code>0x4000</code>.</p>
+<ul>
+<li>Root entry 5 contains next-table base <code>0x8000</code>.</li>
+<li>Entry 9 of that table contains leaf-table base <code>0xA000</code>.</li>
+<li>Leaf entry 17 maps to frame 73 and permits the access.</li>
+</ul>
+<p>Calculate:</p>
+<ul>
+<li>the virtual byte address;</li>
+<li>the physical address of each of the three selected entries;</li>
+<li>the resulting physical data address.</li>
+</ul>
+</section>
+<section id="b.-full-versus-sparse-allocation" class="level4">
+<h4 class="anchored" data-anchor-id="b.-full-versus-sparse-allocation">B. Full versus sparse allocation</h4>
+<ol start="4" type="1">
+<li>For a fully populated hierarchy, calculate:
+<ul>
+<li>the number of tables at each level;</li>
+<li>the total entries at each level;</li>
+<li>the total page-table memory.</li>
+</ul></li>
+<li>Compare this with a full flat table using four-byte entries. Explain the difference.</li>
+</ol>
+<p>The process actually has allocated virtual pages only at these index triples:</p>
+<p><span class="math display">\[
+(0,0,0),\quad(0,0,127),\quad(0,3,2),\quad(63,127,127).
+\]</span></p>
+<ol start="6" type="1">
+<li>Determine the number of allocated tables at each level and the total table memory.</li>
+<li>The process additionally allocates page <span class="math inline">\((0,3,3)\)</span>. Does this require another page-table allocation? What about allocating <span class="math inline">\((0,4,0)\)</span>? Explain.</li>
+</ol>
+<hr>
+</section>
+</section>
+<section id="exercise-2-translation-misses-and-missing-pages" class="level3">
+<h3 class="anchored" data-anchor-id="exercise-2-translation-misses-and-missing-pages">Exercise 2 — Translation misses and missing pages</h3>
+<p>A system uses two-level page tables and 4 KiB pages.</p>
+<p>For process P:</p>
+<table class="table">
+<thead>
+<tr class="header">
+<th>Virtual page</th>
+<th>Page-table state</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0</td>
+<td>Resident in frame 8, readable</td>
+</tr>
+<tr class="even">
+<td>1</td>
+<td>Resident in frame 3, readable</td>
+</tr>
+<tr class="odd">
+<td>2</td>
+<td>Valid and readable, but nonresident</td>
+</tr>
+</tbody>
+</table>
+<p>Initially:</p>
+<ul>
+<li>P’s TLB contains only page <span class="math inline">\(0\rightarrow8\)</span>.</li>
+<li>The TLB can hold all translations used in this exercise.</li>
+<li>One free data frame, frame 6, is available.</li>
+<li>Page-table pages are resident.</li>
+<li>The OS loads page 2 into frame 6 when necessary.</li>
+</ul>
+<section id="a.-trace-the-mechanisms" class="level4">
+<h4 class="anchored" data-anchor-id="a.-trace-the-mechanisms">A. Trace the mechanisms</h4>
+<p>P performs these reads in order:</p>
+<p><span class="math display">\[
+0x0020,\quad0x1040,\quad0x1080,\quad0x2008,\quad0x200C.
+\]</span></p>
+<ol type="1">
+<li>For each read, give:
+<ul>
+<li>virtual page and offset;</li>
+<li>whether the <strong>initial</strong> TLB lookup hits or misses;</li>
+<li>whether a page-table walk occurs;</li>
+<li>whether a page fault occurs;</li>
+<li>whether a resident data page is evicted;</li>
+<li>the physical address after successful completion.</li>
+</ul></li>
+<li>Give the total initial TLB misses, page faults, and data-page evictions.</li>
+</ol>
+</section>
+<section id="b.-timing-and-capacity" class="level4">
+<h4 class="anchored" data-anchor-id="b.-timing-and-capacity">B. Timing and capacity</h4>
+<p>Assume a sequential TLB lookup model with:</p>
+<p><span class="math display">\[
+t_{\mathrm{TLB}}=8\text{ ns},\qquad
+t_{\mathrm{RAM}}=70\text{ ns},\qquad
+h=0.90.
+\]</span></p>
+<ol start="3" type="1">
+<li>Calculate hit time, resident-page miss time, and expected access time. Exclude page faults.</li>
+<li>A separate workload repeatedly reads one byte from pages:</li>
+</ol>
+<p><span class="math display">\[
+4,5,6,7,4,5,6,7,\ldots
+\]</span></p>
+<p>All four pages remain resident. Its initially empty TLB is fully associative, holds three translations, and uses exact LRU. Determine the hit/miss behavior and explain whether it implies page faults.</p>
+</section>
+<section id="c.-address-space-identity" class="level4">
+<h4 class="anchored" data-anchor-id="c.-address-space-identity">C. Address-space identity</h4>
+<ol start="5" type="1">
+<li>Process Q maps its page 0 to frame 12. Explain what could go wrong if an untagged TLB retains P’s page-0 translation when switching to Q.</li>
+<li>Does switching between two threads of P create the same problem? Explain.</li>
+</ol>
+<hr>
+</section>
+</section>
+<section id="exercise-3-complete-fifo-lru-and-clock-traces" class="level3">
+<h3 class="anchored" data-anchor-id="exercise-3-complete-fifo-lru-and-clock-traces">Exercise 3 — Complete FIFO, LRU, and Clock traces</h3>
+<p>A process has <strong>three initially empty frames</strong>, numbered 0, 1, and 2. All referenced pages are valid. The reference string is:</p>
+<p><span class="math display">\[
+A,\ B,\ C,\ A,\ D,\ B,\ E,\ A,\ B,\ C,\ D,\ E.
+\]</span></p>
+<section id="a.-fifo-and-exact-lru" class="level4">
+<h4 class="anchored" data-anchor-id="a.-fifo-and-exact-lru">A. FIFO and exact LRU</h4>
+<ol type="1">
+<li>Simulate FIFO and exact LRU separately.</li>
+<li>After <strong>every reference</strong>, record:
+<ul>
+<li>all three frame contents;</li>
+<li>hit or fault;</li>
+<li>victim, if any;</li>
+<li>FIFO queue or LRU order.</li>
+</ul></li>
+<li>Count page faults and evictions for each policy.</li>
+<li>Identify the first reference at which their victim choices differ. Explain using their metadata.</li>
+</ol>
+</section>
+<section id="b.-clock" class="level4">
+<h4 class="anchored" data-anchor-id="b.-clock">B. Clock</h4>
+<p>Use these conventions:</p>
+<ul>
+<li>The hand initially points to frame 0.</li>
+<li>Empty frames are filled at the hand, then the hand advances.</li>
+<li>Every loaded or referenced page has <span class="math inline">\(R=1\)</span>.</li>
+<li>Hits leave the hand unchanged.</li>
+<li>During replacement, clear and pass over candidates with <span class="math inline">\(R=1\)</span>.</li>
+<li>Replace the first candidate with <span class="math inline">\(R=0\)</span>, set the new page’s bit to 1, and advance the hand.</li>
+</ul>
+<ol start="5" type="1">
+<li>Simulate Clock for the same complete string.</li>
+<li>After each reference, record:
+<ul>
+<li>frame contents and R bits;</li>
+<li>the hand position;</li>
+<li>hit/fault and victim.</li>
+</ul></li>
+<li>At the <strong>first replacement</strong>, list every frame inspected, including repeated inspections. Compare Clock’s victim with exact LRU’s.</li>
+<li>Explain why Clock can evict a page whose last access was more recent than another resident page’s last access.</li>
+</ol>
+<p>You may use this table layout separately for each policy:</p>
+<table>
+<colgroup>
+<col style="width: 16%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: right;">Step</th>
+<th>Reference</th>
+<th>Frame 0</th>
+<th>Frame 1</th>
+<th>Frame 2</th>
+<th>Hit/fault</th>
+<th>Victim</th>
+<th>Policy metadata</th>
+</tr>
+</thead>
+<tbody>
+</tbody>
+</table>
+<hr>
+</section>
+</section>
+<section id="exercise-4-r-bit-evidence-and-its-cost" class="level3">
+<h3 class="anchored" data-anchor-id="exercise-4-r-bit-evidence-and-its-cost">Exercise 4 — R-bit evidence and its cost</h3>
+<section id="a.-what-can-sampling-reveal" class="level4">
+<h4 class="anchored" data-anchor-id="a.-what-can-sampling-reveal">A. What can sampling reveal?</h4>
+<p>Four resident pages A, B, C, and D initially have:</p>
+<p><span class="math display">\[
+R=0,\qquad\text{last observed epoch}=0.
+\]</span></p>
+<p>At the end of each epoch, the OS updates the approximate timestamp of every page with <span class="math inline">\(R=1\)</span>, then clears all R bits.</p>
+<p>The references are:</p>
+<table class="table">
+<thead>
+<tr class="header">
+<th style="text-align: right;">Epoch</th>
+<th>References in chronological order</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td>A, B, A</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td>C, B</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td>A, C</td>
+</tr>
+</tbody>
+</table>
+<ol type="1">
+<li>Give every page’s R bit immediately before each scan and its approximate timestamp immediately after each scan.</li>
+<li>After epoch 3’s scan, which page would an “oldest observed epoch” policy select first?</li>
+<li>Suppose D has already been removed and another victim must immediately be selected among A, B, and C. Which page does exact LRU choose? Which page does the epoch approximation choose?</li>
+<li>The OS then needs to distinguish A from C. Can their epoch timestamps establish their exact LRU order? State the actual order from the reference history and explain what sampling lost.</li>
+<li>Does accessing A ten times during epoch 3 give its R bit a different value from accessing it once?</li>
+</ol>
+</section>
+<section id="b.-scanning-overhead" class="level4">
+<h4 class="anchored" data-anchor-id="b.-scanning-overhead">B. Scanning overhead</h4>
+<p>A different system has:</p>
+<ul>
+<li>32-bit virtual addresses;</li>
+<li>8 KiB pages;</li>
+<li>12 processes, each with a full flat page table;</li>
+<li>a 2 GHz CPU;</li>
+<li>16 CPU cycles to read, record, and clear one entry’s R bit.</li>
+</ul>
+<p>Assume a single CPU executes the scans sequentially. One scan occurs per epoch.</p>
+<ol start="6" type="1">
+<li>Calculate:
+<ul>
+<li>entries scanned per process;</li>
+<li>total entries;</li>
+<li>cycles per scan;</li>
+<li>scan time in milliseconds.</li>
+</ul></li>
+<li>The scan must consume at most <strong>4%</strong> of CPU time. Calculate the minimum epoch duration, measured from the start of one scan to the start of the next.</li>
+<li>What fraction of CPU time would scanning consume with 100 ms epochs?</li>
+<li>Explain why increasing the epoch duration solves the overhead problem while reducing recency precision.</li>
+<li>Only a small fraction of virtual pages are resident. Does that reduce the cost under the specified <strong>full-table scanning model</strong>? What would have to change in the scanning method to exploit sparse residency?</li>
+</ol>
+<hr>
+<p>The unit follows the plan and prerequisite chapter in 15-Operating-Systems-and-Networks-SoSe-25-Notes.pdf, the mechanisms and calculations in 05-ueb05-ibn-SS2025.pdf and 06-ueb06-ibn-SS2025.pdf, checked against 14-Operating-Systems-and-Networs-SoSe-25-Solutions.pdf and the theoretical framing in 01-ibn-zusammenfassung.pdf. Exam calibration uses 12-ibn-klausur-2016.pdf and 13-Ged-chtnisprotokoll_Klausur_-IBN_Ersttermin.pdf.</p>
+</section>
+</section>
+</section>
+<section id="solutions" class="level2">
+<h2 class="anchored" data-anchor-id="solutions">Solutions</h2>
+<section id="exercise-1-a-sparse-three-level-address-space-1" class="level3">
+<h3 class="anchored" data-anchor-id="exercise-1-a-sparse-three-level-address-space-1">Exercise 1 — A sparse three-level address space</h3>
+<section id="a.-structure-and-translation-1" class="level4">
+<h4 class="anchored" data-anchor-id="a.-structure-and-translation-1">A. Structure and translation</h4>
+<section id="address-fields-and-table-sizes" class="level5">
+<h5 class="anchored" data-anchor-id="address-fields-and-table-sizes">1–2. Address fields and table sizes</h5>
+<p>A 1 KiB page contains <span class="math inline">\(2^{10}\)</span> bytes, so the offset uses <strong>10 bits</strong>.</p>
+<p><span class="math display">\[
+\boxed{i_1:6\text{ bits}\mid i_2:7\text{ bits}\mid i_3:7\text{ bits}\mid d:10\text{ bits}}
+\]</span></p>
+<table class="table">
+<thead>
+<tr class="header">
+<th>Field</th>
+<th>Bit positions</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(i_1\)</span></td>
+<td>29–24</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(i_2\)</span></td>
+<td>23–17</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(i_3\)</span></td>
+<td>16–10</td>
+</tr>
+<tr class="even">
+<td>Offset <span class="math inline">\(d\)</span></td>
+<td>9–0</td>
+</tr>
+</tbody>
+</table>
+<p>At four bytes per entry:</p>
+<table class="table">
+<thead>
+<tr class="header">
+<th>Level</th>
+<th style="text-align: right;">Entries in one table</th>
+<th style="text-align: right;">Bytes in one table</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td style="text-align: right;"><span class="math inline">\(2^6=64\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(64\cdot4=256\)</span></td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td style="text-align: right;"><span class="math inline">\(2^7=128\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(128\cdot4=512\)</span></td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td style="text-align: right;"><span class="math inline">\(2^7=128\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(128\cdot4=512\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>These tables need not occupy whole page frames under this exercise’s assumptions.</p>
+</section>
+<section id="translation" class="level5">
+<h5 class="anchored" data-anchor-id="translation">3. Translation</h5>
+<p>The virtual address is:</p>
+<p><span class="math display">\[
+\begin{aligned}
+V
+&amp;=5\cdot2^{24}+9\cdot2^{17}+17\cdot2^{10}+37\\
+&amp;=\boxed{85\,083\,173}.
+\end{aligned}
+\]</span></p>
+<p>Each selected entry is at its table’s base plus the index multiplied by four:</p>
+<table class="table">
+<thead>
+<tr class="header">
+<th>Selected entry</th>
+<th>Physical address of entry</th>
+<th>Entry content</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Root entry 5</td>
+<td><code>0x4000 + 5·4 = 0x4014</code></td>
+<td>Next table at <code>0x8000</code></td>
+</tr>
+<tr class="even">
+<td>Level-2 entry 9</td>
+<td><code>0x8000 + 9·4 = 0x8024</code></td>
+<td>Leaf table at <code>0xA000</code></td>
+</tr>
+<tr class="odd">
+<td>Leaf entry 17</td>
+<td><code>0xA000 + 17·4 = 0xA044</code></td>
+<td>Data frame 73</td>
+</tr>
+</tbody>
+</table>
+<p>The physical data address is:</p>
+<p><span class="math display">\[
+A=73\cdot1024+37=\boxed{74\,789}.
+\]</span></p>
+<p><strong>Check:</strong> the addresses of the table entries are intermediate lookup locations; none is the final data address.</p>
+</section>
+</section>
+<section id="b.-full-versus-sparse-allocation-1" class="level4">
+<h4 class="anchored" data-anchor-id="b.-full-versus-sparse-allocation-1">B. Full versus sparse allocation</h4>
+<section id="fully-populated-hierarchy" class="level5">
+<h5 class="anchored" data-anchor-id="fully-populated-hierarchy">4. Fully populated hierarchy</h5>
+<table class="table">
+<colgroup>
+<col style="width: 15%">
+<col style="width: 21%">
+<col style="width: 21%">
+<col style="width: 21%">
+<col style="width: 21%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Level</th>
+<th style="text-align: right;">Number of tables</th>
+<th style="text-align: right;">Entries per table</th>
+<th style="text-align: right;">Total entries</th>
+<th style="text-align: right;">Total bytes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td style="text-align: right;"><span class="math inline">\(1\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(64\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(64\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(256\)</span></td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td style="text-align: right;"><span class="math inline">\(64\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(128\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(8\,192\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(32\,768\)</span></td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td style="text-align: right;"><span class="math inline">\(8\,192\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(128\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(1\,048\,576\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(4\,194\,304\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>Therefore:</p>
+<p><span class="math display">\[
+T_{\max}=256+32\,768+4\,194\,304
+=\boxed{4\,227\,328\text{ bytes}}.
+\]</span></p>
+<p>Equivalently:</p>
+<p><span class="math display">\[
+\boxed{4\text{ MiB}+32\text{ KiB}+256\text{ bytes}}.
+\]</span></p>
+</section>
+<section id="flat-table-comparison" class="level5">
+<h5 class="anchored" data-anchor-id="flat-table-comparison">5. Flat-table comparison</h5>
+<p>There are:</p>
+<p><span class="math display">\[
+2^{30-10}=2^{20}
+\]</span></p>
+<p>virtual pages. A full flat table occupies:</p>
+<p><span class="math display">\[
+2^{20}\cdot4=\boxed{4\text{ MiB}}.
+\]</span></p>
+<p>The fully populated hierarchy uses <strong>32 KiB + 256 bytes more</strong>, because it contains the same number of leaf entries plus the upper-level entries.</p>
+<p>Its advantage appears when unused branches are not allocated.</p>
+</section>
+<section id="sparse-allocation" class="level5">
+<h5 class="anchored" data-anchor-id="sparse-allocation">6. Sparse allocation</h5>
+<p>The mapped triples are:</p>
+<p><span class="math display">\[
+(0,0,0),\quad(0,0,127),\quad(0,3,2),\quad(63,127,127).
+\]</span></p>
+<p>Count distinct prefixes:</p>
+<ul>
+<li>One root.</li>
+<li>Two distinct first indices, <span class="math inline">\(0\)</span> and <span class="math inline">\(63\)</span>: <strong>two level-2 tables</strong>.</li>
+<li>Three distinct pairs, <span class="math inline">\((0,0),(0,3),(63,127)\)</span>: <strong>three leaf tables</strong>.</li>
+</ul>
+<p>Thus:</p>
+<p><span class="math display">\[
+T=256+2\cdot512+3\cdot512
+=\boxed{2\,816\text{ bytes}=2.75\text{ KiB}}.
+\]</span></p>
+<p>The first two mappings share a leaf table.</p>
+</section>
+<section id="additional-mappings" class="level5">
+<h5 class="anchored" data-anchor-id="additional-mappings">7. Additional mappings</h5>
+<table class="table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>New page</th>
+<th>New table allocation?</th>
+<th>Reason</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\((0,3,3)\)</span></td>
+<td>No</td>
+<td>Leaf table for <span class="math inline">\((0,3)\)</span> already exists</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\((0,4,0)\)</span></td>
+<td>One new leaf table: <strong>512 bytes</strong></td>
+<td>Level-2 table for <span class="math inline">\(i_1=0\)</span> exists, but its branch <span class="math inline">\(i_2=4\)</span> needs a leaf</td>
+</tr>
+</tbody>
+</table>
+<p>Allocating a data page also requires a data frame when made resident, but that is separate from the table-storage question.</p>
+</section>
+</section>
+</section>
+<section id="exercise-2-translation-misses-and-missing-pages-1" class="level3">
+<h3 class="anchored" data-anchor-id="exercise-2-translation-misses-and-missing-pages-1">Exercise 2 — Translation misses and missing pages</h3>
+<section id="a.-trace-the-mechanisms-1" class="level4">
+<h4 class="anchored" data-anchor-id="a.-trace-the-mechanisms-1">A. Trace the mechanisms</h4>
+<p>The page size is <code>0x1000</code> bytes.</p>
+<table class="table">
+<colgroup>
+<col style="width: 11%">
+<col style="width: 15%">
+<col style="width: 15%">
+<col style="width: 11%">
+<col style="width: 11%">
+<col style="width: 11%">
+<col style="width: 11%">
+<col style="width: 11%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Read</th>
+<th style="text-align: right;">Page</th>
+<th style="text-align: right;">Offset</th>
+<th>Initial TLB</th>
+<th>Table walk?</th>
+<th>Page fault?</th>
+<th>Data-page eviction?</th>
+<th>Final physical address</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>0x0020</code></td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;"><code>0x020</code></td>
+<td>Hit</td>
+<td>No</td>
+<td>No</td>
+<td>No</td>
+<td><code>0x8020</code> = 32,800</td>
+</tr>
+<tr class="even">
+<td><code>0x1040</code></td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;"><code>0x040</code></td>
+<td>Miss</td>
+<td>Yes</td>
+<td>No</td>
+<td>No</td>
+<td><code>0x3040</code> = 12,352</td>
+</tr>
+<tr class="odd">
+<td><code>0x1080</code></td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;"><code>0x080</code></td>
+<td>Hit</td>
+<td>No</td>
+<td>No</td>
+<td>No</td>
+<td><code>0x3080</code> = 12,416</td>
+</tr>
+<tr class="even">
+<td><code>0x2008</code></td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;"><code>0x008</code></td>
+<td>Miss</td>
+<td>Yes</td>
+<td>Yes</td>
+<td>No</td>
+<td><code>0x6008</code> = 24,584</td>
+</tr>
+<tr class="odd">
+<td><code>0x200C</code></td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;"><code>0x00C</code></td>
+<td>Hit</td>
+<td>No</td>
+<td>No</td>
+<td>No</td>
+<td><code>0x600C</code> = 24,588</td>
+</tr>
+</tbody>
+</table>
+<p>After the access to page 1, its translation is cached. Page 2 is loaded into the free frame 6, and its translation is made available for subsequent accesses.</p>
+<p>Totals:</p>
+<p><span class="math display">\[
+\boxed{2\text{ initial TLB misses},\quad1\text{ page fault},\quad0\text{ evictions}}.
+\]</span></p>
+<p>The fault does not require eviction because a free frame exists.</p>
+</section>
+<section id="b.-timing-and-capacity-1" class="level4">
+<h4 class="anchored" data-anchor-id="b.-timing-and-capacity-1">B. Timing and capacity</h4>
+<section id="access-times" class="level5">
+<h5 class="anchored" data-anchor-id="access-times">3. Access times</h5>
+<p>With two levels:</p>
+<p><span class="math display">\[
+t_{\text{hit}}=8+70=\boxed{78\text{ ns}},
+\]</span></p>
+<p><span class="math display">\[
+t_{\text{miss}}=8+3\cdot70=\boxed{218\text{ ns}}.
+\]</span></p>
+<p>The miss needs two table accesses and one data access.</p>
+<p><span class="math display">\[
+\operatorname{EAT}
+=0.9\cdot78+0.1\cdot218
+=\boxed{92\text{ ns}}.
+\]</span></p>
+</section>
+<section id="four-pages-cycling-through-a-three-entry-lru-tlb" class="level5">
+<h5 class="anchored" data-anchor-id="four-pages-cycling-through-a-three-entry-lru-tlb">4. Four pages cycling through a three-entry LRU TLB</h5>
+<p>Reference sequence:</p>
+<p><span class="math display">\[
+4,5,6,7,4,5,6,7,\ldots
+\]</span></p>
+<p><strong>Every access misses.</strong></p>
+<p>After loading translations for 4, 5, and 6, accessing 7 evicts 4. The next access to 4 evicts 5, and so on. Each page is removed before its next reference.</p>
+<p>Nevertheless:</p>
+<p><span class="math display">\[
+\boxed{\text{No page faults and no data-page replacement.}}
+\]</span></p>
+<p>All data pages remain resident; only their cached translations are evicted.</p>
+</section>
+</section>
+<section id="c.-address-space-identity-1" class="level4">
+<h4 class="anchored" data-anchor-id="c.-address-space-identity-1">C. Address-space identity</h4>
+<section id="switching-to-q" class="level5">
+<h5 class="anchored" data-anchor-id="switching-to-q">5. Switching to Q</h5>
+<p>An untagged cached entry for page 0 still says:</p>
+<p><span class="math display">\[
+0\rightarrow8.
+\]</span></p>
+<p>Q’s correct mapping is:</p>
+<p><span class="math display">\[
+0\rightarrow12.
+\]</span></p>
+<p>If the old entry remains usable, Q could access <strong>frame 8 instead of frame 12</strong>, accessing the wrong process’s memory.</p>
+<p>The OS must invalidate the relevant untagged translations when changing address spaces, or use correctly managed address-space tags.</p>
+</section>
+<section id="switching-between-ps-threads" class="level5">
+<h5 class="anchored" data-anchor-id="switching-between-ps-threads">6. Switching between P’s threads</h5>
+<p>Threads sharing P’s address space use the same page mappings. Switching between them does <strong>not itself</strong> require invalidating those mappings.</p>
+</section>
+</section>
+</section>
+<section id="exercise-3-complete-replacement-traces" class="level3">
+<h3 class="anchored" data-anchor-id="exercise-3-complete-replacement-traces">Exercise 3 — Complete replacement traces</h3>
+<p>In all tables:</p>
+<ul>
+<li>States are recorded <strong>after</strong> the reference.</li>
+<li><code>—</code> denotes an empty frame or no victim.</li>
+<li><strong>F</strong> = page fault; <strong>H</strong> = hit.</li>
+<li>Frame positions stay fixed.</li>
+</ul>
+<section id="a.-fifo" class="level4">
+<h4 class="anchored" data-anchor-id="a.-fifo">A. FIFO</h4>
+<p>Queue order is <strong>oldest arrival → newest arrival</strong>.</p>
+<table class="table">
+<colgroup>
+<col style="width: 16%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: right;">Step</th>
+<th>Ref.</th>
+<th>Frame 0</th>
+<th>Frame 1</th>
+<th>Frame 2</th>
+<th>F/H</th>
+<th>Victim</th>
+<th>FIFO queue</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td>A</td>
+<td>A</td>
+<td>—</td>
+<td>—</td>
+<td>F</td>
+<td>—</td>
+<td>A</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td>B</td>
+<td>A</td>
+<td>B</td>
+<td>—</td>
+<td>F</td>
+<td>—</td>
+<td>A, B</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td>C</td>
+<td>A</td>
+<td>B</td>
+<td>C</td>
+<td>F</td>
+<td>—</td>
+<td>A, B, C</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4</td>
+<td>A</td>
+<td>A</td>
+<td>B</td>
+<td>C</td>
+<td>H</td>
+<td>—</td>
+<td>A, B, C</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">5</td>
+<td>D</td>
+<td>D</td>
+<td>B</td>
+<td>C</td>
+<td>F</td>
+<td>A</td>
+<td>B, C, D</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">6</td>
+<td>B</td>
+<td>D</td>
+<td>B</td>
+<td>C</td>
+<td>H</td>
+<td>—</td>
+<td>B, C, D</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">7</td>
+<td>E</td>
+<td>D</td>
+<td>E</td>
+<td>C</td>
+<td>F</td>
+<td>B</td>
+<td>C, D, E</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">8</td>
+<td>A</td>
+<td>D</td>
+<td>E</td>
+<td>A</td>
+<td>F</td>
+<td>C</td>
+<td>D, E, A</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">9</td>
+<td>B</td>
+<td>B</td>
+<td>E</td>
+<td>A</td>
+<td>F</td>
+<td>D</td>
+<td>E, A, B</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">10</td>
+<td>C</td>
+<td>B</td>
+<td>C</td>
+<td>A</td>
+<td>F</td>
+<td>E</td>
+<td>A, B, C</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">11</td>
+<td>D</td>
+<td>B</td>
+<td>C</td>
+<td>D</td>
+<td>F</td>
+<td>A</td>
+<td>B, C, D</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">12</td>
+<td>E</td>
+<td>E</td>
+<td>C</td>
+<td>D</td>
+<td>F</td>
+<td>B</td>
+<td>C, D, E</td>
+</tr>
+</tbody>
+</table>
+<p><span class="math display">\[
+\boxed{\text{FIFO: }10\text{ faults},\quad7\text{ evictions}}.
+\]</span></p>
+<p>Hits at steps 4 and 6 leave the arrival queue unchanged.</p>
+</section>
+<section id="exact-lru" class="level4">
+<h4 class="anchored" data-anchor-id="exact-lru">Exact LRU</h4>
+<p>Order is <strong>least recently used → most recently used</strong>.</p>
+<table class="table">
+<thead>
+<tr class="header">
+<th style="text-align: right;">Step</th>
+<th>Ref.</th>
+<th>Frame 0</th>
+<th>Frame 1</th>
+<th>Frame 2</th>
+<th>F/H</th>
+<th>Victim</th>
+<th>LRU order</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td>A</td>
+<td>A</td>
+<td>—</td>
+<td>—</td>
+<td>F</td>
+<td>—</td>
+<td>A</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td>B</td>
+<td>A</td>
+<td>B</td>
+<td>—</td>
+<td>F</td>
+<td>—</td>
+<td>A, B</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td>C</td>
+<td>A</td>
+<td>B</td>
+<td>C</td>
+<td>F</td>
+<td>—</td>
+<td>A, B, C</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4</td>
+<td>A</td>
+<td>A</td>
+<td>B</td>
+<td>C</td>
+<td>H</td>
+<td>—</td>
+<td>B, C, A</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">5</td>
+<td>D</td>
+<td>A</td>
+<td>D</td>
+<td>C</td>
+<td>F</td>
+<td>B</td>
+<td>C, A, D</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">6</td>
+<td>B</td>
+<td>A</td>
+<td>D</td>
+<td>B</td>
+<td>F</td>
+<td>C</td>
+<td>A, D, B</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">7</td>
+<td>E</td>
+<td>E</td>
+<td>D</td>
+<td>B</td>
+<td>F</td>
+<td>A</td>
+<td>D, B, E</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">8</td>
+<td>A</td>
+<td>E</td>
+<td>A</td>
+<td>B</td>
+<td>F</td>
+<td>D</td>
+<td>B, E, A</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">9</td>
+<td>B</td>
+<td>E</td>
+<td>A</td>
+<td>B</td>
+<td>H</td>
+<td>—</td>
+<td>E, A, B</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">10</td>
+<td>C</td>
+<td>C</td>
+<td>A</td>
+<td>B</td>
+<td>F</td>
+<td>E</td>
+<td>A, B, C</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">11</td>
+<td>D</td>
+<td>C</td>
+<td>D</td>
+<td>B</td>
+<td>F</td>
+<td>A</td>
+<td>B, C, D</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">12</td>
+<td>E</td>
+<td>C</td>
+<td>D</td>
+<td>E</td>
+<td>F</td>
+<td>B</td>
+<td>C, D, E</td>
+</tr>
+</tbody>
+</table>
+<p><span class="math display">\[
+\boxed{\text{LRU: }10\text{ faults},\quad7\text{ evictions}}.
+\]</span></p>
+<p>The first different victim choice is <strong>step 5</strong>:</p>
+<ul>
+<li>FIFO evicts <strong>A</strong>, the oldest arrival.</li>
+<li>LRU evicts <strong>B</strong>, because A was referenced again at step 4.</li>
+</ul>
+<p>Both algorithms happen to have equal total faults here, despite different victims and different hit locations.</p>
+</section>
+<section id="b.-clock-1" class="level4">
+<h4 class="anchored" data-anchor-id="b.-clock-1">B. Clock</h4>
+<p>Notation <code>A/1</code> means page A with reference bit 1. The hand column gives the <strong>next candidate frame</strong> after completing the reference.</p>
+<table class="table">
+<thead>
+<tr class="header">
+<th style="text-align: right;">Step</th>
+<th>Ref.</th>
+<th>Frame 0</th>
+<th>Frame 1</th>
+<th>Frame 2</th>
+<th>F/H</th>
+<th>Victim</th>
+<th style="text-align: right;">Hand</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td>A</td>
+<td>A/1</td>
+<td>—</td>
+<td>—</td>
+<td>F</td>
+<td>—</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td>B</td>
+<td>A/1</td>
+<td>B/1</td>
+<td>—</td>
+<td>F</td>
+<td>—</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td>C</td>
+<td>A/1</td>
+<td>B/1</td>
+<td>C/1</td>
+<td>F</td>
+<td>—</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4</td>
+<td>A</td>
+<td>A/1</td>
+<td>B/1</td>
+<td>C/1</td>
+<td>H</td>
+<td>—</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">5</td>
+<td>D</td>
+<td>D/1</td>
+<td>B/0</td>
+<td>C/0</td>
+<td>F</td>
+<td>A</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">6</td>
+<td>B</td>
+<td>D/1</td>
+<td>B/1</td>
+<td>C/0</td>
+<td>H</td>
+<td>—</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">7</td>
+<td>E</td>
+<td>D/1</td>
+<td>B/0</td>
+<td>E/1</td>
+<td>F</td>
+<td>C</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">8</td>
+<td>A</td>
+<td>D/0</td>
+<td>A/1</td>
+<td>E/1</td>
+<td>F</td>
+<td>B</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">9</td>
+<td>B</td>
+<td>B/1</td>
+<td>A/1</td>
+<td>E/0</td>
+<td>F</td>
+<td>D</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">10</td>
+<td>C</td>
+<td>B/1</td>
+<td>A/0</td>
+<td>C/1</td>
+<td>F</td>
+<td>E</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">11</td>
+<td>D</td>
+<td>B/0</td>
+<td>D/1</td>
+<td>C/1</td>
+<td>F</td>
+<td>A</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">12</td>
+<td>E</td>
+<td>E/1</td>
+<td>D/1</td>
+<td>C/0</td>
+<td>F</td>
+<td>B</td>
+<td style="text-align: right;">1</td>
+</tr>
+</tbody>
+</table>
+<p><span class="math display">\[
+\boxed{\text{Clock: }10\text{ faults},\quad7\text{ evictions}}.
+\]</span></p>
+<p>For checking your hand movements, replacement scans inspect these frame sequences:</p>
+<table class="table">
+<thead>
+<tr class="header">
+<th style="text-align: right;">Step</th>
+<th>Frames inspected, in order</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">5</td>
+<td>0, 1, 2, 0</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">7</td>
+<td>1, 2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">8</td>
+<td>0, 1</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">9</td>
+<td>2, 0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">10</td>
+<td>1, 2</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">11</td>
+<td>0, 1</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">12</td>
+<td>2, 0</td>
+</tr>
+</tbody>
+</table>
+<section id="first-replacement-step-5" class="level5">
+<h5 class="anchored" data-anchor-id="first-replacement-step-5">First replacement: step 5</h5>
+<p>Before D:</p>
+<ul>
+<li>Frames contain A, B, C.</li>
+<li>All bits are 1.</li>
+<li>Hand points to frame 0.</li>
+</ul>
+<p>Clock:</p>
+<ol type="1">
+<li>Inspects A in frame 0: clears <span class="math inline">\(R=1\)</span> to 0.</li>
+<li>Inspects B in frame 1: clears its bit.</li>
+<li>Inspects C in frame 2: clears its bit.</li>
+<li>Returns to A in frame 0: its bit is now 0, so replaces A.</li>
+</ol>
+<p>Exact LRU replaces <strong>B</strong> instead.</p>
+</section>
+<section id="why-clock-can-evict-a-more-recently-used-page" class="level5">
+<h5 class="anchored" data-anchor-id="why-clock-can-evict-a-more-recently-used-page">Why Clock can evict a more recently used page</h5>
+<p>A was last accessed at step 4; B at step 2. Nevertheless, Clock evicts A.</p>
+<p>The bits tell Clock that all three pages were referenced since their bits were cleared. They do not encode the order of those references. The hand breaks that ambiguity according to its circular scanning position.</p>
+</section>
+</section>
+</section>
+<section id="exercise-4-r-bit-evidence-and-scanning-cost" class="level3">
+<h3 class="anchored" data-anchor-id="exercise-4-r-bit-evidence-and-scanning-cost">Exercise 4 — R-bit evidence and scanning cost</h3>
+<section id="a.-sampling" class="level4">
+<h4 class="anchored" data-anchor-id="a.-sampling">A. Sampling</h4>
+<p>In the table below, each tuple lists values in order <strong>A, B, C, D</strong>.</p>
+<table class="table">
+<colgroup>
+<col style="width: 30%">
+<col style="width: 23%">
+<col style="width: 23%">
+<col style="width: 23%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: right;">Epoch</th>
+<th>References</th>
+<th>R bits immediately before scan</th>
+<th>Approximate timestamps after scan</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">Initially</td>
+<td>—</td>
+<td><span class="math inline">\((0,0,0,0)\)</span></td>
+<td><span class="math inline">\((0,0,0,0)\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1</td>
+<td>A, B, A</td>
+<td><span class="math inline">\((1,1,0,0)\)</span></td>
+<td><span class="math inline">\((1,1,0,0)\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">2</td>
+<td>C, B</td>
+<td><span class="math inline">\((0,1,1,0)\)</span></td>
+<td><span class="math inline">\((1,2,2,0)\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">3</td>
+<td>A, C</td>
+<td><span class="math inline">\((1,0,1,0)\)</span></td>
+<td><span class="math inline">\((3,2,3,0)\)</span></td>
+</tr>
+</tbody>
+</table>
+<p><strong>After every scan, all R bits are cleared to zero.</strong> The timestamps remain stored separately.</p>
+<section id="first-victim" class="level5">
+<h5 class="anchored" data-anchor-id="first-victim">2. First victim</h5>
+<p>D has the oldest timestamp:</p>
+<p><span class="math display">\[
+\boxed{D}.
+\]</span></p>
+<p>It was never referenced during these epochs.</p>
+</section>
+<section id="after-d-has-been-removed" class="level5">
+<h5 class="anchored" data-anchor-id="after-d-has-been-removed">3. After D has been removed</h5>
+<p>Among A, B, and C, timestamps are:</p>
+<p><span class="math display">\[
+A:3,\qquad B:2,\qquad C:3.
+\]</span></p>
+<p>The approximation chooses <strong>B</strong>.</p>
+<p>Exact LRU also chooses <strong>B</strong>: its last reference was in epoch 2, while both A and C were referenced in epoch 3.</p>
+</section>
+<section id="distinguishing-a-from-c" class="level5">
+<h5 class="anchored" data-anchor-id="distinguishing-a-from-c">4. Distinguishing A from C</h5>
+<p>Their approximate timestamps are tied at 3, so the sampling information <strong>cannot establish their exact order</strong>.</p>
+<p>The actual history ends with A, then C. Therefore:</p>
+<p><span class="math display">\[
+\boxed{\text{A is less recently used than C.}}
+\]</span></p>
+<p>Sampling loses the ordering of accesses within an epoch.</p>
+</section>
+<section id="ten-accesses-versus-one" class="level5">
+<h5 class="anchored" data-anchor-id="ten-accesses-versus-one">5. Ten accesses versus one</h5>
+<p>Both produce:</p>
+<p><span class="math display">\[
+\boxed{R_A=1}.
+\]</span></p>
+<p>A single bit records whether at least one reference occurred, not the number of references.</p>
+</section>
+</section>
+<section id="b.-scanning-overhead-1" class="level4">
+<h4 class="anchored" data-anchor-id="b.-scanning-overhead-1">B. Scanning overhead</h4>
+<section id="entries-cycles-and-time" class="level5">
+<h5 class="anchored" data-anchor-id="entries-cycles-and-time">6. Entries, cycles, and time</h5>
+<p>An 8 KiB page uses <span class="math inline">\(13\)</span> offset bits. Thus, per process:</p>
+<p><span class="math display">\[
+N_{\text{process}}=2^{32-13}
+=\boxed{2^{19}=524\,288\text{ entries}}.
+\]</span></p>
+<p>Across 12 processes:</p>
+<p><span class="math display">\[
+N_{\text{total}}
+=12\cdot524\,288
+=\boxed{6\,291\,456\text{ entries}}.
+\]</span></p>
+<p>At 16 cycles per entry:</p>
+<p><span class="math display">\[
+C=6\,291\,456\cdot16
+=\boxed{100\,663\,296\text{ cycles}}.
+\]</span></p>
+<p>At 2 GHz:</p>
+<p><span class="math display">\[
+t_{\text{scan}}
+=\frac{100\,663\,296}{2\cdot10^9}
+=0.050331648\text{ s}.
+\]</span></p>
+<p><span class="math display">\[
+\boxed{t_{\text{scan}}\approx50.33\text{ ms}}.
+\]</span></p>
+</section>
+<section id="maximum-4-overhead" class="level5">
+<h5 class="anchored" data-anchor-id="maximum-4-overhead">7. Maximum 4% overhead</h5>
+<p>The epoch duration includes the scan:</p>
+<p><span class="math display">\[
+\frac{t_{\text{scan}}}{T}\le0.04.
+\]</span></p>
+<p>Therefore:</p>
+<p><span class="math display">\[
+T\ge\frac{0.050331648}{0.04}
+=\boxed{1.2582912\text{ s}}.
+\]</span></p>
+<p>A practical rounded choice is <strong>1.26 seconds or longer</strong>.</p>
+</section>
+<section id="with-100-ms-epochs" class="level5">
+<h5 class="anchored" data-anchor-id="with-100-ms-epochs">8. With 100 ms epochs</h5>
+<p><span class="math display">\[
+\alpha
+=\frac{50.331648\text{ ms}}{100\text{ ms}}
+=0.50331648.
+\]</span></p>
+<p><span class="math display">\[
+\boxed{\text{Scanning consumes approximately }50.33\%\text{ of CPU time}.}
+\]</span></p>
+</section>
+<section id="longer-epochs" class="level5">
+<h5 class="anchored" data-anchor-id="longer-epochs">9. Longer epochs</h5>
+<p>Increasing <span class="math inline">\(T\)</span> reduces the overhead fraction <span class="math inline">\(t_{\text{scan}}/T\)</span>.</p>
+<p>However, accesses over a longer interval receive the same epoch timestamp. The approximation therefore loses more information about which page was accessed most recently.</p>
+</section>
+<section id="sparse-residency" class="level5">
+<h5 class="anchored" data-anchor-id="sparse-residency">10. Sparse residency</h5>
+<p><strong>No reduction under the specified model.</strong> It scans every entry of every full flat table, regardless of residency.</p>
+<p>To exploit sparse residency, the scanner would need to visit only relevant entries—for example, by maintaining a collection of resident-page mappings rather than scanning the full virtual-page range.</p>
+<hr>
+<p>For a quick comparison, your main numerical checkpoints are:</p>
+<table class="table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Exercise</th>
+<th>Key results</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>Maximum hierarchy <strong>4,227,328 B</strong>; sparse hierarchy <strong>2,816 B</strong>; physical data address <strong>74,789</strong></td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td><strong>2</strong> initial TLB misses; <strong>1</strong> fault; <strong>0</strong> evictions; EAT <strong>92 ns</strong></td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>FIFO, LRU, Clock each have <strong>10 faults and 7 evictions</strong>, with different traces</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>Scan <strong>50.33 ms</strong>; minimum epoch <strong>1.2583 s</strong>; 100 ms epochs incur <strong>50.33%</strong> overhead</td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+</section>
+</section>
+<section id="supplementary-matrial" class="level2">
+<h2 class="anchored" data-anchor-id="supplementary-matrial">Supplementary Matrial</h2>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+    var mailtoRegex = new RegExp(/^mailto:/);
+      var filterRegex = new RegExp('/' + window.location.host + '/');
+    var isInternal = (href) => {
+        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+    }
+    // Inspect non-navigation links and adorn them if external
+ 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool)');
+    for (var i=0; i<links.length; i++) {
+      const link = links[i];
+      if (!isInternal(link.href)) {
+        // undo the damage that might have been done by quarto-nav.js in the case of
+        // links that we want to consider external
+        if (link.dataset.originalHref !== undefined) {
+          link.href = link.dataset.originalHref;
+        }
+      }
+    }
+  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+    const config = {
+      allowHTML: true,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start',
+    };
+    if (contentFn) {
+      config.content = contentFn;
+    }
+    if (onTriggerFn) {
+      config.onTrigger = onTriggerFn;
+    }
+    if (onUntriggerFn) {
+      config.onUntrigger = onUntriggerFn;
+    }
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      if (note) {
+        return note.innerHTML;
+      } else {
+        return "";
+      }
+    });
+  }
+  const xrefs = window.document.querySelectorAll('a.quarto-xref');
+  const processXRef = (id, note) => {
+    // Strip column container classes
+    const stripColumnClz = (el) => {
+      el.classList.remove("page-full", "page-columns");
+      if (el.children) {
+        for (const child of el.children) {
+          stripColumnClz(child);
+        }
+      }
+    }
+    stripColumnClz(note)
+    if (id === null || id.startsWith('sec-')) {
+      // Special case sections, only their first couple elements
+      const container = document.createElement("div");
+      if (note.children && note.children.length > 2) {
+        container.appendChild(note.children[0].cloneNode(true));
+        for (let i = 1; i < note.children.length; i++) {
+          const child = note.children[i];
+          if (child.tagName === "P" && child.innerText === "") {
+            continue;
+          } else {
+            container.appendChild(child.cloneNode(true));
+            break;
+          }
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(container);
+        }
+        return container.innerHTML
+      } else {
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        return note.innerHTML;
+      }
+    } else {
+      // Remove any anchor links if they are present
+      const anchorLink = note.querySelector('a.anchorjs-link');
+      if (anchorLink) {
+        anchorLink.remove();
+      }
+      if (window.Quarto?.typesetMath) {
+        window.Quarto.typesetMath(note);
+      }
+      // TODO in 1.5, we should make sure this works without a callout special case
+      if (note.classList.contains("callout")) {
+        return note.outerHTML;
+      } else {
+        return note.innerHTML;
+      }
+    }
+  }
+  for (var i=0; i<xrefs.length; i++) {
+    const xref = xrefs[i];
+    tippyHover(xref, undefined, function(instance) {
+      instance.disable();
+      let url = xref.getAttribute('href');
+      let hash = undefined; 
+      if (url.startsWith('#')) {
+        hash = url;
+      } else {
+        try { hash = new URL(url).hash; } catch {}
+      }
+      if (hash) {
+        const id = hash.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note !== null) {
+          try {
+            const html = processXRef(id, note.cloneNode(true));
+            instance.setContent(html);
+          } finally {
+            instance.enable();
+            instance.show();
+          }
+        } else {
+          // See if we can fetch this
+          fetch(url.split('#')[0])
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.getElementById(id);
+            if (note !== null) {
+              const html = processXRef(id, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      } else {
+        // See if we can fetch a full url (with no hash to target)
+        // This is a special case and we should probably do some content thinning / targeting
+        fetch(url)
+        .then(res => res.text())
+        .then(html => {
+          const parser = new DOMParser();
+          const htmlDoc = parser.parseFromString(html, "text/html");
+          const note = htmlDoc.querySelector('main.content');
+          if (note !== null) {
+            // This should only happen for chapter cross references
+            // (since there is no id in the URL)
+            // remove the first header
+            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+              note.children[0].remove();
+            }
+            const html = processXRef(null, note);
+            instance.setContent(html);
+          } 
+        }).finally(() => {
+          instance.enable();
+          instance.show();
+        });
+      }
+    }, function(instance) {
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            div.style.left = 0;
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+        // Handle positioning of the toggle
+    window.addEventListener(
+      "resize",
+      throttle(() => {
+        elRect = undefined;
+        if (selectedAnnoteEl) {
+          selectCodeLines(selectedAnnoteEl);
+        }
+      }, 10)
+    );
+    function throttle(fn, ms) {
+    let throttle = false;
+    let timer;
+      return (...args) => {
+        if(!throttle) { // first call gets through
+            fn.apply(this, args);
+            throttle = true;
+        } else { // all the others get throttled
+            if(timer) clearTimeout(timer); // cancel #2
+            timer = setTimeout(() => {
+              fn.apply(this, args);
+              timer = throttle = false;
+            }, ms);
+        }
+      };
+    }
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../../exam/notes/paging_1.html" class="pagination-link" aria-label="Paging fundamentals">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Paging fundamentals</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
