@@ -444,7 +444,7 @@ It does **not** record:
 
 Divide time into **epochs**. At each epoch boundary, the OS conceptually performs:
 
-```text
+```default
 for each page-table entry being monitored:
     if entry.R == 1:
         entry.last_observed_epoch = current_epoch
@@ -1262,3 +1262,111 @@ For a quick comparison, your main numerical checkpoints are:
 
 ## Supplementary Matrial
 
+I agree with your suggestion to keep the detailed implementation relatively low priority for now. However, after checking the uploaded materials, epoch-based LRU approximation is actually more exam-relevant than you suspected.
+
+The IBN summary explicitly describes storing the last 8, 16, or 32 observations of each page's R bit. Moreover, the 2016 exam (Aufgabe 2.5, 4 points) asks how hardware R bits can be used to approximate the last access time. Übungsblatt 6, Aufgabe 4 asks about scanning overhead and choosing an epoch length.&#x20;
+
+ibn-zusammenfassung.pdf
+
+ibn-klausur-2016.pdf
+
+
+
+Our previous assignment-sheet analysis also classified these calculations as high priority. So I wouldn't interpret the omission as a deliberate decision that the mechanism is unimportant. A concise explanation should have been included.
+
+### 1. How epochs and shifting registers work
+
+An epoch (Epoche) is simply a fixed time interval, for example 100 ms.
+
+For each relevant page, the OS maintains:
+
+- The hardware-maintained R bit.
+- A software-maintained history register, say 8 bits long.
+
+At the end of each epoch, the OS performs three operations:
+
+1. Read the current R bit.
+2. Shift the history register one position to the right, inserting R as the leftmost bit.
+3. Clear R for the next epoch.
+
+In pseudocode:
+
+```
+for each resident page p:
+    history[p] = (history[p] >> 1) | (R[p] << 7)
+    R[p] = 0
+```
+
+Here `history[p]` is an 8-bit value, and `>>` and `<<` are bit shifts.
+
+#### Concrete example
+
+Suppose page A is accessed during epochs 1 and 3, but not during epochs 2 and 4.
+
+| Epoch     | R observed | History after update |
+| --------- | ---------- | -------------------- |
+| Initially | —          | `00000000`           |
+| 1         | 1          | `10000000`           |
+| 2         | 0          | `01000000`           |
+| 3         | 1          | `10100000`           |
+| 4         | 0          | `01010000`           |
+
+The leftmost bit represents the most recent epoch; older observations move to the right.
+
+Compare two pages:
+
+![epoch bits](./imgs/epochs.png){width="90%" #fig-epochs fig-alt="A was referenced in the most recent epoch. B was last referenced three epochs earlier"}
+
+The aging algorithm treats these bit histories as unsigned integers and preferentially evicts the page with the smallest value.
+
+In this case, B is selected.
+
+This approximates LRU because an older reference contributes a smaller value than a recent one. It is not exact LRU: the history also reflects how many epochs contained references, and accesses within an epoch cannot be ordered.
+
+### 2. Where is the history stored?
+
+Normally, the history register is maintained by the operating system in software, not by the MMU in a dedicated hardware field.
+
+It is useful to distinguish:
+
+| Information         | Typical storage              | Maintained by                      |
+| ------------------- | ---------------------------- | ---------------------------------- |
+| R bit               | Page-table entry             | CPU hardware; OS can clear         |
+| M bit               | Page-table entry             | CPU hardware; OS manages as needed |
+| 8/16/32-bit history | Kernel-managed page metadata | Operating system                   |
+
+The history could be stored in an auxiliary array indexed by virtual page, or in metadata associated with resident physical pages.
+
+Some architectures offer software-available PTE bits, but a conventional hardware-defined PTE does not provide a dedicated 8-, 16-, or 32-bit aging register.
+
+One interesting correction to the IBN summary: it suggests an inverted page table is necessary to examine the pages of all processes. That is not generally required. The OS can scan conventional page tables belonging to different processes or maintain separate metadata structures. In fact, Übungsblatt 6, Aufgabe 4 explicitly assumes direct page tables, one per process.&#x20;
+
+ueb06-ibn-SS2025.pdf
+
+
+
+### 3. How important is this for the exam?
+
+I would distinguish the following levels of preparation.
+
+| Knowledge                                                    | Priority  |
+| ------------------------------------------------------------ | --------- |
+| Explain that the CPU sets R on access                        | Very high |
+| Explain periodic sampling and clearing of R                  | High      |
+| Explain storing several epochs of R-bit history              | High      |
+| Calculate scanning overhead and reason about epoch length    | High      |
+| Simulate a few history-register updates                      | Medium    |
+| Know kernel data structures and exact implementation details | Low       |
+
+The trade-off for epoch length is also worth remembering:
+
+- Short epochs: Better time resolution, but more frequent scanning and therefore higher overhead.
+- Long epochs: Lower scanning overhead, but less precise information about recent accesses.
+
+#### My recommendation
+
+Spend enough time to understand the shifting-history mechanism and be able to explain it in 3–4 sentences. You now have sufficient background for that.
+
+Then continue with the main Day 4 material. The detailed implementation of aging counters, page metadata, and reverse mappings can wait until after the core preparation plan.
+
+One especially useful connection: The 2016 exam's question about approximating last-access time can be answered directly with the R-bit sampling and history mechanism above. So this is one of those small details worth retaining, even under time pressure.
