@@ -2,12 +2,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.4.553">
+<meta name="generator" content="quarto-1.7.31">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
-<title>Operating Systems and Networks SoSe 25 Notes - 6&nbsp; Advanced paging and virtual memory</title>
+<title>6&nbsp; Advanced paging and virtual memory – Operating Systems and Networks SoSe 25 Notes</title>
 <style>
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
@@ -20,6 +20,41 @@ ul.task-list li input[type="checkbox"] {
   margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
   vertical-align: middle;
 }
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
 </style>
 
 
@@ -31,15 +66,16 @@ ul.task-list li input[type="checkbox"] {
 <script src="../../site_libs/quarto-search/quarto-search.js"></script>
 <meta name="quarto:offset" content="../../">
 <link href="../../exam/notes/paging_1.html" rel="prev">
-<script src="../../site_libs/quarto-html/quarto.js"></script>
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
 <script src="../../site_libs/quarto-html/popper.min.js"></script>
 <script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-e1a5c8363afafaef2c763b6775fbf3ca.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-b330ada5220959fbd7d7e7c55953a312.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -68,7 +104,7 @@ ul.task-list li input[type="checkbox"] {
   }
 }</script>
 
-  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 <script type="text/javascript">
@@ -100,19 +136,19 @@ window.Quarto = {
 
 </head>
 
-<body class="nav-sidebar floating">
+<body class="nav-sidebar floating quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
   <nav class="quarto-secondary-nav">
     <div class="container-fluid d-flex">
-      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
         <i class="bi bi-layout-text-sidebar-reverse"></i>
       </button>
         <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../exam/notes/assignment_overview.html">Exam Notes</a></li><li class="breadcrumb-item"><a href="../../exam/notes/paging_2.html"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Advanced paging and virtual memory</span></a></li></ol></nav>
-        <a class="flex-grow-1" role="button" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
         </a>
-      <button type="button" class="btn quarto-search-button" aria-label="" onclick="window.quartoOpenSearch();">
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
         <i class="bi bi-search"></i>
       </button>
     </div>
@@ -150,9 +186,9 @@ window.Quarto = {
 </li>
         <li class="sidebar-item sidebar-item-section">
       <div class="sidebar-item-container"> 
-            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true">
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
  <span class="menu-text">Exam Notes</span></a>
-          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" aria-expanded="true" aria-label="Toggle section">
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
             <i class="bi bi-chevron-right ms-2"></i>
           </a> 
       </div>
@@ -255,7 +291,12 @@ window.Quarto = {
   <li><a href="#exercise-3-complete-replacement-traces" id="toc-exercise-3-complete-replacement-traces" class="nav-link" data-scroll-target="#exercise-3-complete-replacement-traces">Exercise 3 — Complete replacement traces</a></li>
   <li><a href="#exercise-4-r-bit-evidence-and-scanning-cost" id="toc-exercise-4-r-bit-evidence-and-scanning-cost" class="nav-link" data-scroll-target="#exercise-4-r-bit-evidence-and-scanning-cost">Exercise 4 — R-bit evidence and scanning cost</a></li>
   </ul></li>
-  <li><a href="#supplementary-matrial" id="toc-supplementary-matrial" class="nav-link" data-scroll-target="#supplementary-matrial">Supplementary Matrial</a></li>
+  <li><a href="#supplementary-matrial" id="toc-supplementary-matrial" class="nav-link" data-scroll-target="#supplementary-matrial">Supplementary Matrial</a>
+  <ul class="collapse">
+  <li><a href="#how-epochs-and-shifting-registers-work" id="toc-how-epochs-and-shifting-registers-work" class="nav-link" data-scroll-target="#how-epochs-and-shifting-registers-work">1. How epochs and shifting registers work</a></li>
+  <li><a href="#where-is-the-history-stored" id="toc-where-is-the-history-stored" class="nav-link" data-scroll-target="#where-is-the-history-stored">2. Where is the history stored?</a></li>
+  <li><a href="#how-important-is-this-for-the-exam" id="toc-how-important-is-this-for-the-exam" class="nav-link" data-scroll-target="#how-important-is-this-for-the-exam">3. How important is this for the exam?</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -314,7 +355,7 @@ window.Quarto = {
 \]</span></p>
 <p>Here, <span class="math inline">\(b_i\)</span> is the number of bits indexing level <span class="math inline">\(i\)</span>; the final <span class="math inline">\(n\)</span> bits are the offset.</p>
 <p>For three levels:</p>
-<table class="table">
+<table class="caption-top table">
 <thead>
 <tr class="header">
 <th>Virtual-address field</th>
@@ -362,7 +403,7 @@ A=f\,2^n+d.
 <h3 class="anchored" data-anchor-id="counting-tables-and-entries">Counting tables and entries</h3>
 <p>An index with <span class="math inline">\(b_i\)</span> bits selects among <span class="math inline">\(2^{b_i}\)</span> entries in <strong>one table</strong> at that level.</p>
 <p>For a fully populated three-level hierarchy:</p>
-<table class="table">
+<table class="caption-top table">
 <colgroup>
 <col style="width: 20%">
 <col style="width: 26%">
@@ -467,7 +508,7 @@ T_{\text{allocated}}=3\text{ KiB}.
 <section id="hit-and-miss" class="level3">
 <h3 class="anchored" data-anchor-id="hit-and-miss">Hit and miss</h3>
 <p>For a permitted access:</p>
-<table class="table">
+<table class="caption-top table">
 <colgroup>
 <col style="width: 50%">
 <col style="width: 50%">
@@ -597,7 +638,7 @@ t_{\mathrm{TLB}}+\left[1+k(1-h)\right]t_{\mathrm{RAM}}
 <li>Once all allocated frames are occupied, a fault requires a victim under the exercise’s fixed-frame model.</li>
 </ul>
 <p>There are also two distinct kinds of eviction:</p>
-<table class="table">
+<table class="caption-top table">
 <thead>
 <tr class="header">
 <th>Eviction</th>
@@ -620,7 +661,7 @@ t_{\mathrm{TLB}}+\left[1+k(1-h)\right]t_{\mathrm{RAM}}
 <section id="reference-and-dirty-bits" class="level3">
 <h3 class="anchored" data-anchor-id="reference-and-dirty-bits">Reference and dirty bits</h3>
 <p>Hardware maintains flags associated with pages:</p>
-<table class="table">
+<table class="caption-top table">
 <colgroup>
 <col style="width: 33%">
 <col style="width: 33%">
@@ -736,7 +777,7 @@ A,\ B,\ C,\ A.
 <li>Record the complete state <strong>after</strong> the reference.</li>
 </ol>
 <p>Keep physical frame positions fixed in your table. Record FIFO/LRU order separately; changing recency order does not move page contents between frames.</p>
-<table class="table">
+<table class="caption-top table">
 <thead>
 <tr class="header">
 <th>Policy</th>
@@ -777,11 +818,11 @@ A,\ B,\ C,\ A.
 <section id="periodic-sampling" class="level3">
 <h3 class="anchored" data-anchor-id="periodic-sampling">Periodic sampling</h3>
 <p>Divide time into <strong>epochs</strong>. At each epoch boundary, the OS conceptually performs:</p>
-<pre class="text"><code>for each page-table entry being monitored:
-    if entry.R == 1:
-        entry.last_observed_epoch = current_epoch
-
-    entry.R = 0</code></pre>
+<div class="sourceCode" id="cb1"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>for each page-table entry being monitored:</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>    if entry.R == 1:</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>        entry.last_observed_epoch = current_epoch</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    entry.R = 0</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>During the next epoch, hardware sets the bit again if the page is accessed.</p>
 <p>A page with an older <code>last_observed_epoch</code> has not been observed in use for longer and is a plausible victim.</p>
 <p>However, two pages accessed in the same epoch receive the same approximate timestamp, even if one was accessed at its beginning and the other immediately before the scan.</p>
@@ -791,7 +832,7 @@ A,\ B,\ C,\ A.
 <section id="sampling-versus-clock" class="level3">
 <h3 class="anchored" data-anchor-id="sampling-versus-clock">Sampling versus Clock</h3>
 <p>Both use hardware reference bits, but differently:</p>
-<table class="table">
+<table class="caption-top table">
 <thead>
 <tr class="header">
 <th>Mechanism</th>
@@ -939,7 +980,7 @@ i_1=5,\quad i_2=9,\quad i_3=17,\quad d=37.
 <h3 class="anchored" data-anchor-id="exercise-2-translation-misses-and-missing-pages">Exercise 2 — Translation misses and missing pages</h3>
 <p>A system uses two-level page tables and 4 KiB pages.</p>
 <p>For process P:</p>
-<table class="table">
+<table class="caption-top table">
 <thead>
 <tr class="header">
 <th>Virtual page</th>
@@ -1058,7 +1099,7 @@ A,\ B,\ C,\ A,\ D,\ B,\ E,\ A,\ B,\ C,\ D,\ E.
 <li>Explain why Clock can evict a page whose last access was more recent than another resident page’s last access.</li>
 </ol>
 <p>You may use this table layout separately for each policy:</p>
-<table>
+<table class="caption-top">
 <colgroup>
 <col style="width: 16%">
 <col style="width: 12%">
@@ -1097,7 +1138,7 @@ R=0,\qquad\text{last observed epoch}=0.
 \]</span></p>
 <p>At the end of each epoch, the OS updates the approximate timestamp of every page with <span class="math inline">\(R=1\)</span>, then clears all R bits.</p>
 <p>The references are:</p>
-<table class="table">
+<table class="caption-top table">
 <thead>
 <tr class="header">
 <th style="text-align: right;">Epoch</th>
@@ -1168,7 +1209,7 @@ R=0,\qquad\text{last observed epoch}=0.
 <p><span class="math display">\[
 \boxed{i_1:6\text{ bits}\mid i_2:7\text{ bits}\mid i_3:7\text{ bits}\mid d:10\text{ bits}}
 \]</span></p>
-<table class="table">
+<table class="caption-top table">
 <thead>
 <tr class="header">
 <th>Field</th>
@@ -1195,7 +1236,7 @@ R=0,\qquad\text{last observed epoch}=0.
 </tbody>
 </table>
 <p>At four bytes per entry:</p>
-<table class="table">
+<table class="caption-top table">
 <thead>
 <tr class="header">
 <th>Level</th>
@@ -1234,7 +1275,7 @@ V
 \end{aligned}
 \]</span></p>
 <p>Each selected entry is at its table’s base plus the index multiplied by four:</p>
-<table class="table">
+<table class="caption-top table">
 <thead>
 <tr class="header">
 <th>Selected entry</th>
@@ -1271,7 +1312,7 @@ A=73\cdot1024+37=\boxed{74\,789}.
 <h4 class="anchored" data-anchor-id="b.-full-versus-sparse-allocation-1">B. Full versus sparse allocation</h4>
 <section id="fully-populated-hierarchy" class="level5">
 <h5 class="anchored" data-anchor-id="fully-populated-hierarchy">4. Fully populated hierarchy</h5>
-<table class="table">
+<table class="caption-top table">
 <colgroup>
 <col style="width: 15%">
 <col style="width: 21%">
@@ -1356,7 +1397,7 @@ T=256+2\cdot512+3\cdot512
 </section>
 <section id="additional-mappings" class="level5">
 <h5 class="anchored" data-anchor-id="additional-mappings">7. Additional mappings</h5>
-<table class="table">
+<table class="caption-top table">
 <colgroup>
 <col style="width: 33%">
 <col style="width: 33%">
@@ -1391,7 +1432,7 @@ T=256+2\cdot512+3\cdot512
 <section id="a.-trace-the-mechanisms-1" class="level4">
 <h4 class="anchored" data-anchor-id="a.-trace-the-mechanisms-1">A. Trace the mechanisms</h4>
 <p>The page size is <code>0x1000</code> bytes.</p>
-<table class="table">
+<table class="caption-top table">
 <colgroup>
 <col style="width: 11%">
 <col style="width: 15%">
@@ -1540,7 +1581,7 @@ t_{\text{miss}}=8+3\cdot70=\boxed{218\text{ ns}}.
 <section id="a.-fifo" class="level4">
 <h4 class="anchored" data-anchor-id="a.-fifo">A. FIFO</h4>
 <p>Queue order is <strong>oldest arrival → newest arrival</strong>.</p>
-<table class="table">
+<table class="caption-top table">
 <colgroup>
 <col style="width: 16%">
 <col style="width: 12%">
@@ -1694,7 +1735,7 @@ t_{\text{miss}}=8+3\cdot70=\boxed{218\text{ ns}}.
 <section id="exact-lru" class="level4">
 <h4 class="anchored" data-anchor-id="exact-lru">Exact LRU</h4>
 <p>Order is <strong>least recently used → most recently used</strong>.</p>
-<table class="table">
+<table class="caption-top table">
 <thead>
 <tr class="header">
 <th style="text-align: right;">Step</th>
@@ -1843,7 +1884,7 @@ t_{\text{miss}}=8+3\cdot70=\boxed{218\text{ ns}}.
 <section id="b.-clock-1" class="level4">
 <h4 class="anchored" data-anchor-id="b.-clock-1">B. Clock</h4>
 <p>Notation <code>A/1</code> means page A with reference bit 1. The hand column gives the <strong>next candidate frame</strong> after completing the reference.</p>
-<table class="table">
+<table class="caption-top table">
 <thead>
 <tr class="header">
 <th style="text-align: right;">Step</th>
@@ -1983,7 +2024,7 @@ t_{\text{miss}}=8+3\cdot70=\boxed{218\text{ ns}}.
 \boxed{\text{Clock: }10\text{ faults},\quad7\text{ evictions}}.
 \]</span></p>
 <p>For checking your hand movements, replacement scans inspect these frame sequences:</p>
-<table class="table">
+<table class="caption-top table">
 <thead>
 <tr class="header">
 <th style="text-align: right;">Step</th>
@@ -2050,7 +2091,7 @@ t_{\text{miss}}=8+3\cdot70=\boxed{218\text{ ns}}.
 <section id="a.-sampling" class="level4">
 <h4 class="anchored" data-anchor-id="a.-sampling">A. Sampling</h4>
 <p>In the table below, each tuple lists values in order <strong>A, B, C, D</strong>.</p>
-<table class="table">
+<table class="caption-top table">
 <colgroup>
 <col style="width: 30%">
 <col style="width: 23%">
@@ -2193,7 +2234,7 @@ T\ge\frac{0.050331648}{0.04}
 <p>To exploit sparse residency, the scanner would need to visit only relevant entries—for example, by maintaining a collection of resident-page mappings rather than scanning the full virtual-page range.</p>
 <hr>
 <p>For a quick comparison, your main numerical checkpoints are:</p>
-<table class="table">
+<table class="caption-top table">
 <colgroup>
 <col style="width: 50%">
 <col style="width: 50%">
@@ -2229,234 +2270,421 @@ T\ge\frac{0.050331648}{0.04}
 </section>
 <section id="supplementary-matrial" class="level2">
 <h2 class="anchored" data-anchor-id="supplementary-matrial">Supplementary Matrial</h2>
+<p>I agree with your suggestion to keep the detailed implementation relatively low priority for now. However, after checking the uploaded materials, epoch-based LRU approximation is actually more exam-relevant than you suspected.</p>
+<p>The IBN summary explicitly describes storing the last 8, 16, or 32 observations of each page’s R bit. Moreover, the 2016 exam (Aufgabe 2.5, 4 points) asks how hardware R bits can be used to approximate the last access time. Übungsblatt 6, Aufgabe 4 asks about scanning overhead and choosing an epoch length. </p>
+<p>ibn-zusammenfassung.pdf</p>
+<p>ibn-klausur-2016.pdf</p>
+<p>Our previous assignment-sheet analysis also classified these calculations as high priority. So I wouldn’t interpret the omission as a deliberate decision that the mechanism is unimportant. A concise explanation should have been included.</p>
+<section id="how-epochs-and-shifting-registers-work" class="level3">
+<h3 class="anchored" data-anchor-id="how-epochs-and-shifting-registers-work">1. How epochs and shifting registers work</h3>
+<p>An epoch (Epoche) is simply a fixed time interval, for example 100 ms.</p>
+<p>For each relevant page, the OS maintains:</p>
+<ul>
+<li>The hardware-maintained R bit.</li>
+<li>A software-maintained history register, say 8 bits long.</li>
+</ul>
+<p>At the end of each epoch, the OS performs three operations:</p>
+<ol type="1">
+<li>Read the current R bit.</li>
+<li>Shift the history register one position to the right, inserting R as the leftmost bit.</li>
+<li>Clear R for the next epoch.</li>
+</ol>
+<p>In pseudocode:</p>
+<pre><code>for each resident page p:
+    history[p] = (history[p] &gt;&gt; 1) | (R[p] &lt;&lt; 7)
+    R[p] = 0</code></pre>
+<p>Here <code>history[p]</code> is an 8-bit value, and <code>&gt;&gt;</code> and <code>&lt;&lt;</code> are bit shifts.</p>
+<section id="concrete-example" class="level4">
+<h4 class="anchored" data-anchor-id="concrete-example">Concrete example</h4>
+<p>Suppose page A is accessed during epochs 1 and 3, but not during epochs 2 and 4.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Epoch</th>
+<th>R observed</th>
+<th>History after update</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Initially</td>
+<td>—</td>
+<td><code>00000000</code></td>
+</tr>
+<tr class="even">
+<td>1</td>
+<td>1</td>
+<td><code>10000000</code></td>
+</tr>
+<tr class="odd">
+<td>2</td>
+<td>0</td>
+<td><code>01000000</code></td>
+</tr>
+<tr class="even">
+<td>3</td>
+<td>1</td>
+<td><code>10100000</code></td>
+</tr>
+<tr class="odd">
+<td>4</td>
+<td>0</td>
+<td><code>01010000</code></td>
+</tr>
+</tbody>
+</table>
+<p>The leftmost bit represents the most recent epoch; older observations move to the right.</p>
+<p>Compare two pages:</p>
+<div id="fig-epochs" class="quarto-float quarto-figure quarto-figure-center anchored" alt="A was referenced in the most recent epoch. B was last referenced three epochs earlier">
+<figure class="quarto-float quarto-float-fig figure">
+<div aria-describedby="fig-epochs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="./imgs/epochs.png" class="img-fluid figure-img" style="width:90.0%" alt="A was referenced in the most recent epoch. B was last referenced three epochs earlier">
+</div>
+<figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-epochs-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6.1: epoch bits
+</figcaption>
+</figure>
+</div>
+<p>The aging algorithm treats these bit histories as unsigned integers and preferentially evicts the page with the smallest value.</p>
+<p>In this case, B is selected.</p>
+<p>This approximates LRU because an older reference contributes a smaller value than a recent one. It is not exact LRU: the history also reflects how many epochs contained references, and accesses within an epoch cannot be ordered.</p>
+</section>
+</section>
+<section id="where-is-the-history-stored" class="level3">
+<h3 class="anchored" data-anchor-id="where-is-the-history-stored">2. Where is the history stored?</h3>
+<p>Normally, the history register is maintained by the operating system in software, not by the MMU in a dedicated hardware field.</p>
+<p>It is useful to distinguish:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 23%">
+<col style="width: 34%">
+<col style="width: 41%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Information</th>
+<th>Typical storage</th>
+<th>Maintained by</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>R bit</td>
+<td>Page-table entry</td>
+<td>CPU hardware; OS can clear</td>
+</tr>
+<tr class="even">
+<td>M bit</td>
+<td>Page-table entry</td>
+<td>CPU hardware; OS manages as needed</td>
+</tr>
+<tr class="odd">
+<td>8/16/32-bit history</td>
+<td>Kernel-managed page metadata</td>
+<td>Operating system</td>
+</tr>
+</tbody>
+</table>
+<p>The history could be stored in an auxiliary array indexed by virtual page, or in metadata associated with resident physical pages.</p>
+<p>Some architectures offer software-available PTE bits, but a conventional hardware-defined PTE does not provide a dedicated 8-, 16-, or 32-bit aging register.</p>
+<p>One interesting correction to the IBN summary: it suggests an inverted page table is necessary to examine the pages of all processes. That is not generally required. The OS can scan conventional page tables belonging to different processes or maintain separate metadata structures. In fact, Übungsblatt 6, Aufgabe 4 explicitly assumes direct page tables, one per process. </p>
+<p>ueb06-ibn-SS2025.pdf</p>
+</section>
+<section id="how-important-is-this-for-the-exam" class="level3">
+<h3 class="anchored" data-anchor-id="how-important-is-this-for-the-exam">3. How important is this for the exam?</h3>
+<p>I would distinguish the following levels of preparation.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 86%">
+<col style="width: 13%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Knowledge</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Explain that the CPU sets R on access</td>
+<td>Very high</td>
+</tr>
+<tr class="even">
+<td>Explain periodic sampling and clearing of R</td>
+<td>High</td>
+</tr>
+<tr class="odd">
+<td>Explain storing several epochs of R-bit history</td>
+<td>High</td>
+</tr>
+<tr class="even">
+<td>Calculate scanning overhead and reason about epoch length</td>
+<td>High</td>
+</tr>
+<tr class="odd">
+<td>Simulate a few history-register updates</td>
+<td>Medium</td>
+</tr>
+<tr class="even">
+<td>Know kernel data structures and exact implementation details</td>
+<td>Low</td>
+</tr>
+</tbody>
+</table>
+<p>The trade-off for epoch length is also worth remembering:</p>
+<ul>
+<li>Short epochs: Better time resolution, but more frequent scanning and therefore higher overhead.</li>
+<li>Long epochs: Lower scanning overhead, but less precise information about recent accesses.</li>
+</ul>
+<section id="my-recommendation" class="level4">
+<h4 class="anchored" data-anchor-id="my-recommendation">My recommendation</h4>
+<p>Spend enough time to understand the shifting-history mechanism and be able to explain it in 3–4 sentences. You now have sufficient background for that.</p>
+<p>Then continue with the main Day 4 material. The detailed implementation of aging counters, page metadata, and reverse mappings can wait until after the core preparation plan.</p>
+<p>One especially useful connection: The 2016 exam’s question about approximating last-access time can be answered directly with the R-bit sampling and history mechanism above. So this is one of those small details worth retaining, even under time pressure.</p>
 
 
+</section>
+</section>
 </section>
 
 </main> <!-- /main -->
 <script id="quarto-html-after-body" type="application/javascript">
-window.document.addEventListener("DOMContentLoaded", function (event) {
-  const toggleBodyColorMode = (bsSheetEl) => {
-    const mode = bsSheetEl.getAttribute("data-mode");
-    const bodyEl = window.document.querySelector("body");
-    if (mode === "dark") {
-      bodyEl.classList.add("quarto-dark");
-      bodyEl.classList.remove("quarto-light");
-    } else {
-      bodyEl.classList.add("quarto-light");
-      bodyEl.classList.remove("quarto-dark");
-    }
-  }
-  const toggleBodyColorPrimary = () => {
-    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
-    if (bsSheetEl) {
-      toggleBodyColorMode(bsSheetEl);
-    }
-  }
-  toggleBodyColorPrimary();  
-  const icon = "";
-  const anchorJS = new window.AnchorJS();
-  anchorJS.options = {
-    placement: 'right',
-    icon: icon
-  };
-  anchorJS.add('.anchored');
-  const isCodeAnnotation = (el) => {
-    for (const clz of el.classList) {
-      if (clz.startsWith('code-annotation-')) {                     
-        return true;
-      }
-    }
-    return false;
-  }
-  const clipboard = new window.ClipboardJS('.code-copy-button', {
-    text: function(trigger) {
-      const codeEl = trigger.previousElementSibling.cloneNode(true);
-      for (const childEl of codeEl.children) {
-        if (isCodeAnnotation(childEl)) {
-          childEl.remove();
-        }
-      }
-      return codeEl.innerText;
-    }
-  });
-  clipboard.on('success', function(e) {
-    // button target
-    const button = e.trigger;
-    // don't keep focus
-    button.blur();
-    // flash "checked"
-    button.classList.add('code-copy-button-checked');
-    var currentTitle = button.getAttribute("title");
-    button.setAttribute("title", "Copied!");
-    let tooltip;
-    if (window.bootstrap) {
-      button.setAttribute("data-bs-toggle", "tooltip");
-      button.setAttribute("data-bs-placement", "left");
-      button.setAttribute("data-bs-title", "Copied!");
-      tooltip = new bootstrap.Tooltip(button, 
-        { trigger: "manual", 
-          customClass: "code-copy-button-tooltip",
-          offset: [0, -8]});
-      tooltip.show();    
-    }
-    setTimeout(function() {
-      if (tooltip) {
-        tooltip.hide();
-        button.removeAttribute("data-bs-title");
-        button.removeAttribute("data-bs-toggle");
-        button.removeAttribute("data-bs-placement");
-      }
-      button.setAttribute("title", currentTitle);
-      button.classList.remove('code-copy-button-checked');
-    }, 1000);
-    // clear code selection
-    e.clearSelection();
-  });
-    var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
-    var mailtoRegex = new RegExp(/^mailto:/);
-      var filterRegex = new RegExp('/' + window.location.host + '/');
-    var isInternal = (href) => {
-        return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
-    }
-    // Inspect non-navigation links and adorn them if external
- 	var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool)');
-    for (var i=0; i<links.length; i++) {
-      const link = links[i];
-      if (!isInternal(link.href)) {
-        // undo the damage that might have been done by quarto-nav.js in the case of
-        // links that we want to consider external
-        if (link.dataset.originalHref !== undefined) {
-          link.href = link.dataset.originalHref;
-        }
-      }
-    }
-  function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
-    const config = {
-      allowHTML: true,
-      maxWidth: 500,
-      delay: 100,
-      arrow: false,
-      appendTo: function(el) {
-          return el.parentElement;
-      },
-      interactive: true,
-      interactiveBorder: 10,
-      theme: 'quarto',
-      placement: 'bottom-start',
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
     };
-    if (contentFn) {
-      config.content = contentFn;
-    }
-    if (onTriggerFn) {
-      config.onTrigger = onTriggerFn;
-    }
-    if (onUntriggerFn) {
-      config.onUntrigger = onUntriggerFn;
-    }
-    window.tippy(el, config); 
-  }
-  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
-  for (var i=0; i<noterefs.length; i++) {
-    const ref = noterefs[i];
-    tippyHover(ref, function() {
-      // use id or data attribute instead here
-      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
-      try { href = new URL(href).hash; } catch {}
-      const id = href.replace(/^#\/?/, "");
-      const note = window.document.getElementById(id);
-      if (note) {
-        return note.innerHTML;
-      } else {
-        return "";
-      }
-    });
-  }
-  const xrefs = window.document.querySelectorAll('a.quarto-xref');
-  const processXRef = (id, note) => {
-    // Strip column container classes
-    const stripColumnClz = (el) => {
-      el.classList.remove("page-full", "page-columns");
-      if (el.children) {
-        for (const child of el.children) {
-          stripColumnClz(child);
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
         }
       }
+      return false;
     }
-    stripColumnClz(note)
-    if (id === null || id.startsWith('sec-')) {
-      // Special case sections, only their first couple elements
-      const container = document.createElement("div");
-      if (note.children && note.children.length > 2) {
-        container.appendChild(note.children[0].cloneNode(true));
-        for (let i = 1; i < note.children.length; i++) {
-          const child = note.children[i];
-          if (child.tagName === "P" && child.innerText === "") {
-            continue;
-          } else {
-            container.appendChild(child.cloneNode(true));
-            break;
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
           }
         }
-        if (window.Quarto?.typesetMath) {
-          window.Quarto.typesetMath(container);
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
         }
-        return container.innerHTML
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
       } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
         if (window.Quarto?.typesetMath) {
           window.Quarto.typesetMath(note);
         }
-        return note.innerHTML;
-      }
-    } else {
-      // Remove any anchor links if they are present
-      const anchorLink = note.querySelector('a.anchorjs-link');
-      if (anchorLink) {
-        anchorLink.remove();
-      }
-      if (window.Quarto?.typesetMath) {
-        window.Quarto.typesetMath(note);
-      }
-      // TODO in 1.5, we should make sure this works without a callout special case
-      if (note.classList.contains("callout")) {
-        return note.outerHTML;
-      } else {
-        return note.innerHTML;
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
       }
     }
-  }
-  for (var i=0; i<xrefs.length; i++) {
-    const xref = xrefs[i];
-    tippyHover(xref, undefined, function(instance) {
-      instance.disable();
-      let url = xref.getAttribute('href');
-      let hash = undefined; 
-      if (url.startsWith('#')) {
-        hash = url;
-      } else {
-        try { hash = new URL(url).hash; } catch {}
-      }
-      if (hash) {
-        const id = hash.replace(/^#\/?/, "");
-        const note = window.document.getElementById(id);
-        if (note !== null) {
-          try {
-            const html = processXRef(id, note.cloneNode(true));
-            instance.setContent(html);
-          } finally {
-            instance.enable();
-            instance.show();
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
           }
         } else {
-          // See if we can fetch this
-          fetch(url.split('#')[0])
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
           .then(res => res.text())
           .then(html => {
             const parser = new DOMParser();
             const htmlDoc = parser.parseFromString(html, "text/html");
-            const note = htmlDoc.getElementById(id);
+            const note = htmlDoc.querySelector('main.content');
             if (note !== null) {
-              const html = processXRef(id, note);
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
               instance.setContent(html);
             } 
           }).finally(() => {
@@ -2464,185 +2692,161 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
             instance.show();
           });
         }
-      } else {
-        // See if we can fetch a full url (with no hash to target)
-        // This is a special case and we should probably do some content thinning / targeting
-        fetch(url)
-        .then(res => res.text())
-        .then(html => {
-          const parser = new DOMParser();
-          const htmlDoc = parser.parseFromString(html, "text/html");
-          const note = htmlDoc.querySelector('main.content');
-          if (note !== null) {
-            // This should only happen for chapter cross references
-            // (since there is no id in the URL)
-            // remove the first header
-            if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
-              note.children[0].remove();
-            }
-            const html = processXRef(null, note);
-            instance.setContent(html);
-          } 
-        }).finally(() => {
-          instance.enable();
-          instance.show();
-        });
-      }
-    }, function(instance) {
-    });
-  }
-      let selectedAnnoteEl;
-      const selectorForAnnotation = ( cell, annotation) => {
-        let cellAttr = 'data-code-cell="' + cell + '"';
-        let lineAttr = 'data-code-annotation="' +  annotation + '"';
-        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
-        return selector;
-      }
-      const selectCodeLines = (annoteEl) => {
-        const doc = window.document;
-        const targetCell = annoteEl.getAttribute("data-target-cell");
-        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
-        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
-        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
-        const lineIds = lines.map((line) => {
-          return targetCell + "-" + line;
-        })
-        let top = null;
-        let height = null;
-        let parent = null;
-        if (lineIds.length > 0) {
-            //compute the position of the single el (top and bottom and make a div)
-            const el = window.document.getElementById(lineIds[0]);
-            top = el.offsetTop;
-            height = el.offsetHeight;
-            parent = el.parentElement.parentElement;
-          if (lineIds.length > 1) {
-            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
-            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
-            height = bottom - top;
-          }
-          if (top !== null && height !== null && parent !== null) {
-            // cook up a div (if necessary) and position it 
-            let div = window.document.getElementById("code-annotation-line-highlight");
-            if (div === null) {
-              div = window.document.createElement("div");
-              div.setAttribute("id", "code-annotation-line-highlight");
-              div.style.position = 'absolute';
-              parent.appendChild(div);
-            }
-            div.style.top = top - 2 + "px";
-            div.style.height = height + 4 + "px";
-            div.style.left = 0;
-            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
-            if (gutterDiv === null) {
-              gutterDiv = window.document.createElement("div");
-              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
-              gutterDiv.style.position = 'absolute';
-              const codeCell = window.document.getElementById(targetCell);
-              const gutter = codeCell.querySelector('.code-annotation-gutter');
-              gutter.appendChild(gutterDiv);
-            }
-            gutterDiv.style.top = top - 2 + "px";
-            gutterDiv.style.height = height + 4 + "px";
-          }
-          selectedAnnoteEl = annoteEl;
-        }
-      };
-      const unselectCodeLines = () => {
-        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
-        elementsIds.forEach((elId) => {
-          const div = window.document.getElementById(elId);
-          if (div) {
-            div.remove();
-          }
-        });
-        selectedAnnoteEl = undefined;
-      };
-        // Handle positioning of the toggle
-    window.addEventListener(
-      "resize",
-      throttle(() => {
-        elRect = undefined;
-        if (selectedAnnoteEl) {
-          selectCodeLines(selectedAnnoteEl);
-        }
-      }, 10)
-    );
-    function throttle(fn, ms) {
-    let throttle = false;
-    let timer;
-      return (...args) => {
-        if(!throttle) { // first call gets through
-            fn.apply(this, args);
-            throttle = true;
-        } else { // all the others get throttled
-            if(timer) clearTimeout(timer); // cancel #2
-            timer = setTimeout(() => {
-              fn.apply(this, args);
-              timer = throttle = false;
-            }, ms);
-        }
-      };
-    }
-      // Attach click handler to the DT
-      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
-      for (const annoteDlNode of annoteDls) {
-        annoteDlNode.addEventListener('click', (event) => {
-          const clickedEl = event.target;
-          if (clickedEl !== selectedAnnoteEl) {
-            unselectCodeLines();
-            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
-            if (activeEl) {
-              activeEl.classList.remove('code-annotation-active');
-            }
-            selectCodeLines(clickedEl);
-            clickedEl.classList.add('code-annotation-active');
-          } else {
-            // Unselect the line
-            unselectCodeLines();
-            clickedEl.classList.remove('code-annotation-active');
-          }
-        });
-      }
-  const findCites = (el) => {
-    const parentEl = el.parentElement;
-    if (parentEl) {
-      const cites = parentEl.dataset.cites;
-      if (cites) {
-        return {
-          el,
-          cites: cites.split(' ')
-        };
-      } else {
-        return findCites(el.parentElement)
-      }
-    } else {
-      return undefined;
-    }
-  };
-  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
-  for (var i=0; i<bibliorefs.length; i++) {
-    const ref = bibliorefs[i];
-    const citeInfo = findCites(ref);
-    if (citeInfo) {
-      tippyHover(citeInfo.el, function() {
-        var popup = window.document.createElement('div');
-        citeInfo.cites.forEach(function(cite) {
-          var citeDiv = window.document.createElement('div');
-          citeDiv.classList.add('hanging-indent');
-          citeDiv.classList.add('csl-entry');
-          var biblioDiv = window.document.getElementById('ref-' + cite);
-          if (biblioDiv) {
-            citeDiv.innerHTML = biblioDiv.innerHTML;
-          }
-          popup.appendChild(citeDiv);
-        });
-        return popup.innerHTML;
+      }, function(instance) {
       });
     }
-  }
-});
-</script>
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
 <nav class="page-navigation">
   <div class="nav-page nav-page-previous">
       <a href="../../exam/notes/paging_1.html" class="pagination-link" aria-label="Paging fundamentals">
