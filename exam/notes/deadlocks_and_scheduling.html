@@ -2,16 +2,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.9.37">
+<meta name="generator" content="quarto-1.7.32">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
 <title>7&nbsp; Day 5 — Deadlocks and CPU scheduling – Operating Systems and Networks SoSe 25 Notes</title>
 <style>
-/* Default styles provided by pandoc.
-** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
-*/
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
 div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -75,10 +72,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-37eea08aefeeee20ff55810ff984fec1.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-8dddca75a0c745965e348927a205e40e.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-bc282f68121e606fad147ae94436a77b.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -111,7 +108,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <link href="../../site_libs/quarto-diagram/mermaid.css" rel="stylesheet">
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -124,7 +121,7 @@ const typesetMath = (el) => {
     var macros = [];
     for (var i = 0; i < mathElements.length; i++) {
       var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+      if (mathElements[i].tagName == "SPAN") {
         window.katex.render(texText.data, mathElements[i], {
           displayMode: mathElements[i].classList.contains('display'),
           throwOnError: false,
@@ -288,6 +285,13 @@ window.Quarto = {
   <li><a href="#exercise-1-a-three-process-semaphore-deadlock" id="toc-exercise-1-a-three-process-semaphore-deadlock" class="nav-link" data-scroll-target="#exercise-1-a-three-process-semaphore-deadlock">Exercise 1 — A three-process semaphore deadlock</a></li>
   <li><a href="#exercise-2-resource-situation-graph-matrices-banker" id="toc-exercise-2-resource-situation-graph-matrices-banker" class="nav-link" data-scroll-target="#exercise-2-resource-situation-graph-matrices-banker">Exercise 2 — Resource situation → graph → matrices → Banker</a></li>
   <li><a href="#exercise-3-scheduling-with-arrivals-and-queue-boundaries" id="toc-exercise-3-scheduling-with-arrivals-and-queue-boundaries" class="nav-link" data-scroll-target="#exercise-3-scheduling-with-arrivals-and-queue-boundaries">Exercise 3 — Scheduling with arrivals and queue boundaries</a></li>
+  </ul></li>
+  <li><a href="#solutions" id="toc-solutions" class="nav-link" data-scroll-target="#solutions">Solutions</a>
+  <ul class="collapse">
+  <li><a href="#exercise-1-a-three-process-semaphore-deadlock-1" id="toc-exercise-1-a-three-process-semaphore-deadlock-1" class="nav-link" data-scroll-target="#exercise-1-a-three-process-semaphore-deadlock-1">Exercise 1 — A three-process semaphore deadlock</a></li>
+  <li><a href="#exercise-2-resource-situation-graph-matrices-banker-1" id="toc-exercise-2-resource-situation-graph-matrices-banker-1" class="nav-link" data-scroll-target="#exercise-2-resource-situation-graph-matrices-banker-1">Exercise 2 — Resource situation → graph → matrices → Banker</a></li>
+  <li><a href="#exercise-3-scheduling-with-arrivals-and-queue-boundaries-1" id="toc-exercise-3-scheduling-with-arrivals-and-queue-boundaries-1" class="nav-link" data-scroll-target="#exercise-3-scheduling-with-arrivals-and-queue-boundaries-1">Exercise 3 — Scheduling with arrivals and queue boundaries</a></li>
+  <li><a href="#suggested-self-marking-guide" id="toc-suggested-self-marking-guide" class="nav-link" data-scroll-target="#suggested-self-marking-guide">Suggested self-marking guide</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -958,11 +962,11 @@ W_1=6-0-3=3\text{ ms}.
 <h3 class="anchored" data-anchor-id="exercise-1-a-three-process-semaphore-deadlock">Exercise 1 — A three-process semaphore deadlock</h3>
 <p><em>Suggested time: 12–15 minutes.</em></p>
 <p>Three exclusive resources are controlled by:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>Semaphore L = 1</span>
+<div class="sourceCode" id="cb1"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>Semaphore L = 1</span>
 <span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a>Semaphore M = 1</span>
-<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>Semaphore N = 1</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>Semaphore N = 1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>The processes execute:</p>
-<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>P1:</span>
+<div class="sourceCode" id="cb2"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>P1:</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>    wait(L)</span>
 <span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    wait(M)</span>
 <span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>    work()</span>
@@ -981,7 +985,7 @@ W_1=6-0-3=3\text{ ms}.
 <span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    wait(L)</span>
 <span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a>    work()</span>
 <span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a>    signal(L)</span>
-<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    signal(N)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a>    signal(N)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <p>Assume <code>work()</code> eventually finishes if reached. Processes retain acquired resources while blocked.</p>
 <ol type="1">
 <li>Give an explicit interleaving that produces deadlock. For each acquisition attempt, state whether it succeeds or blocks, and which resources are held.</li>
@@ -1127,6 +1131,1028 @@ t=2,\qquad t=4,\qquad t=5.
 <li>Explain whether <span class="math inline">\(P_2\)</span>’s arrival at <span class="math inline">\(t=1\)</span> interrupts <span class="math inline">\(P_1\)</span> under SJF or RR. Then determine <strong>only the SJF execution order</strong> if all five processes instead arrive at <span class="math inline">\(t=0\)</span>.</li>
 <li>If the RR quantum becomes <span class="math inline">\(10\)</span> ms, which studied algorithm does its execution match for this workload? Explain. Also identify which of FCFS, SJF and RR can starve a ready process under a continuing stream of arrivals.</li>
 </ol>
+</section>
+</section>
+<section id="solutions" class="level2">
+<h2 class="anchored" data-anchor-id="solutions">Solutions</h2>
+<p>These solutions use the stated resource assumptions, SJF tie-breaking rule, and RR convention that arrivals at quantum expiry are enqueued <strong>before</strong> the unfinished running process.</p>
+<section id="exercise-1-a-three-process-semaphore-deadlock-1" class="level3">
+<h3 class="anchored" data-anchor-id="exercise-1-a-three-process-semaphore-deadlock-1">Exercise 1 — A three-process semaphore deadlock</h3>
+<section id="deadlocking-execution" class="level4">
+<h4 class="anchored" data-anchor-id="deadlocking-execution">Deadlocking execution</h4>
+<p>One valid interleaving is:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: right;">Step</th>
+<th>Process</th>
+<th>Operation</th>
+<th>Result</th>
+<th>Resources held afterwards</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td><span class="math inline">\(P_1\)</span></td>
+<td><code>wait(L)</code></td>
+<td>Succeeds</td>
+<td><span class="math inline">\(P_1:L\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td><span class="math inline">\(P_2\)</span></td>
+<td><code>wait(M)</code></td>
+<td>Succeeds</td>
+<td><span class="math inline">\(P_1:L;\ P_2:M\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td><span class="math inline">\(P_3\)</span></td>
+<td><code>wait(N)</code></td>
+<td>Succeeds</td>
+<td><span class="math inline">\(P_1:L;\ P_2:M;\ P_3:N\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4</td>
+<td><span class="math inline">\(P_1\)</span></td>
+<td><code>wait(M)</code></td>
+<td>Blocks: <span class="math inline">\(P_2\)</span> holds <span class="math inline">\(M\)</span></td>
+<td>Unchanged</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">5</td>
+<td><span class="math inline">\(P_2\)</span></td>
+<td><code>wait(N)</code></td>
+<td>Blocks: <span class="math inline">\(P_3\)</span> holds <span class="math inline">\(N\)</span></td>
+<td>Unchanged</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">6</td>
+<td><span class="math inline">\(P_3\)</span></td>
+<td><code>wait(L)</code></td>
+<td>Blocks: <span class="math inline">\(P_1\)</span> holds <span class="math inline">\(L\)</span></td>
+<td>Unchanged</td>
+</tr>
+</tbody>
+</table>
+<p>The resulting dependencies are:</p>
+<p><span class="math display">\[
+P_1\text{ waits for }P_2,\qquad
+P_2\text{ waits for }P_3,\qquad
+P_3\text{ waits for }P_1.
+\]</span></p>
+<p>All three are blocked before <code>work()</code> and before their release operations.</p>
+<p>Other interleavings are equally valid if they establish these holdings and blocked requests.</p>
+</section>
+<section id="definition-and-coffman-conditions" class="level4">
+<h4 class="anchored" data-anchor-id="definition-and-coffman-conditions">Definition and Coffman conditions</h4>
+<p><strong>Definition:</strong> A group of processes is deadlocked when every process in the group waits for an event that only another blocked process in that group can cause.</p>
+<p>Here, those events are resource releases.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Condition</th>
+<th>Explanation in this execution</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Mutual exclusion</strong></td>
+<td>Each semaphore has one permit, so each resource can be held by only one process.</td>
+</tr>
+<tr class="even">
+<td><strong>Hold and wait</strong></td>
+<td>Each process retains its first resource while waiting for its second.</td>
+</tr>
+<tr class="odd">
+<td><strong>No preemption</strong></td>
+<td>Resources are released through <code>signal</code>; they cannot be forcibly reclaimed under the assumptions.</td>
+</tr>
+<tr class="even">
+<td><strong>Circular wait</strong></td>
+<td><span class="math inline">\(P_1\rightarrow P_2\rightarrow P_3\rightarrow P_1\)</span>.</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="why-more-cpu-turns-do-not-help" class="level4">
+<h4 class="anchored" data-anchor-id="why-more-cpu-turns-do-not-help">Why more CPU turns do not help</h4>
+<p>Each process is blocked at its second <code>wait</code>. It cannot execute the later <code>signal</code> operations until that <code>wait</code> succeeds.</p>
+<p>Scheduling another process does not release the resource held by the suspended process. <strong>CPU scheduling cannot break this resource dependency.</strong></p>
+</section>
+<section id="repair-through-a-global-acquisition-order" class="level4">
+<h4 class="anchored" data-anchor-id="repair-through-a-global-acquisition-order">Repair through a global acquisition order</h4>
+<p>Choose:</p>
+<p><span class="math display">\[
+L&lt;M&lt;N.
+\]</span></p>
+<p>Every process acquires its required resources in increasing order:</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>P1:</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    wait(L)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    wait(M)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    work()</span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    signal(M)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    signal(L)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>P2:</span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>    wait(M)</span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>    wait(N)</span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>    work()</span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>    signal(N)</span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>    signal(M)</span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>P3:</span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>    wait(L)</span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>    wait(N)</span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>    work()</span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>    signal(N)</span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>    signal(L)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<p>Only <span class="math inline">\(P_3\)</span>’s acquisition order needed changing.</p>
+<p>A circular wait would now require resource ranks to increase around a cycle and return to the starting rank, which is impossible.</p>
+<p>Releasing in reverse order is conventional. <strong>Consistent acquisition ordering</strong> is what prevents this deadlock.</p>
+</section>
+<section id="would-fifo-semaphores-repair-it" class="level4">
+<h4 class="anchored" data-anchor-id="would-fifo-semaphores-repair-it">Would FIFO semaphores repair it?</h4>
+<p><strong>No.</strong></p>
+<p>FIFO determines which waiting process receives a permit <strong>when one becomes available</strong>. Here, no process can reach its release operations, so no permit becomes available.</p>
+<p>Fairness does not eliminate this circular wait.</p>
+</section>
+</section>
+<section id="exercise-2-resource-situation-graph-matrices-banker-1" class="level3">
+<h3 class="anchored" data-anchor-id="exercise-2-resource-situation-graph-matrices-banker-1">Exercise 2 — Resource situation → graph → matrices → Banker</h3>
+<section id="resource-allocation-graph" class="level4">
+<h4 class="anchored" data-anchor-id="resource-allocation-graph">Resource-allocation graph</h4>
+<p>One valid naming of the individual instances is:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Type</th>
+<th>Instance allocations</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Cameras <span class="math inline">\(K\)</span></td>
+<td><span class="math inline">\(K_1\rightarrow P_1,\ K_2\rightarrow P_3,\ K_3\rightarrow P_4\)</span></td>
+</tr>
+<tr class="even">
+<td>Storage interfaces <span class="math inline">\(S\)</span></td>
+<td><span class="math inline">\(S_1\rightarrow P_2,\ S_2\rightarrow P_4\)</span></td>
+</tr>
+<tr class="odd">
+<td>Accelerators <span class="math inline">\(G\)</span></td>
+<td><span class="math inline">\(G_1\rightarrow P_1;\ G_2\)</span> is free</td>
+</tr>
+</tbody>
+</table>
+<p>The instance numbers are arbitrary; assigning different instance names gives an equivalent graph.</p>
+<p>The requests are:</p>
+<p><span class="math display">\[
+P_1\rightarrow S,\qquad
+P_2\rightarrow K,\qquad
+P_2\rightarrow G,\qquad
+P_3\rightarrow S,\qquad
+P_4\rightarrow G.
+\]</span></p>
+<p>This compact graph labels allocation edges with instance names:</p>
+<div class="cell" data-layout-align="default">
+<div class="cell-output-display">
+<div>
+<p></p><figure class="figure"><p></p>
+<div>
+<pre class="mermaid mermaid-js">flowchart TD
+    K["K: 3 instances"] --&gt;|"K1 allocated"| P1(("P1"))
+    K --&gt;|"K2 allocated"| P3(("P3"))
+    K --&gt;|"K3 allocated"| P4(("P4"))
+    S["S: 2 instances"] --&gt;|"S1 allocated"| P2(("P2"))
+    S --&gt;|"S2 allocated"| P4
+    G["G: 2 instances; G2 free"] --&gt;|"G1 allocated"| P1
+    P1 --&gt;|"requests 1"| S
+    P2 --&gt;|"requests 1"| K
+    P2 --&gt;|"requests 1"| G
+    P3 --&gt;|"requests 1"| S
+    P4 --&gt;|"requests 1"| G
+</pre>
+</div>
+<p></p></figure><p></p>
+</div>
+</div>
+</div>
+</section>
+<section id="cycle-and-its-interpretation" class="level4">
+<h4 class="anchored" data-anchor-id="cycle-and-its-interpretation">Cycle and its interpretation</h4>
+<p>One directed cycle is:</p>
+<p><span class="math display">\[
+\boxed{P_1\rightarrow S\rightarrow P_2\rightarrow K\rightarrow P_1}.
+\]</span></p>
+<p>Another is:</p>
+<p><span class="math display">\[
+P_1\rightarrow S\rightarrow P_4\rightarrow G\rightarrow P_1.
+\]</span></p>
+<p>Because the resource types have multiple instances, <strong>a cycle alone does not establish deadlock</strong>. An interchangeable instance may become available through another process’s completion.</p>
+</section>
+<section id="vectors-and-matrices" class="level4">
+<h4 class="anchored" data-anchor-id="vectors-and-matrices">Vectors and matrices</h4>
+<p>Use columns <span class="math inline">\((K,S,G)\)</span> and rows <span class="math inline">\((P_1,P_2,P_3,P_4)\)</span>.</p>
+<p>The total resource vector is:</p>
+<p><span class="math display">\[
+\boxed{E=(3,2,2)}.
+\]</span></p>
+<p>The allocation matrix is:</p>
+<p><span class="math display">\[
+\boxed{
+C=
+\begin{pmatrix}
+1&amp;0&amp;1\\
+0&amp;1&amp;0\\
+1&amp;0&amp;0\\
+1&amp;1&amp;0
+\end{pmatrix}
+}.
+\]</span></p>
+<p>The request matrix is:</p>
+<p><span class="math display">\[
+\boxed{
+R=
+\begin{pmatrix}
+0&amp;1&amp;0\\
+1&amp;0&amp;1\\
+0&amp;1&amp;0\\
+0&amp;0&amp;1
+\end{pmatrix}
+}.
+\]</span></p>
+<p>The column sums of <span class="math inline">\(C\)</span> are:</p>
+<p><span class="math display">\[
+\sum_i C_i=(3,2,1).
+\]</span></p>
+<p>Therefore:</p>
+<p><span class="math display">\[
+\boxed{A=E-\sum_i C_i=(0,0,1)}.
+\]</span></p>
+<p>Resource conservation holds separately:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Type</th>
+<th style="text-align: right;">Total</th>
+<th style="text-align: right;">Allocated</th>
+<th style="text-align: right;">Free</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(K\)</span></td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(S\)</span></td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(G\)</span></td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">1</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="banker-execution" class="level4">
+<h4 class="anchored" data-anchor-id="banker-execution">Banker execution</h4>
+<p>Initially:</p>
+<p><span class="math display">\[
+A=(0,0,1).
+\]</span></p>
+<ul>
+<li><span class="math inline">\(P_1\)</span> is ineligible: it needs a storage interface.</li>
+<li><span class="math inline">\(P_2\)</span> is ineligible: it needs a camera.</li>
+<li><span class="math inline">\(P_3\)</span> is ineligible: it needs a storage interface.</li>
+<li><span class="math inline">\(P_4\)</span> is eligible: its request is <span class="math inline">\((0,0,1)\)</span>.</li>
+</ul>
+<p>Applying the smallest-eligible-index rule:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 21%">
+<col style="width: 15%">
+<col style="width: 15%">
+<col style="width: 15%">
+<col style="width: 15%">
+<col style="width: 15%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: right;">Step</th>
+<th>Selected process</th>
+<th>Request <span class="math inline">\(R_i\)</span></th>
+<th><span class="math inline">\(A\)</span> before</th>
+<th>Allocation released <span class="math inline">\(C_i\)</span></th>
+<th><span class="math inline">\(A\)</span> after</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td><span class="math inline">\(P_4\)</span></td>
+<td><span class="math inline">\((0,0,1)\)</span></td>
+<td><span class="math inline">\((0,0,1)\)</span></td>
+<td><span class="math inline">\((1,1,0)\)</span></td>
+<td><span class="math inline">\((1,1,1)\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td><span class="math inline">\(P_1\)</span></td>
+<td><span class="math inline">\((0,1,0)\)</span></td>
+<td><span class="math inline">\((1,1,1)\)</span></td>
+<td><span class="math inline">\((1,0,1)\)</span></td>
+<td><span class="math inline">\((2,1,2)\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td><span class="math inline">\(P_2\)</span></td>
+<td><span class="math inline">\((1,0,1)\)</span></td>
+<td><span class="math inline">\((2,1,2)\)</span></td>
+<td><span class="math inline">\((0,1,0)\)</span></td>
+<td><span class="math inline">\((2,2,2)\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4</td>
+<td><span class="math inline">\(P_3\)</span></td>
+<td><span class="math inline">\((0,1,0)\)</span></td>
+<td><span class="math inline">\((2,2,2)\)</span></td>
+<td><span class="math inline">\((1,0,0)\)</span></td>
+<td><span class="math inline">\((3,2,2)\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>After <span class="math inline">\(P_4\)</span> finishes, <span class="math inline">\(P_1,P_2,P_3\)</span> are all eligible. The specified rule selects <span class="math inline">\(P_1\)</span> first.</p>
+<p>Remember:</p>
+<p><span class="math display">\[
+A_{\text{after}}=A_{\text{before}}+C_i.
+\]</span></p>
+<p>The requested resources are temporarily granted and subsequently returned; they do not produce an additional net increase.</p>
+</section>
+<section id="conclusion-for-the-original-state" class="level4">
+<h4 class="anchored" data-anchor-id="conclusion-for-the-original-state">Conclusion for the original state</h4>
+<p>All processes can complete:</p>
+<p><span class="math display">\[
+\boxed{P_4,\ P_1,\ P_2,\ P_3}.
+\]</span></p>
+<p>Thus:</p>
+<p><span class="math display">\[
+\boxed{\text{No deadlock under the stated model.}}
+\]</span></p>
+<p>The final availability vector equals <span class="math inline">\(E\)</span>, as expected when every process has released its resources.</p>
+<p>Other completion sequences can also be valid, but the question’s smallest-index rule determines the sequence above.</p>
+</section>
+<section id="changed-request-variant" class="level4">
+<h4 class="anchored" data-anchor-id="changed-request-variant">Changed-request variant</h4>
+<p>Return to the <strong>original allocations and initial availability</strong>. Only <span class="math inline">\(P_4\)</span>’s request changes.</p>
+<p>The new request matrix is:</p>
+<p><span class="math display">\[
+\boxed{
+R'=
+\begin{pmatrix}
+0&amp;1&amp;0\\
+1&amp;0&amp;1\\
+0&amp;1&amp;0\\
+1&amp;0&amp;1
+\end{pmatrix}
+}.
+\]</span></p>
+<p>The graph gains an additional request edge:</p>
+<p><span class="math display">\[
+P_4\rightarrow K.
+\]</span></p>
+<p>Its request edge to <span class="math inline">\(G\)</span> remains.</p>
+<p>Since <span class="math inline">\(E\)</span> and <span class="math inline">\(C\)</span> are unchanged:</p>
+<p><span class="math display">\[
+A=(0,0,1).
+\]</span></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Process</th>
+<th>Request</th>
+<th>Why it is ineligible</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(P_1\)</span></td>
+<td><span class="math inline">\((0,1,0)\)</span></td>
+<td>No storage interface is free.</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(P_2\)</span></td>
+<td><span class="math inline">\((1,0,1)\)</span></td>
+<td>No camera is free.</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(P_3\)</span></td>
+<td><span class="math inline">\((0,1,0)\)</span></td>
+<td>No storage interface is free.</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(P_4\)</span></td>
+<td><span class="math inline">\((1,0,1)\)</span></td>
+<td>No camera is free.</td>
+</tr>
+</tbody>
+</table>
+<p>No process can be marked. The algorithm stops immediately with:</p>
+<p><span class="math display">\[
+\boxed{\text{Unmarked processes: }P_1,P_2,P_3,P_4}.
+\]</span></p>
+<p>Therefore:</p>
+<p><span class="math display">\[
+\boxed{\text{The variant is deadlocked under the stated model.}}
+\]</span></p>
+</section>
+<section id="why-the-free-accelerator-does-not-establish-progress" class="level4">
+<h4 class="anchored" data-anchor-id="why-the-free-accelerator-does-not-establish-progress">Why the free accelerator does not establish progress</h4>
+<p>The free accelerator satisfies only part of the requests of <span class="math inline">\(P_2\)</span> and <span class="math inline">\(P_4\)</span>. Both also need a camera.</p>
+<p>Meanwhile, <span class="math inline">\(P_1\)</span> and <span class="math inline">\(P_3\)</span> need storage interfaces held by <span class="math inline">\(P_2\)</span> and <span class="math inline">\(P_4\)</span>.</p>
+<p>No process can obtain its <strong>complete request</strong>, finish and release its existing allocation. Availability must be checked <strong>component by component</strong>, for the complete request vector.</p>
+</section>
+</section>
+<section id="exercise-3-scheduling-with-arrivals-and-queue-boundaries-1" class="level3">
+<h3 class="anchored" data-anchor-id="exercise-3-scheduling-with-arrivals-and-queue-boundaries-1">Exercise 3 — Scheduling with arrivals and queue boundaries</h3>
+<p>All times below are in milliseconds.</p>
+<p>Use:</p>
+<p><span class="math display">\[
+T_i=f_i-a_i,\qquad W_i=T_i-b_i.
+\]</span></p>
+<section id="gantt-diagrams" class="level4">
+<h4 class="anchored" data-anchor-id="gantt-diagrams">Gantt diagrams</h4>
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="./imgs/day5-scheduling-gnatt.png" class="img-fluid figure-img"></p>
+<figcaption>gantt diagrams</figcaption>
+</figure>
+</div>
+</section>
+<section id="fcfs" class="level4">
+<h4 class="anchored" data-anchor-id="fcfs">FCFS</h4>
+<p>The arrival order is:</p>
+<p><span class="math display">\[
+P_1,\ P_2,\ P_3,\ P_4,\ P_5.
+\]</span></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Interval</th>
+<th>Running process</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(0\)</span>–<span class="math inline">\(7\)</span></td>
+<td><span class="math inline">\(P_1\)</span></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(7\)</span>–<span class="math inline">\(11\)</span></td>
+<td><span class="math inline">\(P_2\)</span></td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(11\)</span>–<span class="math inline">\(12\)</span></td>
+<td><span class="math inline">\(P_3\)</span></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(12\)</span>–<span class="math inline">\(16\)</span></td>
+<td><span class="math inline">\(P_4\)</span></td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(16\)</span>–<span class="math inline">\(18\)</span></td>
+<td><span class="math inline">\(P_5\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>The resulting times are:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 13%">
+<col style="width: 17%">
+<col style="width: 17%">
+<col style="width: 17%">
+<col style="width: 17%">
+<col style="width: 17%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Process</th>
+<th style="text-align: right;">Arrival <span class="math inline">\(a_i\)</span></th>
+<th style="text-align: right;">Burst <span class="math inline">\(b_i\)</span></th>
+<th style="text-align: right;">Completion <span class="math inline">\(f_i\)</span></th>
+<th style="text-align: right;">Turnaround <span class="math inline">\(T_i\)</span></th>
+<th style="text-align: right;">Waiting <span class="math inline">\(W_i\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(P_1\)</span></td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(P_2\)</span></td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">11</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">6</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(P_3\)</span></td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">9</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(P_4\)</span></td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">16</td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">8</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(P_5\)</span></td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">11</td>
+</tr>
+</tbody>
+</table>
+<p>Hence:</p>
+<p><span class="math display">\[
+\boxed{
+\overline W_{\mathrm{FCFS}}
+=\frac{0+6+9+8+11}{5}
+=\frac{34}{5}
+=6.8\text{ ms}
+}.
+\]</span></p>
+</section>
+<section id="non-preemptive-sjf" class="level4">
+<h4 class="anchored" data-anchor-id="non-preemptive-sjf">Non-preemptive SJF</h4>
+<p>At <span class="math inline">\(t=0\)</span>, only <span class="math inline">\(P_1\)</span> has arrived. It runs until <span class="math inline">\(t=7\)</span>, because SJF is non-preemptive.</p>
+<p>At <span class="math inline">\(t=7\)</span>, all other processes are ready. Their burst lengths are:</p>
+<p><span class="math display">\[
+P_3:1,\qquad P_5:2,\qquad P_2:4,\qquad P_4:4.
+\]</span></p>
+<p><span class="math inline">\(P_2\)</span> precedes <span class="math inline">\(P_4\)</span> because it arrived earlier.</p>
+<p>The execution order is:</p>
+<p><span class="math display">\[
+\boxed{P_1,\ P_3,\ P_5,\ P_2,\ P_4}.
+\]</span></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Interval</th>
+<th>Running process</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(0\)</span>–<span class="math inline">\(7\)</span></td>
+<td><span class="math inline">\(P_1\)</span></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(7\)</span>–<span class="math inline">\(8\)</span></td>
+<td><span class="math inline">\(P_3\)</span></td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(8\)</span>–<span class="math inline">\(10\)</span></td>
+<td><span class="math inline">\(P_5\)</span></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(10\)</span>–<span class="math inline">\(14\)</span></td>
+<td><span class="math inline">\(P_2\)</span></td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(14\)</span>–<span class="math inline">\(18\)</span></td>
+<td><span class="math inline">\(P_4\)</span></td>
+</tr>
+</tbody>
+</table>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 13%">
+<col style="width: 17%">
+<col style="width: 17%">
+<col style="width: 17%">
+<col style="width: 17%">
+<col style="width: 17%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Process</th>
+<th style="text-align: right;">Arrival <span class="math inline">\(a_i\)</span></th>
+<th style="text-align: right;">Burst <span class="math inline">\(b_i\)</span></th>
+<th style="text-align: right;">Completion <span class="math inline">\(f_i\)</span></th>
+<th style="text-align: right;">Turnaround <span class="math inline">\(T_i\)</span></th>
+<th style="text-align: right;">Waiting <span class="math inline">\(W_i\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(P_1\)</span></td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(P_2\)</span></td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">9</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(P_3\)</span></td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">5</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(P_4\)</span></td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">14</td>
+<td style="text-align: right;">10</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(P_5\)</span></td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">3</td>
+</tr>
+</tbody>
+</table>
+<p>Thus:</p>
+<p><span class="math display">\[
+\boxed{
+\overline W_{\mathrm{SJF}}
+=\frac{0+9+5+10+3}{5}
+=\frac{27}{5}
+=5.4\text{ ms}
+}.
+\]</span></p>
+</section>
+<section id="round-robin-with-q2-ms" class="level4">
+<h4 class="anchored" data-anchor-id="round-robin-with-q2-ms">Round Robin with <span class="math inline">\(q=2\)</span> ms</h4>
+<p>Queue fronts are shown on the <strong>left</strong>. Each queue below is recorded after the interval’s arrivals, completion or re-enqueue have been handled.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 23%">
+<col style="width: 23%">
+<col style="width: 30%">
+<col style="width: 23%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Interval</th>
+<th>Running process</th>
+<th style="text-align: right;">Its remaining burst afterwards</th>
+<th>Ready queue afterwards</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(0\)</span>–<span class="math inline">\(2\)</span></td>
+<td><span class="math inline">\(P_1\)</span></td>
+<td style="text-align: right;">5</td>
+<td><span class="math inline">\(P_2,P_3,P_1\)</span></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(2\)</span>–<span class="math inline">\(4\)</span></td>
+<td><span class="math inline">\(P_2\)</span></td>
+<td style="text-align: right;">2</td>
+<td><span class="math inline">\(P_3,P_1,P_4,P_2\)</span></td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(4\)</span>–<span class="math inline">\(5\)</span></td>
+<td><span class="math inline">\(P_3\)</span></td>
+<td style="text-align: right;">0</td>
+<td><span class="math inline">\(P_1,P_4,P_2,P_5\)</span></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(5\)</span>–<span class="math inline">\(7\)</span></td>
+<td><span class="math inline">\(P_1\)</span></td>
+<td style="text-align: right;">3</td>
+<td><span class="math inline">\(P_4,P_2,P_5,P_1\)</span></td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(7\)</span>–<span class="math inline">\(9\)</span></td>
+<td><span class="math inline">\(P_4\)</span></td>
+<td style="text-align: right;">2</td>
+<td><span class="math inline">\(P_2,P_5,P_1,P_4\)</span></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(9\)</span>–<span class="math inline">\(11\)</span></td>
+<td><span class="math inline">\(P_2\)</span></td>
+<td style="text-align: right;">0</td>
+<td><span class="math inline">\(P_5,P_1,P_4\)</span></td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(11\)</span>–<span class="math inline">\(13\)</span></td>
+<td><span class="math inline">\(P_5\)</span></td>
+<td style="text-align: right;">0</td>
+<td><span class="math inline">\(P_1,P_4\)</span></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(13\)</span>–<span class="math inline">\(15\)</span></td>
+<td><span class="math inline">\(P_1\)</span></td>
+<td style="text-align: right;">1</td>
+<td><span class="math inline">\(P_4,P_1\)</span></td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(15\)</span>–<span class="math inline">\(17\)</span></td>
+<td><span class="math inline">\(P_4\)</span></td>
+<td style="text-align: right;">0</td>
+<td><span class="math inline">\(P_1\)</span></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(17\)</span>–<span class="math inline">\(18\)</span></td>
+<td><span class="math inline">\(P_1\)</span></td>
+<td style="text-align: right;">0</td>
+<td>Empty</td>
+</tr>
+</tbody>
+</table>
+<p>Notice that <span class="math inline">\(P_3\)</span> needs only one millisecond. Its interval ends at <span class="math inline">\(t=5\)</span>, so the next process starts immediately.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 13%">
+<col style="width: 17%">
+<col style="width: 17%">
+<col style="width: 17%">
+<col style="width: 17%">
+<col style="width: 17%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Process</th>
+<th style="text-align: right;">Arrival <span class="math inline">\(a_i\)</span></th>
+<th style="text-align: right;">Burst <span class="math inline">\(b_i\)</span></th>
+<th style="text-align: right;">Completion <span class="math inline">\(f_i\)</span></th>
+<th style="text-align: right;">Turnaround <span class="math inline">\(T_i\)</span></th>
+<th style="text-align: right;">Waiting <span class="math inline">\(W_i\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(P_1\)</span></td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">18</td>
+<td style="text-align: right;">11</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(P_2\)</span></td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">11</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">6</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(P_3\)</span></td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(P_4\)</span></td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">17</td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">9</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(P_5\)</span></td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">13</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">6</td>
+</tr>
+</tbody>
+</table>
+<p>For example:</p>
+<p><span class="math display">\[
+W_1=18-0-7=11\text{ ms}.
+\]</span></p>
+<p>Although <span class="math inline">\(P_1\)</span> starts immediately, it waits between later slices.</p>
+<p>The average is:</p>
+<p><span class="math display">\[
+\boxed{
+\overline W_{\mathrm{RR}}
+=\frac{11+6+2+9+6}{5}
+=\frac{34}{5}
+=6.8\text{ ms}
+}.
+\]</span></p>
+</section>
+<section id="comparison-of-average-waiting-times" class="level4">
+<h4 class="anchored" data-anchor-id="comparison-of-average-waiting-times">Comparison of average waiting times</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Policy</th>
+<th style="text-align: right;">Average waiting time</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>FCFS</td>
+<td style="text-align: right;"><span class="math inline">\(6.8\)</span> ms</td>
+</tr>
+<tr class="even">
+<td>Non-preemptive SJF</td>
+<td style="text-align: right;"><strong><span class="math inline">\(5.4\)</span> ms</strong></td>
+</tr>
+<tr class="odd">
+<td>RR, <span class="math inline">\(q=2\)</span> ms</td>
+<td style="text-align: right;"><span class="math inline">\(6.8\)</span> ms</td>
+</tr>
+</tbody>
+</table>
+<p><strong>SJF gives the smallest average waiting time for this workload.</strong></p>
+<p>FCFS and RR happen to have equal averages, despite different individual waiting times. For example, <span class="math inline">\(P_3\)</span> waits <span class="math inline">\(9\)</span> ms under FCFS and only <span class="math inline">\(2\)</span> ms under RR.</p>
+<p>All schedules end at:</p>
+<p><span class="math display">\[
+7+4+1+4+2=\boxed{18\text{ ms}},
+\]</span></p>
+<p>because the CPU is continuously busy and overhead is ignored.</p>
+</section>
+<section id="requested-rr-queue-snapshots" class="level4">
+<h4 class="anchored" data-anchor-id="requested-rr-queue-snapshots">Requested RR queue snapshots</h4>
+<p>These queues are recorded <strong>immediately before selecting the next process</strong>, after all events at the stated time have been handled.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Time</th>
+<th>Ready queue, front first</th>
+<th>Next process</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(t=2\)</span></td>
+<td><span class="math inline">\(\boxed{P_2,P_3,P_1}\)</span></td>
+<td><span class="math inline">\(P_2\)</span></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(t=4\)</span></td>
+<td><span class="math inline">\(\boxed{P_3,P_1,P_4,P_2}\)</span></td>
+<td><span class="math inline">\(P_3\)</span></td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(t=5\)</span></td>
+<td><span class="math inline">\(\boxed{P_1,P_4,P_2,P_5}\)</span></td>
+<td><span class="math inline">\(P_1\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>Explanation:</p>
+<ul>
+<li><strong>At <span class="math inline">\(t=2\)</span>:</strong> <span class="math inline">\(P_2\)</span> has been waiting since <span class="math inline">\(t=1\)</span>. Newly arriving <span class="math inline">\(P_3\)</span> is enqueued before unfinished <span class="math inline">\(P_1\)</span> is re-enqueued.</li>
+<li><strong>At <span class="math inline">\(t=4\)</span>:</strong> <span class="math inline">\(P_3,P_1\)</span> are already waiting. Newly arriving <span class="math inline">\(P_4\)</span> is appended before unfinished <span class="math inline">\(P_2\)</span>.</li>
+<li><strong>At <span class="math inline">\(t=5\)</span>:</strong> <span class="math inline">\(P_3\)</span> finishes and is removed. Newly arriving <span class="math inline">\(P_5\)</span> joins behind <span class="math inline">\(P_1,P_4,P_2\)</span>.</li>
+</ul>
+</section>
+<section id="does-p_2s-arrival-interrupt-p_1" class="level4">
+<h4 class="anchored" data-anchor-id="does-p_2s-arrival-interrupt-p_1">Does <span class="math inline">\(P_2\)</span>’s arrival interrupt <span class="math inline">\(P_1\)</span>?</h4>
+<p><strong>No, under either policy.</strong></p>
+<ul>
+<li><strong>Non-preemptive SJF:</strong> <span class="math inline">\(P_1\)</span> continues until its burst finishes at <span class="math inline">\(t=7\)</span>.</li>
+<li><strong>RR:</strong> the arrival does not interrupt the current slice. <span class="math inline">\(P_1\)</span> continues until quantum expiry at <span class="math inline">\(t=2\)</span>.</li>
+</ul>
+</section>
+<section id="sjf-order-if-all-processes-arrive-at-zero" class="level4">
+<h4 class="anchored" data-anchor-id="sjf-order-if-all-processes-arrive-at-zero">SJF order if all processes arrive at zero</h4>
+<p>Sort by burst length, breaking the tie between <span class="math inline">\(P_2\)</span> and <span class="math inline">\(P_4\)</span> by lower index:</p>
+<p><span class="math display">\[
+\boxed{P_3,\ P_5,\ P_2,\ P_4,\ P_1}.
+\]</span></p>
+<p>Their bursts are:</p>
+<p><span class="math display">\[
+1,\ 2,\ 4,\ 4,\ 7.
+\]</span></p>
+</section>
+<section id="rr-with-a-quantum-of-10-ms" class="level4">
+<h4 class="anchored" data-anchor-id="rr-with-a-quantum-of-10-ms">RR with a quantum of <span class="math inline">\(10\)</span> ms</h4>
+<p>Every burst is at most <span class="math inline">\(7\)</span> ms, so every process finishes during its first CPU allocation.</p>
+<p>RR therefore matches <strong>FCFS</strong> for this workload:</p>
+<p><span class="math display">\[
+\boxed{P_1,\ P_2,\ P_3,\ P_4,\ P_5}.
+\]</span></p>
+</section>
+<section id="starvation-under-continuing-arrivals" class="level4">
+<h4 class="anchored" data-anchor-id="starvation-under-continuing-arrivals">Starvation under continuing arrivals</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Policy</th>
+<th>Starvation possible?</th>
+<th>Reason</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>FCFS</td>
+<td><strong>No</strong>, under the usual finite-burst assumptions</td>
+<td>New arrivals join behind already waiting processes.</td>
+</tr>
+<tr class="even">
+<td>SJF</td>
+<td><strong>Yes</strong></td>
+<td>A continuing stream of short jobs can indefinitely postpone a long ready job.</td>
+</tr>
+<tr class="odd">
+<td>RR</td>
+<td><strong>No</strong>, under the usual FIFO and positive-quantum assumptions</td>
+<td>A ready process repeatedly receives a turn.</td>
+</tr>
+</tbody>
+</table>
+<p>For this finite set of five processes, all three policies eventually finish every process.</p>
+</section>
+</section>
+<section id="suggested-self-marking-guide" class="level3">
+<h3 class="anchored" data-anchor-id="suggested-self-marking-guide">Suggested self-marking guide</h3>
+<p>This is an <strong>unofficial 60-point scheme</strong> you can use for comparison:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 30%">
+<col style="width: 40%">
+<col style="width: 30%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Exercise</th>
+<th style="text-align: right;">Suggested points</th>
+<th>Allocation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Exercise 1</td>
+<td style="text-align: right;"><strong>12</strong></td>
+<td>Trace 3; definition and conditions 5; CPU-turn explanation 1; repair 2; FIFO explanation 1</td>
+</tr>
+<tr class="even">
+<td>Exercise 2</td>
+<td style="text-align: right;"><strong>20</strong></td>
+<td>Graph 4; cycle interpretation 1; vectors/matrices 4; Banker trace 4; original conclusion 1; variant 4; free-resource explanation 2</td>
+</tr>
+<tr class="odd">
+<td>Exercise 3</td>
+<td style="text-align: right;"><strong>28</strong></td>
+<td>Gantt diagrams 8; completion/turnaround/waiting tables 9; averages 2; queues 3; arrival behaviour and simultaneous-arrival SJF 3; large quantum and starvation 3</td>
+</tr>
+</tbody>
+</table>
+<p>For <strong>Folgefehler</strong>, identify the original mistake and still award method credit for later steps calculated correctly from your earlier result. A consistently propagated arithmetic error should receive less deduction than using the wrong algorithm or resource-update rule.</p>
 
 
 </section>
@@ -1184,14 +2210,13 @@ t=2,\qquad t=4,\qquad t=5.
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-      const outerScaffold = trigger.parentElement.cloneNode(true);
-      const codeEl = outerScaffold.querySelector('code');
-      for (const childEl of codeEl.children) {
-        if (isCodeAnnotation(childEl)) {
-          childEl.remove();
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
         }
-      }
-      return codeEl.innerText;
+        return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
