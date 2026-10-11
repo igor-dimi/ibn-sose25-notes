@@ -1,0 +1,699 @@
+# File systems
+
+Today’s three central skills are:
+
+- **FAT:** follow cluster chains, calculate storage requirements and update allocation metadata.
+- **I-nodes:** distinguish data blocks from pointer blocks and derive maximum file size.
+- **Pathnames:** trace directory lookup and count disk reads under stated cache assumptions.
+
+The scope follows your Day 6 plan and the Sheet 7 analysis in 15-Operating-Systems-and-Networks-SoSe-25-Notes.pdf.
+
+The strongest direct evidence for maximum-file-size calculations is Aufgabe 6 of the **2012 mini-test appended to the 2016 exam PDF**. The recent memory protocol confirms that both **i-nodes and FAT** appeared, but does not reconstruct their exact subquestions. 12-ibn-klausur-2016.pdf 13-Ged-chtnisprotokoll_Klausur\_-IBN_Ersttermin.pdf
+
+## 1. Foundations: names, metadata and stored data
+
+A **regular file** (*reguläre Datei*) is, conceptually, a persistent sequence of bytes. Its **file size** is the length of that sequence.
+
+The filesystem must manage two kinds of information:
+
+| Information | Examples |
+|---|---|
+| **File contents** | Text, image bytes, executable code |
+| **Metadata** | File size, type, permissions, owner, timestamps, locations of stored data |
+
+Storage is divided into fixed-size units:
+
+- A **filesystem block** (*Dateisystemblock*, often simply *Plattenblock* in these exercises) is a unit used to store data or filesystem metadata.
+- In FAT, the allocation unit is called a **cluster**. A cluster consists of one or more disk sectors.
+
+For calculations, use the **block or cluster size stated in the question**. Hardware sector details are unnecessary here.
+
+A file’s consecutive logical blocks can occupy nonconsecutive storage locations. For example, its first three blocks might be stored in blocks 18, 4 and 29. The filesystem’s metadata preserves their logical order.
+
+This is the useful connection to paging: **logical units need not occupy consecutive physical locations; a mapping records where each unit is stored.**
+
+### Directories and filenames
+
+A **directory** (*Verzeichnis*) stores entries associating names with filesystem objects.
+
+In the i-node model:
+
+$$
+\boxed{\text{directory entry: name}\longrightarrow\text{i-node number}}
+$$
+
+The i-node number identifies the object’s i-node within that filesystem. The filesystem uses that number to locate the i-node.
+
+**The filename normally belongs to the directory entry, not to the file’s i-node.**
+
+A directory itself also has an i-node. Its data blocks contain its directory entries; its i-node identifies those blocks and stores the directory’s metadata.
+
+The terminology and allocation models here follow Chapter 10 of the course summary. 01-ibn-zusammenfassung.pdf
+
+### Hard links and symbolic links
+
+| | Hard link (*harter Link*) | Symbolic link (*symbolischer Link*) |
+|---|---|---|
+| What it represents | Another directory entry referring to the **same i-node** | A separate filesystem object storing a **target pathname** |
+| File contents | Shared: both names identify the same file | Access requires resolving the stored target path |
+| If another name is deleted | Remains valid | Can become dangling if its target pathname disappears |
+| Filesystem boundary | Normally restricted to the same filesystem | Can refer across filesystem boundaries |
+
+Two hard links are **two names for one file**, not two copies. Neither name has a privileged “original” status.
+
+A symbolic link depends on a pathname. If that pathname disappears, the link can fail even when the target file remains accessible through a different hard link.
+
+## 2. FAT: a linked list represented by a table
+
+**FAT** means *File Allocation Table*.
+
+The central structure is a table indexed by cluster number:
+
+$$
+\boxed{\operatorname{FAT}[k]\text{ describes what follows cluster }k}
+$$
+
+In a simplified model, an entry contains:
+
+| Entry value | Meaning |
+|---|---|
+| A cluster index $j$ | The next cluster of this file is $j$ |
+| `EOC` | End of chain: this is the last cluster |
+| `FREE` | This cluster is available for allocation |
+
+`EOC` and `FREE` are conceptual markers. **Do not assume that a particular number, such as 0, always means either one.** Use the question’s convention.
+
+Sheet 7 A2’s simulator uses a separate occupancy bitfield: bit 1 means occupied, bit 0 means free. In that representation, the bitfield tells you whether a cluster is allocated, while the pointer table supplies the chain.
+
+A FAT directory entry provides the file’s **first cluster** and file size. The FAT then determines the remaining clusters.
+
+### Following a chain
+
+Suppose a file starts at cluster 4 and:
+
+$$
+\operatorname{FAT}[4]=10,\qquad
+\operatorname{FAT}[10]=7,\qquad
+\operatorname{FAT}[7]=\text{EOC}.
+$$
+
+Its cluster sequence is:
+
+$$
+4\longrightarrow10\longrightarrow7.
+$$
+
+Therefore:
+
+- the first logical portion of the file is in cluster 4;
+- the second is in cluster 10;
+- the third is in cluster 7.
+
+**Cluster 7 belongs to the file.** `EOC` terminates the chain after that cluster; it is not another cluster.
+
+A reliable hand-tracing procedure is:
+
+1. Start with the first-cluster index.
+2. Record that cluster.
+3. Look up its FAT entry.
+4. If the entry contains another index, continue there.
+5. Stop at `EOC`; flag invalid entries or repeated clusters.
+
+The next-cluster pointer is stored **in the FAT**, not inside the file’s data cluster. Consequently, if the FAT is in memory, following its pointers does not require reading each preceding data cluster.
+
+### Calculating required clusters
+
+For file size $S$ bytes and cluster size $C$ bytes:
+
+$$
+\boxed{n=\left\lceil\frac{S}{C}\right\rceil}
+$$
+
+The ceiling matters because a partially filled final cluster still occupies one complete cluster.
+
+Under the simple model without preallocation:
+
+$$
+\text{allocated data space}=nC,
+$$
+
+$$
+\text{unused space in the final cluster}=nC-S.
+$$
+
+For example, with $S=2500$ bytes and $C=1024$ bytes:
+
+$$
+n=\left\lceil2500/1024\right\rceil=3,
+$$
+
+$$
+\text{allocated space}=3072\text{ bytes},\qquad
+\text{unused space}=572\text{ bytes}.
+$$
+
+That unused space is **internal fragmentation**. An empty file needs zero data clusters in this model.
+
+### Allocation and file growth
+
+To allocate a new file requiring three clusters:
+
+1. Find three free clusters.
+2. Mark them occupied.
+3. Link the first to the second and the second to the third.
+4. Mark the third as `EOC`.
+5. Store the first-cluster index and file size in the directory entry.
+
+The clusters need not be adjacent. Sheet 7’s allocation rule chooses the **free cluster with the smallest index** whenever another cluster is needed. That is a rule of the exercise, not a requirement of FAT itself.
+
+To extend an existing file:
+
+1. Calculate the new total cluster requirement.
+2. Compare it with the existing chain length.
+3. Allocate any additional clusters.
+4. Replace the old last cluster’s `EOC` with a pointer to the first new cluster.
+5. Link the new clusters and terminate the new last cluster with `EOC`.
+6. Update the file size.
+
+**Growth does not always require another cluster:** the existing final cluster may still have unused space.
+
+### Invalid states worth recognizing
+
+A small FAT problem may contain:
+
+- a **cycle**: traversal revisits a cluster;
+- a pointer to a **free cluster**;
+- an **out-of-range cluster index**;
+- a chain too short to contain the stated file size;
+- two independent files incorrectly sharing an allocated cluster.
+
+A cluster ending in `EOC` is occupied. Also, the clusters belonging to a file are those reached through its chain—not every occupied cluster in the table.
+
+These mechanisms are the exam-relevant core of Sheet 7 A2; its class design and simulator implementation are separate practical work. 07-ueb07-ibn-SS2025.pdf
+
+## 3. I-nodes and file-block addressing
+
+An **i-node** (*I-Node*) is a per-file metadata structure containing information such as:
+
+- file type and permissions;
+- owner and timestamps;
+- file size and hard-link count;
+- addresses used to locate the file’s data blocks.
+
+The i-node is neither the filename nor the file’s contents.
+
+### Direct and indirect pointers
+
+A **direct pointer** in the i-node identifies one data block.
+
+A **single-indirect pointer** identifies a block containing addresses of data blocks.
+
+A **double-indirect pointer** identifies a block containing addresses of single-indirect blocks. Those blocks then contain addresses of data blocks.
+
+| Pointer in the i-node | What it first points to | Data blocks reachable through it |
+|---|---|---:|
+| Direct | One data block | $1$ |
+| Single-indirect | One block of data-block addresses | $m$ |
+| Double-indirect | One block of addresses of single-indirect blocks | $m^2$ |
+| Triple-indirect | One further pointer-block level | $m^3$ |
+
+Here, $m$ is the number of addresses that fit in one pointer block.
+
+**Indirect blocks contain block addresses, not additional file i-nodes.** The summary’s wording about “other i-nodes” is imprecise here.
+
+Small files can use only direct pointers. Larger files use indirect blocks as needed, allowing the i-node to describe a large file without storing every data-block address inside the i-node itself.
+
+Unlike FAT’s global next-cluster table, this is a **per-file block mapping**.
+
+### Deriving maximum file size
+
+Let:
+
+- $B$: block size in **bytes**;
+- $p$: size of one block address in **bytes**;
+- $d$: number of direct pointers;
+- $s$: number of single-indirect pointers;
+- $t$: number of double-indirect pointers.
+
+Assume pointer blocks contain only addresses, enough storage is available, and no other limit restricts file size.
+
+**Step 1 — Addresses per indirect block**
+
+$$
+\boxed{m=\left\lfloor\frac{B}{p}\right\rfloor}
+$$
+
+Usually $B$ is divisible by $p$, so $m=B/p$.
+
+If an address size is given in bits, convert it to bytes first.
+
+**Step 2 — Count reachable data blocks separately**
+
+$$
+N_{\text{direct}}=d,
+$$
+
+$$
+N_{\text{single}}=sm,
+$$
+
+$$
+N_{\text{double}}=tm^2.
+$$
+
+Every extra indirection level multiplies the reach of one pointer by $m$.
+
+**Step 3 — Add the data-block capacities**
+
+For direct, single- and double-indirect pointers:
+
+$$
+N=d+sm+tm^2.
+$$
+
+A triple-indirect contribution would be its number of pointers multiplied by $m^3$.
+
+**Step 4 — Convert blocks to file bytes**
+
+$$
+\boxed{S_{\max}=NB}
+$$
+
+The method is:
+
+$$
+\boxed{
+\text{addresses per pointer block}
+\rightarrow
+\text{reachable data blocks}
+\rightarrow
+\text{total data blocks}
+\rightarrow
+\text{file bytes}
+}
+$$
+
+### Short worked example
+
+Suppose an i-node has six direct pointers and one single-indirect pointer, with:
+
+$$
+B=1\text{ KiB}=1024\text{ bytes},\qquad p=4\text{ bytes}.
+$$
+
+Then:
+
+$$
+m=1024/4=256,
+$$
+
+$$
+N=6+256=262,
+$$
+
+$$
+S_{\max}=262\cdot1024=268\,288\text{ bytes}=262\text{ KiB}.
+$$
+
+The single-indirect block occupies storage, but its bytes contain **pointers**. They do not contribute to the file’s contents.
+
+### File capacity versus total storage occupied
+
+These are different questions:
+
+- **Maximum file size:** count reachable **data blocks**.
+- **Total allocated storage:** count data blocks **plus allocated pointer blocks**, and include the i-node only if requested.
+
+For example, if a file uses eight direct data blocks and three additional data blocks through one single-indirect pointer, it occupies:
+
+$$
+11\text{ data blocks}+1\text{ pointer block},
+$$
+
+excluding the i-node itself.
+
+Do not subtract the pointer block from the eleven data blocks. It is additional storage.
+
+### Finding the block containing a file byte
+
+For a zero-based byte offset $x$:
+
+$$
+q=\left\lfloor\frac{x}{B}\right\rfloor,\qquad
+r=x\bmod B.
+$$
+
+Here, $q$ is the logical file-block number and $r$ the byte offset within it.
+
+With $d$ direct pointers followed by single-indirect pointers:
+
+- $0\le q<d$: use direct pointer $q$;
+- otherwise, set $u=q-d$;
+- single-indirect pointer number:
+  $$
+  \left\lfloor u/m\right\rfloor;
+  $$
+- address position inside that pointer block:
+  $$
+  u\bmod m.
+  $$
+
+All indices here are zero-based.
+
+If the i-node is cached but the required blocks are not, reading a data block takes one read through a direct pointer, two through single indirection, or three through double indirection: the required pointer blocks, followed by the data block.
+
+## 4. Directories and pathname resolution
+
+Consider:
+
+```text
+/a/b/c/file
+```
+
+The leading `/` starts lookup at the root directory. It is not an additional named component.
+
+For each component, the system needs to:
+
+1. inspect the **current directory’s contents** to find the name;
+2. obtain the child’s i-node number from its directory entry;
+3. load the child’s i-node if it is needed and not already cached;
+4. use that child as the current directory for the next component.
+
+The sequence is:
+
+| Name sought | Directory searched | Child i-node obtained |
+|---|---|---|
+| `a` | `/` | `/a` |
+| `b` | `/a` | `/a/b` |
+| `c` | `/a/b` | `/a/b/c` |
+| `file` | `/a/b/c` | `/a/b/c/file` |
+
+**The current directory’s i-node tells you where its directory blocks are. Its directory blocks tell you which i-node number belongs to the requested name.**
+
+Having the root i-node in memory therefore does **not** imply that the root directory’s entries are already in memory.
+
+### A reusable disk-operation counting procedure
+
+Before counting, establish:
+
+- Which i-nodes are cached?
+- Which directory blocks are cached?
+- How many directory blocks must be searched?
+- Are those blocks directly addressed?
+- Does the task stop at the final i-node, or also require file contents?
+- Do reads remain cached for subsequent lookups?
+
+Then make one row per pathname component:
+
+| Component | Current directory | Directory reads needed | Child i-node read needed |
+|---|---|---:|---:|
+
+For each row:
+
+1. Count the uncached directory blocks needed to find the entry.
+2. Obtain the child’s i-node number.
+3. Count a read if that child i-node must be loaded and is uncached.
+4. Update the cache state.
+
+Finally, add any requested reads of the target file’s data or indirect blocks.
+
+Use the exercise’s operation model. In Sheet 7 A5, an i-node read and a block read each count as one operation.
+
+### Short worked example
+
+Find the i-node for:
+
+```text
+/lab/report.txt
+```
+
+Assume:
+
+- only the root i-node is cached;
+- each directory occupies one directly addressed block;
+- every uncached i-node or block requires one read;
+- no additional name-lookup cache is available.
+
+| Component | Directory-block read | Child i-node read | Total |
+|---|---:|---:|---:|
+| `lab` | Root directory: 1 | `lab` i-node: 1 | 2 |
+| `report.txt` | `lab` directory: 1 | `report.txt` i-node: 1 | 2 |
+
+Total:
+
+$$
+4\text{ disk operations}.
+$$
+
+No contents of `report.txt` have been read.
+
+If the `lab` i-node were already cached, the total would be **3**. Its directory block would still need reading.
+
+### When “two operations per component” applies
+
+For $k$ components, the result is $2k$ only when:
+
+- the root i-node is already cached;
+- every directory search needs one uncached block;
+- every child i-node is uncached and must be loaded;
+- no additional pointer-block reads or lookup shortcuts are needed.
+
+If the root i-node also needs loading, add one.
+
+If the question asks only for the final **i-node number**, the last directory entry already provides it; loading the final i-node is a separate action.
+
+If the task requests the first file byte, add the necessary data-block read—and any uncached indirect blocks needed to reach it.
+
+This directory-read/i-node-read distinction matches Sheet 7 A5 and its supplied solution. 14-Operating-Systems-and-Networs-SoSe-25-Solutions.pdf
+
+## 5. Common exam traps
+
+- **Reversing FAT’s meaning:** `FAT[k] = j` means cluster $j$ follows cluster $k$.
+- **Omitting the last cluster:** the cluster whose entry contains `EOC` belongs to the file.
+- **Rounding down:** a partially filled final block or cluster still needs allocation.
+- **Confusing names with i-nodes:** several directory entries can identify the same i-node.
+- **Counting pointer blocks as file capacity:** their bytes contain addresses, not file contents.
+- **Miscounting indirection:** one single-indirect pointer reaches $m$ data blocks; one double-indirect pointer reaches $m^2$.
+- **Equating cached i-node with cached directory contents:** they are separate structures.
+- **Reading beyond the requested endpoint:** obtaining the target i-node does not require reading the target file’s contents.
+
+Use units explicitly:
+
+$$
+1\text{ KiB}=1024\text{ bytes},\qquad
+1\text{ MiB}=1024^2\text{ bytes},\qquad
+8\text{ bits}=1\text{ byte}.
+$$
+
+## 6. Exam-like exercises
+
+Allow approximately **50–65 minutes** for the three exercises. Show chains, intermediate calculations and component-by-component access counts.
+
+The set has **30 practice points**, ten per exercise. These are practice weights, not a prediction of the exam’s marking scheme.
+
+### Exercise 1 — FAT: fragmented files, growth and consistency
+
+**Suggested time: 15–20 minutes.**
+
+A simplified FAT filesystem has **2048-byte clusters**.
+
+All cluster indices **0–15 are valid data-cluster indices**. `FREE` and `EOC` are distinct markers, not numerical cluster indices.
+
+| Cluster $k$ | `FAT[k]` | Cluster $k$ | `FAT[k]` |
+|---:|---|---:|---|
+| 0 | FREE | 8 | 3 |
+| 1 | 9 | 9 | EOC |
+| 2 | FREE | 10 | FREE |
+| 3 | 11 | 11 | EOC |
+| 4 | 14 | 12 | FREE |
+| 5 | FREE | 13 | FREE |
+| 6 | 1 | 14 | EOC |
+| 7 | FREE | 15 | FREE |
+
+The directory contains:
+
+| File | First cluster | File size |
+|---|---:|---:|
+| `notes.txt` | 6 | 5100 bytes |
+| `image.bin` | 8 | 6100 bytes |
+| `old.dat` | 4 | 3000 bytes |
+
+Assume no preallocation: each file has exactly the clusters required by its size.
+
+1. **Trace and space calculation — 3 points**
+
+   For each file, give:
+
+   - its ordered cluster chain;
+   - its required cluster count;
+   - its allocated data space and unused final-cluster space.
+
+   Check whether its chain length agrees with its file size.
+
+2. **Allocation state — 1 point**
+
+   List all free clusters and give the total number of occupied clusters. Explain why clusters marked `EOC` count as occupied.
+
+3. **File growth — 3 points**
+
+   `notes.txt` grows to **10 500 bytes**. Each required new cluster is chosen using the **smallest-free-index rule**.
+
+   Determine:
+
+   - the new total cluster requirement and number of additional clusters;
+   - the allocated new clusters, in allocation order;
+   - every FAT entry that changes and its new value;
+   - the complete resulting chain;
+   - the unused space after growth.
+
+   Does the directory entry’s first-cluster value change?
+
+4. **Independent faulty variants — 3 points**
+
+   Each variant starts from the **original table and directory**, independently of the others:
+
+   - `FAT[9]` is changed to `1`;
+   - `FAT[3]` is changed to `2`;
+   - `image.bin` is declared to have size **9000 bytes**, with its chain unchanged.
+
+   Identify the inconsistency in each case and show how traversal or calculation reveals it.
+
+### Exercise 2 — I-node capacity, addressing and actual allocation
+
+**Suggested time: 20–25 minutes.**
+
+A filesystem uses:
+
+- **4 KiB blocks**;
+- **8-byte block addresses**;
+- **eight direct pointers** per i-node;
+- **two single-indirect pointers** per i-node.
+
+Every indirect block is entirely available for addresses. Direct pointers describe the first file blocks, followed by the first single-indirect pointer’s range, then the second’s range.
+
+Assume enough disk space, no sparse files or preallocation, and no separate file-size limit. All indices and byte offsets are zero-based.
+
+1. **Pointer-block capacity — 1 point**
+
+   Derive how many block addresses fit in one indirect block.
+
+2. **Maximum file size — 3 points**
+
+   Calculate:
+
+   - data blocks reachable through direct pointers;
+   - data blocks reachable through each single-indirect pointer;
+   - total addressable data blocks;
+   - maximum file size in **bytes, KiB and MiB**.
+
+   Explain why the two indirect blocks themselves do not add file-data capacity.
+
+3. **Locating particular bytes — 2 points**
+
+   For each byte offset below, identify:
+
+   - the logical file-block number;
+   - the offset inside that block;
+   - the i-node pointer used;
+   - the address index within the indirect block, if applicable.
+
+   $$
+   x_1=32\,785,\qquad x_2=2\,129\,937.
+   $$
+
+4. **Actual storage for a smaller file — 2 points**
+
+   A file has length:
+
+   $$
+   40\text{ KiB}+37\text{ bytes}.
+   $$
+
+   Determine its required data blocks, allocated indirect blocks and total allocated storage in bytes, **excluding the i-node**.
+
+   Explain why both single-indirect blocks need not be allocated.
+
+5. **One additional indirection level — 2 points**
+
+   The design gains **one additional double-indirect pointer**, with all existing pointers unchanged.
+
+   Derive the additional data capacity and the new maximum file size. Explain the two successive address-selection steps through the double-indirect structure.
+
+### Exercise 3 — Pathname lookup, partial caching and links
+
+**Suggested time: 15–20 minutes.**
+
+An i-node filesystem contains:
+
+```text
+/courses/ibn/notes/day6.pdf
+/courses/ibn/notes/day5.pdf
+```
+
+Use these assumptions:
+
+- Each directory occupies **one directly addressed block**.
+- Each uncached i-node read costs **one disk operation**.
+- Each uncached directory or file-data block read costs **one disk operation**.
+- Reading an i-node does not automatically cache its directory or file-data blocks.
+- All objects read remain cached; there is no eviction.
+- There is no separate pathname/name-lookup cache, prefetching or implicit loading of other i-nodes.
+- The requested paths contain no symbolic links.
+- The first data block of each PDF is directly addressed.
+
+The initial cache state is:
+
+| Object | I-node cached? | Directory contents cached? |
+|---|---|---|
+| `/` | Yes | No |
+| `/courses` | Yes | No |
+| `/courses/ibn` | No | Yes |
+| `/courses/ibn/notes` | No | No |
+
+Neither PDF’s i-node nor any PDF data block is initially cached.
+
+1. **Partially cached lookup — 4 points**
+
+   Find and load the i-node for:
+
+   ```text
+   /courses/ibn/notes/day6.pdf
+   ```
+
+   Make one row per component, showing the directory-block reads and child i-node reads. Give the total.
+
+   Explain why the cached contents of `/courses/ibn` do not mean its i-node is already cached.
+
+2. **Comparison with a cold lookup — 1 point**
+
+   In an **independent variant**, only the root i-node is initially cached; no other relevant metadata is cached.
+
+   How many operations are needed to load the same final i-node? Derive the count from the traversal.
+
+3. **Reading file contents — 1 point**
+
+   Return to the cache state **after part 1**. Read the first byte of `day6.pdf`.
+
+   How many additional operations are needed? Give the cumulative total for lookup plus this read.
+
+4. **Reusing the lookup’s cache — 2 points**
+
+   Immediately after part 3, find and load the i-node for:
+
+   ```text
+   /courses/ibn/notes/day5.pdf
+   ```
+
+   Its i-node is still uncached. How many additional disk operations are needed, and which object causes them?
+
+5. **Names and file identity — 2 points**
+
+   In the same directory, suppose:
+
+   - `copy.pdf` is a hard link to the same i-node as `day6.pdf`;
+   - `shortcut.pdf` is a symbolic link storing the absolute target path  
+     `/courses/ibn/notes/day6.pdf`.
+
+   Now the directory entry `day6.pdf` is deleted, while the other two entries remain.
+
+   Explain whether `copy.pdf` and `shortcut.pdf` still provide access to the PDF. Distinguish deletion of a **name** from deletion of the underlying **file object**.
