@@ -1,0 +1,1492 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.7.31">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>8&nbsp; File systems – Operating Systems and Networks SoSe 25 Notes</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../exam/notes/deadlocks_and_scheduling.html" rel="prev">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-e1a5c8363afafaef2c763b6775fbf3ca.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-b330ada5220959fbd7d7e7c55953a312.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../exam/notes/assignment_overview.html">Exam Notes</a></li><li class="breadcrumb-item"><a href="../../exam/notes/filesystems.html"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">File systems</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../../">Operating Systems and Networks SoSe 25 Notes</a> 
+        <div class="sidebar-tools-main">
+    <a href="../../Operating-Systems-and-Networks-SoSe-25-Notes.pdf" title="Download PDF" class="quarto-navigation-tool px-1" aria-label="Download PDF"><i class="bi bi-file-pdf"></i></a>
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Exam Notes</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../exam/notes/assignment_overview.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Assignment Sheets Overview</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../exam/notes/plan.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Plan</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../exam/notes/processes_and_fork.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Processes and <code>fork()</code></span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../exam/notes/synchronization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Race conditions, semaphores and synchronization</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../exam/notes/paging_1.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Paging fundamentals</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../exam/notes/paging_2.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Advanced paging and virtual memory</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../exam/notes/deadlocks_and_scheduling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Day 5 — Deadlocks and CPU scheduling</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../exam/notes/filesystems.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">File systems</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active" data-toc-expanded="-1">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#foundations-names-metadata-and-stored-data" id="toc-foundations-names-metadata-and-stored-data" class="nav-link active" data-scroll-target="#foundations-names-metadata-and-stored-data">1. Foundations: names, metadata and stored data</a>
+  <ul class="collapse">
+  <li><a href="#directories-and-filenames" id="toc-directories-and-filenames" class="nav-link" data-scroll-target="#directories-and-filenames">Directories and filenames</a></li>
+  <li><a href="#hard-links-and-symbolic-links" id="toc-hard-links-and-symbolic-links" class="nav-link" data-scroll-target="#hard-links-and-symbolic-links">Hard links and symbolic links</a></li>
+  </ul></li>
+  <li><a href="#fat-a-linked-list-represented-by-a-table" id="toc-fat-a-linked-list-represented-by-a-table" class="nav-link" data-scroll-target="#fat-a-linked-list-represented-by-a-table">2. FAT: a linked list represented by a table</a>
+  <ul class="collapse">
+  <li><a href="#following-a-chain" id="toc-following-a-chain" class="nav-link" data-scroll-target="#following-a-chain">Following a chain</a></li>
+  <li><a href="#calculating-required-clusters" id="toc-calculating-required-clusters" class="nav-link" data-scroll-target="#calculating-required-clusters">Calculating required clusters</a></li>
+  <li><a href="#allocation-and-file-growth" id="toc-allocation-and-file-growth" class="nav-link" data-scroll-target="#allocation-and-file-growth">Allocation and file growth</a></li>
+  <li><a href="#invalid-states-worth-recognizing" id="toc-invalid-states-worth-recognizing" class="nav-link" data-scroll-target="#invalid-states-worth-recognizing">Invalid states worth recognizing</a></li>
+  </ul></li>
+  <li><a href="#i-nodes-and-file-block-addressing" id="toc-i-nodes-and-file-block-addressing" class="nav-link" data-scroll-target="#i-nodes-and-file-block-addressing">3. I-nodes and file-block addressing</a>
+  <ul class="collapse">
+  <li><a href="#direct-and-indirect-pointers" id="toc-direct-and-indirect-pointers" class="nav-link" data-scroll-target="#direct-and-indirect-pointers">Direct and indirect pointers</a></li>
+  <li><a href="#deriving-maximum-file-size" id="toc-deriving-maximum-file-size" class="nav-link" data-scroll-target="#deriving-maximum-file-size">Deriving maximum file size</a></li>
+  <li><a href="#short-worked-example" id="toc-short-worked-example" class="nav-link" data-scroll-target="#short-worked-example">Short worked example</a></li>
+  <li><a href="#file-capacity-versus-total-storage-occupied" id="toc-file-capacity-versus-total-storage-occupied" class="nav-link" data-scroll-target="#file-capacity-versus-total-storage-occupied">File capacity versus total storage occupied</a></li>
+  <li><a href="#finding-the-block-containing-a-file-byte" id="toc-finding-the-block-containing-a-file-byte" class="nav-link" data-scroll-target="#finding-the-block-containing-a-file-byte">Finding the block containing a file byte</a></li>
+  </ul></li>
+  <li><a href="#directories-and-pathname-resolution" id="toc-directories-and-pathname-resolution" class="nav-link" data-scroll-target="#directories-and-pathname-resolution">4. Directories and pathname resolution</a>
+  <ul class="collapse">
+  <li><a href="#a-reusable-disk-operation-counting-procedure" id="toc-a-reusable-disk-operation-counting-procedure" class="nav-link" data-scroll-target="#a-reusable-disk-operation-counting-procedure">A reusable disk-operation counting procedure</a></li>
+  <li><a href="#short-worked-example-1" id="toc-short-worked-example-1" class="nav-link" data-scroll-target="#short-worked-example-1">Short worked example</a></li>
+  <li><a href="#when-two-operations-per-component-applies" id="toc-when-two-operations-per-component-applies" class="nav-link" data-scroll-target="#when-two-operations-per-component-applies">When “two operations per component” applies</a></li>
+  </ul></li>
+  <li><a href="#common-exam-traps" id="toc-common-exam-traps" class="nav-link" data-scroll-target="#common-exam-traps">5. Common exam traps</a></li>
+  <li><a href="#exam-like-exercises" id="toc-exam-like-exercises" class="nav-link" data-scroll-target="#exam-like-exercises">6. Exam-like exercises</a>
+  <ul class="collapse">
+  <li><a href="#exercise-1-fat-fragmented-files-growth-and-consistency" id="toc-exercise-1-fat-fragmented-files-growth-and-consistency" class="nav-link" data-scroll-target="#exercise-1-fat-fragmented-files-growth-and-consistency">Exercise 1 — FAT: fragmented files, growth and consistency</a></li>
+  <li><a href="#exercise-2-i-node-capacity-addressing-and-actual-allocation" id="toc-exercise-2-i-node-capacity-addressing-and-actual-allocation" class="nav-link" data-scroll-target="#exercise-2-i-node-capacity-addressing-and-actual-allocation">Exercise 2 — I-node capacity, addressing and actual allocation</a></li>
+  <li><a href="#exercise-3-pathname-lookup-partial-caching-and-links" id="toc-exercise-3-pathname-lookup-partial-caching-and-links" class="nav-link" data-scroll-target="#exercise-3-pathname-lookup-partial-caching-and-links">Exercise 3 — Pathname lookup, partial caching and links</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../exam/notes/assignment_overview.html">Exam Notes</a></li><li class="breadcrumb-item"><a href="../../exam/notes/filesystems.html"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">File systems</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">File systems</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>Today’s three central skills are:</p>
+<ul>
+<li><strong>FAT:</strong> follow cluster chains, calculate storage requirements and update allocation metadata.</li>
+<li><strong>I-nodes:</strong> distinguish data blocks from pointer blocks and derive maximum file size.</li>
+<li><strong>Pathnames:</strong> trace directory lookup and count disk reads under stated cache assumptions.</li>
+</ul>
+<p>The scope follows your Day 6 plan and the Sheet 7 analysis in 15-Operating-Systems-and-Networks-SoSe-25-Notes.pdf.</p>
+<p>The strongest direct evidence for maximum-file-size calculations is Aufgabe 6 of the <strong>2012 mini-test appended to the 2016 exam PDF</strong>. The recent memory protocol confirms that both <strong>i-nodes and FAT</strong> appeared, but does not reconstruct their exact subquestions. 12-ibn-klausur-2016.pdf 13-Ged-chtnisprotokoll_Klausur_-IBN_Ersttermin.pdf</p>
+<section id="foundations-names-metadata-and-stored-data" class="level2">
+<h2 class="anchored" data-anchor-id="foundations-names-metadata-and-stored-data">1. Foundations: names, metadata and stored data</h2>
+<p>A <strong>regular file</strong> (<em>reguläre Datei</em>) is, conceptually, a persistent sequence of bytes. Its <strong>file size</strong> is the length of that sequence.</p>
+<p>The filesystem must manage two kinds of information:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Information</th>
+<th>Examples</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>File contents</strong></td>
+<td>Text, image bytes, executable code</td>
+</tr>
+<tr class="even">
+<td><strong>Metadata</strong></td>
+<td>File size, type, permissions, owner, timestamps, locations of stored data</td>
+</tr>
+</tbody>
+</table>
+<p>Storage is divided into fixed-size units:</p>
+<ul>
+<li>A <strong>filesystem block</strong> (<em>Dateisystemblock</em>, often simply <em>Plattenblock</em> in these exercises) is a unit used to store data or filesystem metadata.</li>
+<li>In FAT, the allocation unit is called a <strong>cluster</strong>. A cluster consists of one or more disk sectors.</li>
+</ul>
+<p>For calculations, use the <strong>block or cluster size stated in the question</strong>. Hardware sector details are unnecessary here.</p>
+<p>A file’s consecutive logical blocks can occupy nonconsecutive storage locations. For example, its first three blocks might be stored in blocks 18, 4 and 29. The filesystem’s metadata preserves their logical order.</p>
+<p>This is the useful connection to paging: <strong>logical units need not occupy consecutive physical locations; a mapping records where each unit is stored.</strong></p>
+<section id="directories-and-filenames" class="level3">
+<h3 class="anchored" data-anchor-id="directories-and-filenames">Directories and filenames</h3>
+<p>A <strong>directory</strong> (<em>Verzeichnis</em>) stores entries associating names with filesystem objects.</p>
+<p>In the i-node model:</p>
+<p><span class="math display">\[
+\boxed{\text{directory entry: name}\longrightarrow\text{i-node number}}
+\]</span></p>
+<p>The i-node number identifies the object’s i-node within that filesystem. The filesystem uses that number to locate the i-node.</p>
+<p><strong>The filename normally belongs to the directory entry, not to the file’s i-node.</strong></p>
+<p>A directory itself also has an i-node. Its data blocks contain its directory entries; its i-node identifies those blocks and stores the directory’s metadata.</p>
+<p>The terminology and allocation models here follow Chapter 10 of the course summary. 01-ibn-zusammenfassung.pdf</p>
+</section>
+<section id="hard-links-and-symbolic-links" class="level3">
+<h3 class="anchored" data-anchor-id="hard-links-and-symbolic-links">Hard links and symbolic links</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th></th>
+<th>Hard link (<em>harter Link</em>)</th>
+<th>Symbolic link (<em>symbolischer Link</em>)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>What it represents</td>
+<td>Another directory entry referring to the <strong>same i-node</strong></td>
+<td>A separate filesystem object storing a <strong>target pathname</strong></td>
+</tr>
+<tr class="even">
+<td>File contents</td>
+<td>Shared: both names identify the same file</td>
+<td>Access requires resolving the stored target path</td>
+</tr>
+<tr class="odd">
+<td>If another name is deleted</td>
+<td>Remains valid</td>
+<td>Can become dangling if its target pathname disappears</td>
+</tr>
+<tr class="even">
+<td>Filesystem boundary</td>
+<td>Normally restricted to the same filesystem</td>
+<td>Can refer across filesystem boundaries</td>
+</tr>
+</tbody>
+</table>
+<p>Two hard links are <strong>two names for one file</strong>, not two copies. Neither name has a privileged “original” status.</p>
+<p>A symbolic link depends on a pathname. If that pathname disappears, the link can fail even when the target file remains accessible through a different hard link.</p>
+</section>
+</section>
+<section id="fat-a-linked-list-represented-by-a-table" class="level2">
+<h2 class="anchored" data-anchor-id="fat-a-linked-list-represented-by-a-table">2. FAT: a linked list represented by a table</h2>
+<p><strong>FAT</strong> means <em>File Allocation Table</em>.</p>
+<p>The central structure is a table indexed by cluster number:</p>
+<p><span class="math display">\[
+\boxed{\operatorname{FAT}[k]\text{ describes what follows cluster }k}
+\]</span></p>
+<p>In a simplified model, an entry contains:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Entry value</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>A cluster index <span class="math inline">\(j\)</span></td>
+<td>The next cluster of this file is <span class="math inline">\(j\)</span></td>
+</tr>
+<tr class="even">
+<td><code>EOC</code></td>
+<td>End of chain: this is the last cluster</td>
+</tr>
+<tr class="odd">
+<td><code>FREE</code></td>
+<td>This cluster is available for allocation</td>
+</tr>
+</tbody>
+</table>
+<p><code>EOC</code> and <code>FREE</code> are conceptual markers. <strong>Do not assume that a particular number, such as 0, always means either one.</strong> Use the question’s convention.</p>
+<p>Sheet 7 A2’s simulator uses a separate occupancy bitfield: bit 1 means occupied, bit 0 means free. In that representation, the bitfield tells you whether a cluster is allocated, while the pointer table supplies the chain.</p>
+<p>A FAT directory entry provides the file’s <strong>first cluster</strong> and file size. The FAT then determines the remaining clusters.</p>
+<section id="following-a-chain" class="level3">
+<h3 class="anchored" data-anchor-id="following-a-chain">Following a chain</h3>
+<p>Suppose a file starts at cluster 4 and:</p>
+<p><span class="math display">\[
+\operatorname{FAT}[4]=10,\qquad
+\operatorname{FAT}[10]=7,\qquad
+\operatorname{FAT}[7]=\text{EOC}.
+\]</span></p>
+<p>Its cluster sequence is:</p>
+<p><span class="math display">\[
+4\longrightarrow10\longrightarrow7.
+\]</span></p>
+<p>Therefore:</p>
+<ul>
+<li>the first logical portion of the file is in cluster 4;</li>
+<li>the second is in cluster 10;</li>
+<li>the third is in cluster 7.</li>
+</ul>
+<p><strong>Cluster 7 belongs to the file.</strong> <code>EOC</code> terminates the chain after that cluster; it is not another cluster.</p>
+<p>A reliable hand-tracing procedure is:</p>
+<ol type="1">
+<li>Start with the first-cluster index.</li>
+<li>Record that cluster.</li>
+<li>Look up its FAT entry.</li>
+<li>If the entry contains another index, continue there.</li>
+<li>Stop at <code>EOC</code>; flag invalid entries or repeated clusters.</li>
+</ol>
+<p>The next-cluster pointer is stored <strong>in the FAT</strong>, not inside the file’s data cluster. Consequently, if the FAT is in memory, following its pointers does not require reading each preceding data cluster.</p>
+</section>
+<section id="calculating-required-clusters" class="level3">
+<h3 class="anchored" data-anchor-id="calculating-required-clusters">Calculating required clusters</h3>
+<p>For file size <span class="math inline">\(S\)</span> bytes and cluster size <span class="math inline">\(C\)</span> bytes:</p>
+<p><span class="math display">\[
+\boxed{n=\left\lceil\frac{S}{C}\right\rceil}
+\]</span></p>
+<p>The ceiling matters because a partially filled final cluster still occupies one complete cluster.</p>
+<p>Under the simple model without preallocation:</p>
+<p><span class="math display">\[
+\text{allocated data space}=nC,
+\]</span></p>
+<p><span class="math display">\[
+\text{unused space in the final cluster}=nC-S.
+\]</span></p>
+<p>For example, with <span class="math inline">\(S=2500\)</span> bytes and <span class="math inline">\(C=1024\)</span> bytes:</p>
+<p><span class="math display">\[
+n=\left\lceil2500/1024\right\rceil=3,
+\]</span></p>
+<p><span class="math display">\[
+\text{allocated space}=3072\text{ bytes},\qquad
+\text{unused space}=572\text{ bytes}.
+\]</span></p>
+<p>That unused space is <strong>internal fragmentation</strong>. An empty file needs zero data clusters in this model.</p>
+</section>
+<section id="allocation-and-file-growth" class="level3">
+<h3 class="anchored" data-anchor-id="allocation-and-file-growth">Allocation and file growth</h3>
+<p>To allocate a new file requiring three clusters:</p>
+<ol type="1">
+<li>Find three free clusters.</li>
+<li>Mark them occupied.</li>
+<li>Link the first to the second and the second to the third.</li>
+<li>Mark the third as <code>EOC</code>.</li>
+<li>Store the first-cluster index and file size in the directory entry.</li>
+</ol>
+<p>The clusters need not be adjacent. Sheet 7’s allocation rule chooses the <strong>free cluster with the smallest index</strong> whenever another cluster is needed. That is a rule of the exercise, not a requirement of FAT itself.</p>
+<p>To extend an existing file:</p>
+<ol type="1">
+<li>Calculate the new total cluster requirement.</li>
+<li>Compare it with the existing chain length.</li>
+<li>Allocate any additional clusters.</li>
+<li>Replace the old last cluster’s <code>EOC</code> with a pointer to the first new cluster.</li>
+<li>Link the new clusters and terminate the new last cluster with <code>EOC</code>.</li>
+<li>Update the file size.</li>
+</ol>
+<p><strong>Growth does not always require another cluster:</strong> the existing final cluster may still have unused space.</p>
+</section>
+<section id="invalid-states-worth-recognizing" class="level3">
+<h3 class="anchored" data-anchor-id="invalid-states-worth-recognizing">Invalid states worth recognizing</h3>
+<p>A small FAT problem may contain:</p>
+<ul>
+<li>a <strong>cycle</strong>: traversal revisits a cluster;</li>
+<li>a pointer to a <strong>free cluster</strong>;</li>
+<li>an <strong>out-of-range cluster index</strong>;</li>
+<li>a chain too short to contain the stated file size;</li>
+<li>two independent files incorrectly sharing an allocated cluster.</li>
+</ul>
+<p>A cluster ending in <code>EOC</code> is occupied. Also, the clusters belonging to a file are those reached through its chain—not every occupied cluster in the table.</p>
+<p>These mechanisms are the exam-relevant core of Sheet 7 A2; its class design and simulator implementation are separate practical work. 07-ueb07-ibn-SS2025.pdf</p>
+</section>
+</section>
+<section id="i-nodes-and-file-block-addressing" class="level2">
+<h2 class="anchored" data-anchor-id="i-nodes-and-file-block-addressing">3. I-nodes and file-block addressing</h2>
+<p>An <strong>i-node</strong> (<em>I-Node</em>) is a per-file metadata structure containing information such as:</p>
+<ul>
+<li>file type and permissions;</li>
+<li>owner and timestamps;</li>
+<li>file size and hard-link count;</li>
+<li>addresses used to locate the file’s data blocks.</li>
+</ul>
+<p>The i-node is neither the filename nor the file’s contents.</p>
+<section id="direct-and-indirect-pointers" class="level3">
+<h3 class="anchored" data-anchor-id="direct-and-indirect-pointers">Direct and indirect pointers</h3>
+<p>A <strong>direct pointer</strong> in the i-node identifies one data block.</p>
+<p>A <strong>single-indirect pointer</strong> identifies a block containing addresses of data blocks.</p>
+<p>A <strong>double-indirect pointer</strong> identifies a block containing addresses of single-indirect blocks. Those blocks then contain addresses of data blocks.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 30%">
+<col style="width: 30%">
+<col style="width: 40%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Pointer in the i-node</th>
+<th>What it first points to</th>
+<th style="text-align: right;">Data blocks reachable through it</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Direct</td>
+<td>One data block</td>
+<td style="text-align: right;"><span class="math inline">\(1\)</span></td>
+</tr>
+<tr class="even">
+<td>Single-indirect</td>
+<td>One block of data-block addresses</td>
+<td style="text-align: right;"><span class="math inline">\(m\)</span></td>
+</tr>
+<tr class="odd">
+<td>Double-indirect</td>
+<td>One block of addresses of single-indirect blocks</td>
+<td style="text-align: right;"><span class="math inline">\(m^2\)</span></td>
+</tr>
+<tr class="even">
+<td>Triple-indirect</td>
+<td>One further pointer-block level</td>
+<td style="text-align: right;"><span class="math inline">\(m^3\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>Here, <span class="math inline">\(m\)</span> is the number of addresses that fit in one pointer block.</p>
+<p><strong>Indirect blocks contain block addresses, not additional file i-nodes.</strong> The summary’s wording about “other i-nodes” is imprecise here.</p>
+<p>Small files can use only direct pointers. Larger files use indirect blocks as needed, allowing the i-node to describe a large file without storing every data-block address inside the i-node itself.</p>
+<p>Unlike FAT’s global next-cluster table, this is a <strong>per-file block mapping</strong>.</p>
+</section>
+<section id="deriving-maximum-file-size" class="level3">
+<h3 class="anchored" data-anchor-id="deriving-maximum-file-size">Deriving maximum file size</h3>
+<p>Let:</p>
+<ul>
+<li><span class="math inline">\(B\)</span>: block size in <strong>bytes</strong>;</li>
+<li><span class="math inline">\(p\)</span>: size of one block address in <strong>bytes</strong>;</li>
+<li><span class="math inline">\(d\)</span>: number of direct pointers;</li>
+<li><span class="math inline">\(s\)</span>: number of single-indirect pointers;</li>
+<li><span class="math inline">\(t\)</span>: number of double-indirect pointers.</li>
+</ul>
+<p>Assume pointer blocks contain only addresses, enough storage is available, and no other limit restricts file size.</p>
+<p><strong>Step 1 — Addresses per indirect block</strong></p>
+<p><span class="math display">\[
+\boxed{m=\left\lfloor\frac{B}{p}\right\rfloor}
+\]</span></p>
+<p>Usually <span class="math inline">\(B\)</span> is divisible by <span class="math inline">\(p\)</span>, so <span class="math inline">\(m=B/p\)</span>.</p>
+<p>If an address size is given in bits, convert it to bytes first.</p>
+<p><strong>Step 2 — Count reachable data blocks separately</strong></p>
+<p><span class="math display">\[
+N_{\text{direct}}=d,
+\]</span></p>
+<p><span class="math display">\[
+N_{\text{single}}=sm,
+\]</span></p>
+<p><span class="math display">\[
+N_{\text{double}}=tm^2.
+\]</span></p>
+<p>Every extra indirection level multiplies the reach of one pointer by <span class="math inline">\(m\)</span>.</p>
+<p><strong>Step 3 — Add the data-block capacities</strong></p>
+<p>For direct, single- and double-indirect pointers:</p>
+<p><span class="math display">\[
+N=d+sm+tm^2.
+\]</span></p>
+<p>A triple-indirect contribution would be its number of pointers multiplied by <span class="math inline">\(m^3\)</span>.</p>
+<p><strong>Step 4 — Convert blocks to file bytes</strong></p>
+<p><span class="math display">\[
+\boxed{S_{\max}=NB}
+\]</span></p>
+<p>The method is:</p>
+<p><span class="math display">\[
+\boxed{
+\text{addresses per pointer block}
+\rightarrow
+\text{reachable data blocks}
+\rightarrow
+\text{total data blocks}
+\rightarrow
+\text{file bytes}
+}
+\]</span></p>
+</section>
+<section id="short-worked-example" class="level3">
+<h3 class="anchored" data-anchor-id="short-worked-example">Short worked example</h3>
+<p>Suppose an i-node has six direct pointers and one single-indirect pointer, with:</p>
+<p><span class="math display">\[
+B=1\text{ KiB}=1024\text{ bytes},\qquad p=4\text{ bytes}.
+\]</span></p>
+<p>Then:</p>
+<p><span class="math display">\[
+m=1024/4=256,
+\]</span></p>
+<p><span class="math display">\[
+N=6+256=262,
+\]</span></p>
+<p><span class="math display">\[
+S_{\max}=262\cdot1024=268\,288\text{ bytes}=262\text{ KiB}.
+\]</span></p>
+<p>The single-indirect block occupies storage, but its bytes contain <strong>pointers</strong>. They do not contribute to the file’s contents.</p>
+</section>
+<section id="file-capacity-versus-total-storage-occupied" class="level3">
+<h3 class="anchored" data-anchor-id="file-capacity-versus-total-storage-occupied">File capacity versus total storage occupied</h3>
+<p>These are different questions:</p>
+<ul>
+<li><strong>Maximum file size:</strong> count reachable <strong>data blocks</strong>.</li>
+<li><strong>Total allocated storage:</strong> count data blocks <strong>plus allocated pointer blocks</strong>, and include the i-node only if requested.</li>
+</ul>
+<p>For example, if a file uses eight direct data blocks and three additional data blocks through one single-indirect pointer, it occupies:</p>
+<p><span class="math display">\[
+11\text{ data blocks}+1\text{ pointer block},
+\]</span></p>
+<p>excluding the i-node itself.</p>
+<p>Do not subtract the pointer block from the eleven data blocks. It is additional storage.</p>
+</section>
+<section id="finding-the-block-containing-a-file-byte" class="level3">
+<h3 class="anchored" data-anchor-id="finding-the-block-containing-a-file-byte">Finding the block containing a file byte</h3>
+<p>For a zero-based byte offset <span class="math inline">\(x\)</span>:</p>
+<p><span class="math display">\[
+q=\left\lfloor\frac{x}{B}\right\rfloor,\qquad
+r=x\bmod B.
+\]</span></p>
+<p>Here, <span class="math inline">\(q\)</span> is the logical file-block number and <span class="math inline">\(r\)</span> the byte offset within it.</p>
+<p>With <span class="math inline">\(d\)</span> direct pointers followed by single-indirect pointers:</p>
+<ul>
+<li><span class="math inline">\(0\le q&lt;d\)</span>: use direct pointer <span class="math inline">\(q\)</span>;</li>
+<li>otherwise, set <span class="math inline">\(u=q-d\)</span>;</li>
+<li>single-indirect pointer number: <span class="math display">\[
+\left\lfloor u/m\right\rfloor;
+\]</span></li>
+<li>address position inside that pointer block: <span class="math display">\[
+u\bmod m.
+\]</span></li>
+</ul>
+<p>All indices here are zero-based.</p>
+<p>If the i-node is cached but the required blocks are not, reading a data block takes one read through a direct pointer, two through single indirection, or three through double indirection: the required pointer blocks, followed by the data block.</p>
+</section>
+</section>
+<section id="directories-and-pathname-resolution" class="level2">
+<h2 class="anchored" data-anchor-id="directories-and-pathname-resolution">4. Directories and pathname resolution</h2>
+<p>Consider:</p>
+<pre class="text"><code>/a/b/c/file</code></pre>
+<p>The leading <code>/</code> starts lookup at the root directory. It is not an additional named component.</p>
+<p>For each component, the system needs to:</p>
+<ol type="1">
+<li>inspect the <strong>current directory’s contents</strong> to find the name;</li>
+<li>obtain the child’s i-node number from its directory entry;</li>
+<li>load the child’s i-node if it is needed and not already cached;</li>
+<li>use that child as the current directory for the next component.</li>
+</ol>
+<p>The sequence is:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Name sought</th>
+<th>Directory searched</th>
+<th>Child i-node obtained</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>a</code></td>
+<td><code>/</code></td>
+<td><code>/a</code></td>
+</tr>
+<tr class="even">
+<td><code>b</code></td>
+<td><code>/a</code></td>
+<td><code>/a/b</code></td>
+</tr>
+<tr class="odd">
+<td><code>c</code></td>
+<td><code>/a/b</code></td>
+<td><code>/a/b/c</code></td>
+</tr>
+<tr class="even">
+<td><code>file</code></td>
+<td><code>/a/b/c</code></td>
+<td><code>/a/b/c/file</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>The current directory’s i-node tells you where its directory blocks are. Its directory blocks tell you which i-node number belongs to the requested name.</strong></p>
+<p>Having the root i-node in memory therefore does <strong>not</strong> imply that the root directory’s entries are already in memory.</p>
+<section id="a-reusable-disk-operation-counting-procedure" class="level3">
+<h3 class="anchored" data-anchor-id="a-reusable-disk-operation-counting-procedure">A reusable disk-operation counting procedure</h3>
+<p>Before counting, establish:</p>
+<ul>
+<li>Which i-nodes are cached?</li>
+<li>Which directory blocks are cached?</li>
+<li>How many directory blocks must be searched?</li>
+<li>Are those blocks directly addressed?</li>
+<li>Does the task stop at the final i-node, or also require file contents?</li>
+<li>Do reads remain cached for subsequent lookups?</li>
+</ul>
+<p>Then make one row per pathname component:</p>
+<table class="caption-top" style="width:100%;">
+<colgroup>
+<col style="width: 21%">
+<col style="width: 21%">
+<col style="width: 28%">
+<col style="width: 28%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Component</th>
+<th>Current directory</th>
+<th style="text-align: right;">Directory reads needed</th>
+<th style="text-align: right;">Child i-node read needed</th>
+</tr>
+</thead>
+<tbody>
+</tbody>
+</table>
+<p>For each row:</p>
+<ol type="1">
+<li>Count the uncached directory blocks needed to find the entry.</li>
+<li>Obtain the child’s i-node number.</li>
+<li>Count a read if that child i-node must be loaded and is uncached.</li>
+<li>Update the cache state.</li>
+</ol>
+<p>Finally, add any requested reads of the target file’s data or indirect blocks.</p>
+<p>Use the exercise’s operation model. In Sheet 7 A5, an i-node read and a block read each count as one operation.</p>
+</section>
+<section id="short-worked-example-1" class="level3">
+<h3 class="anchored" data-anchor-id="short-worked-example-1">Short worked example</h3>
+<p>Find the i-node for:</p>
+<pre class="text"><code>/lab/report.txt</code></pre>
+<p>Assume:</p>
+<ul>
+<li>only the root i-node is cached;</li>
+<li>each directory occupies one directly addressed block;</li>
+<li>every uncached i-node or block requires one read;</li>
+<li>no additional name-lookup cache is available.</li>
+</ul>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Component</th>
+<th style="text-align: right;">Directory-block read</th>
+<th style="text-align: right;">Child i-node read</th>
+<th style="text-align: right;">Total</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>lab</code></td>
+<td style="text-align: right;">Root directory: 1</td>
+<td style="text-align: right;"><code>lab</code> i-node: 1</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="even">
+<td><code>report.txt</code></td>
+<td style="text-align: right;"><code>lab</code> directory: 1</td>
+<td style="text-align: right;"><code>report.txt</code> i-node: 1</td>
+<td style="text-align: right;">2</td>
+</tr>
+</tbody>
+</table>
+<p>Total:</p>
+<p><span class="math display">\[
+4\text{ disk operations}.
+\]</span></p>
+<p>No contents of <code>report.txt</code> have been read.</p>
+<p>If the <code>lab</code> i-node were already cached, the total would be <strong>3</strong>. Its directory block would still need reading.</p>
+</section>
+<section id="when-two-operations-per-component-applies" class="level3">
+<h3 class="anchored" data-anchor-id="when-two-operations-per-component-applies">When “two operations per component” applies</h3>
+<p>For <span class="math inline">\(k\)</span> components, the result is <span class="math inline">\(2k\)</span> only when:</p>
+<ul>
+<li>the root i-node is already cached;</li>
+<li>every directory search needs one uncached block;</li>
+<li>every child i-node is uncached and must be loaded;</li>
+<li>no additional pointer-block reads or lookup shortcuts are needed.</li>
+</ul>
+<p>If the root i-node also needs loading, add one.</p>
+<p>If the question asks only for the final <strong>i-node number</strong>, the last directory entry already provides it; loading the final i-node is a separate action.</p>
+<p>If the task requests the first file byte, add the necessary data-block read—and any uncached indirect blocks needed to reach it.</p>
+<p>This directory-read/i-node-read distinction matches Sheet 7 A5 and its supplied solution. 14-Operating-Systems-and-Networs-SoSe-25-Solutions.pdf</p>
+</section>
+</section>
+<section id="common-exam-traps" class="level2">
+<h2 class="anchored" data-anchor-id="common-exam-traps">5. Common exam traps</h2>
+<ul>
+<li><strong>Reversing FAT’s meaning:</strong> <code>FAT[k] = j</code> means cluster <span class="math inline">\(j\)</span> follows cluster <span class="math inline">\(k\)</span>.</li>
+<li><strong>Omitting the last cluster:</strong> the cluster whose entry contains <code>EOC</code> belongs to the file.</li>
+<li><strong>Rounding down:</strong> a partially filled final block or cluster still needs allocation.</li>
+<li><strong>Confusing names with i-nodes:</strong> several directory entries can identify the same i-node.</li>
+<li><strong>Counting pointer blocks as file capacity:</strong> their bytes contain addresses, not file contents.</li>
+<li><strong>Miscounting indirection:</strong> one single-indirect pointer reaches <span class="math inline">\(m\)</span> data blocks; one double-indirect pointer reaches <span class="math inline">\(m^2\)</span>.</li>
+<li><strong>Equating cached i-node with cached directory contents:</strong> they are separate structures.</li>
+<li><strong>Reading beyond the requested endpoint:</strong> obtaining the target i-node does not require reading the target file’s contents.</li>
+</ul>
+<p>Use units explicitly:</p>
+<p><span class="math display">\[
+1\text{ KiB}=1024\text{ bytes},\qquad
+1\text{ MiB}=1024^2\text{ bytes},\qquad
+8\text{ bits}=1\text{ byte}.
+\]</span></p>
+</section>
+<section id="exam-like-exercises" class="level2">
+<h2 class="anchored" data-anchor-id="exam-like-exercises">6. Exam-like exercises</h2>
+<p>Allow approximately <strong>50–65 minutes</strong> for the three exercises. Show chains, intermediate calculations and component-by-component access counts.</p>
+<p>The set has <strong>30 practice points</strong>, ten per exercise. These are practice weights, not a prediction of the exam’s marking scheme.</p>
+<section id="exercise-1-fat-fragmented-files-growth-and-consistency" class="level3">
+<h3 class="anchored" data-anchor-id="exercise-1-fat-fragmented-files-growth-and-consistency">Exercise 1 — FAT: fragmented files, growth and consistency</h3>
+<p><strong>Suggested time: 15–20 minutes.</strong></p>
+<p>A simplified FAT filesystem has <strong>2048-byte clusters</strong>.</p>
+<p>All cluster indices <strong>0–15 are valid data-cluster indices</strong>. <code>FREE</code> and <code>EOC</code> are distinct markers, not numerical cluster indices.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: right;">Cluster <span class="math inline">\(k\)</span></th>
+<th><code>FAT[k]</code></th>
+<th style="text-align: right;">Cluster <span class="math inline">\(k\)</span></th>
+<th><code>FAT[k]</code></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">0</td>
+<td>FREE</td>
+<td style="text-align: right;">8</td>
+<td>3</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1</td>
+<td>9</td>
+<td style="text-align: right;">9</td>
+<td>EOC</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">2</td>
+<td>FREE</td>
+<td style="text-align: right;">10</td>
+<td>FREE</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">3</td>
+<td>11</td>
+<td style="text-align: right;">11</td>
+<td>EOC</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">4</td>
+<td>14</td>
+<td style="text-align: right;">12</td>
+<td>FREE</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">5</td>
+<td>FREE</td>
+<td style="text-align: right;">13</td>
+<td>FREE</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">6</td>
+<td>1</td>
+<td style="text-align: right;">14</td>
+<td>EOC</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">7</td>
+<td>FREE</td>
+<td style="text-align: right;">15</td>
+<td>FREE</td>
+</tr>
+</tbody>
+</table>
+<p>The directory contains:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>File</th>
+<th style="text-align: right;">First cluster</th>
+<th style="text-align: right;">File size</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>notes.txt</code></td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">5100 bytes</td>
+</tr>
+<tr class="even">
+<td><code>image.bin</code></td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">6100 bytes</td>
+</tr>
+<tr class="odd">
+<td><code>old.dat</code></td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">3000 bytes</td>
+</tr>
+</tbody>
+</table>
+<p>Assume no preallocation: each file has exactly the clusters required by its size.</p>
+<ol type="1">
+<li><p><strong>Trace and space calculation — 3 points</strong></p>
+<p>For each file, give:</p>
+<ul>
+<li>its ordered cluster chain;</li>
+<li>its required cluster count;</li>
+<li>its allocated data space and unused final-cluster space.</li>
+</ul>
+<p>Check whether its chain length agrees with its file size.</p></li>
+<li><p><strong>Allocation state — 1 point</strong></p>
+<p>List all free clusters and give the total number of occupied clusters. Explain why clusters marked <code>EOC</code> count as occupied.</p></li>
+<li><p><strong>File growth — 3 points</strong></p>
+<p><code>notes.txt</code> grows to <strong>10 500 bytes</strong>. Each required new cluster is chosen using the <strong>smallest-free-index rule</strong>.</p>
+<p>Determine:</p>
+<ul>
+<li>the new total cluster requirement and number of additional clusters;</li>
+<li>the allocated new clusters, in allocation order;</li>
+<li>every FAT entry that changes and its new value;</li>
+<li>the complete resulting chain;</li>
+<li>the unused space after growth.</li>
+</ul>
+<p>Does the directory entry’s first-cluster value change?</p></li>
+<li><p><strong>Independent faulty variants — 3 points</strong></p>
+<p>Each variant starts from the <strong>original table and directory</strong>, independently of the others:</p>
+<ul>
+<li><code>FAT[9]</code> is changed to <code>1</code>;</li>
+<li><code>FAT[3]</code> is changed to <code>2</code>;</li>
+<li><code>image.bin</code> is declared to have size <strong>9000 bytes</strong>, with its chain unchanged.</li>
+</ul>
+<p>Identify the inconsistency in each case and show how traversal or calculation reveals it.</p></li>
+</ol>
+</section>
+<section id="exercise-2-i-node-capacity-addressing-and-actual-allocation" class="level3">
+<h3 class="anchored" data-anchor-id="exercise-2-i-node-capacity-addressing-and-actual-allocation">Exercise 2 — I-node capacity, addressing and actual allocation</h3>
+<p><strong>Suggested time: 20–25 minutes.</strong></p>
+<p>A filesystem uses:</p>
+<ul>
+<li><strong>4 KiB blocks</strong>;</li>
+<li><strong>8-byte block addresses</strong>;</li>
+<li><strong>eight direct pointers</strong> per i-node;</li>
+<li><strong>two single-indirect pointers</strong> per i-node.</li>
+</ul>
+<p>Every indirect block is entirely available for addresses. Direct pointers describe the first file blocks, followed by the first single-indirect pointer’s range, then the second’s range.</p>
+<p>Assume enough disk space, no sparse files or preallocation, and no separate file-size limit. All indices and byte offsets are zero-based.</p>
+<ol type="1">
+<li><p><strong>Pointer-block capacity — 1 point</strong></p>
+<p>Derive how many block addresses fit in one indirect block.</p></li>
+<li><p><strong>Maximum file size — 3 points</strong></p>
+<p>Calculate:</p>
+<ul>
+<li>data blocks reachable through direct pointers;</li>
+<li>data blocks reachable through each single-indirect pointer;</li>
+<li>total addressable data blocks;</li>
+<li>maximum file size in <strong>bytes, KiB and MiB</strong>.</li>
+</ul>
+<p>Explain why the two indirect blocks themselves do not add file-data capacity.</p></li>
+<li><p><strong>Locating particular bytes — 2 points</strong></p>
+<p>For each byte offset below, identify:</p>
+<ul>
+<li>the logical file-block number;</li>
+<li>the offset inside that block;</li>
+<li>the i-node pointer used;</li>
+<li>the address index within the indirect block, if applicable.</li>
+</ul>
+<p><span class="math display">\[
+x_1=32\,785,\qquad x_2=2\,129\,937.
+\]</span></p></li>
+<li><p><strong>Actual storage for a smaller file — 2 points</strong></p>
+<p>A file has length:</p>
+<p><span class="math display">\[
+40\text{ KiB}+37\text{ bytes}.
+\]</span></p>
+<p>Determine its required data blocks, allocated indirect blocks and total allocated storage in bytes, <strong>excluding the i-node</strong>.</p>
+<p>Explain why both single-indirect blocks need not be allocated.</p></li>
+<li><p><strong>One additional indirection level — 2 points</strong></p>
+<p>The design gains <strong>one additional double-indirect pointer</strong>, with all existing pointers unchanged.</p>
+<p>Derive the additional data capacity and the new maximum file size. Explain the two successive address-selection steps through the double-indirect structure.</p></li>
+</ol>
+</section>
+<section id="exercise-3-pathname-lookup-partial-caching-and-links" class="level3">
+<h3 class="anchored" data-anchor-id="exercise-3-pathname-lookup-partial-caching-and-links">Exercise 3 — Pathname lookup, partial caching and links</h3>
+<p><strong>Suggested time: 15–20 minutes.</strong></p>
+<p>An i-node filesystem contains:</p>
+<pre class="text"><code>/courses/ibn/notes/day6.pdf
+/courses/ibn/notes/day5.pdf</code></pre>
+<p>Use these assumptions:</p>
+<ul>
+<li>Each directory occupies <strong>one directly addressed block</strong>.</li>
+<li>Each uncached i-node read costs <strong>one disk operation</strong>.</li>
+<li>Each uncached directory or file-data block read costs <strong>one disk operation</strong>.</li>
+<li>Reading an i-node does not automatically cache its directory or file-data blocks.</li>
+<li>All objects read remain cached; there is no eviction.</li>
+<li>There is no separate pathname/name-lookup cache, prefetching or implicit loading of other i-nodes.</li>
+<li>The requested paths contain no symbolic links.</li>
+<li>The first data block of each PDF is directly addressed.</li>
+</ul>
+<p>The initial cache state is:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Object</th>
+<th>I-node cached?</th>
+<th>Directory contents cached?</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>/</code></td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr class="even">
+<td><code>/courses</code></td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr class="odd">
+<td><code>/courses/ibn</code></td>
+<td>No</td>
+<td>Yes</td>
+</tr>
+<tr class="even">
+<td><code>/courses/ibn/notes</code></td>
+<td>No</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<p>Neither PDF’s i-node nor any PDF data block is initially cached.</p>
+<ol type="1">
+<li><p><strong>Partially cached lookup — 4 points</strong></p>
+<p>Find and load the i-node for:</p>
+<pre class="text"><code>/courses/ibn/notes/day6.pdf</code></pre>
+<p>Make one row per component, showing the directory-block reads and child i-node reads. Give the total.</p>
+<p>Explain why the cached contents of <code>/courses/ibn</code> do not mean its i-node is already cached.</p></li>
+<li><p><strong>Comparison with a cold lookup — 1 point</strong></p>
+<p>In an <strong>independent variant</strong>, only the root i-node is initially cached; no other relevant metadata is cached.</p>
+<p>How many operations are needed to load the same final i-node? Derive the count from the traversal.</p></li>
+<li><p><strong>Reading file contents — 1 point</strong></p>
+<p>Return to the cache state <strong>after part 1</strong>. Read the first byte of <code>day6.pdf</code>.</p>
+<p>How many additional operations are needed? Give the cumulative total for lookup plus this read.</p></li>
+<li><p><strong>Reusing the lookup’s cache — 2 points</strong></p>
+<p>Immediately after part 3, find and load the i-node for:</p>
+<pre class="text"><code>/courses/ibn/notes/day5.pdf</code></pre>
+<p>Its i-node is still uncached. How many additional disk operations are needed, and which object causes them?</p></li>
+<li><p><strong>Names and file identity — 2 points</strong></p>
+<p>In the same directory, suppose:</p>
+<ul>
+<li><code>copy.pdf</code> is a hard link to the same i-node as <code>day6.pdf</code>;</li>
+<li><code>shortcut.pdf</code> is a symbolic link storing the absolute target path<br>
+<code>/courses/ibn/notes/day6.pdf</code>.</li>
+</ul>
+<p>Now the directory entry <code>day6.pdf</code> is deleted, while the other two entries remain.</p>
+<p>Explain whether <code>copy.pdf</code> and <code>shortcut.pdf</code> still provide access to the PDF. Distinguish deletion of a <strong>name</strong> from deletion of the underlying <strong>file object</strong>.</p></li>
+</ol>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
+        }
+        return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../../exam/notes/deadlocks_and_scheduling.html" class="pagination-link" aria-label="Day 5 — Deadlocks and CPU scheduling">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Day 5 — Deadlocks and CPU scheduling</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
