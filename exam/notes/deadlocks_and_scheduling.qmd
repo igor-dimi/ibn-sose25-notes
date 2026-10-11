@@ -578,3 +578,561 @@ Conventions:
    Explain how the stated arrival convention affects these queues.
 5. Explain whether $P_2$’s arrival at $t=1$ interrupts $P_1$ under SJF or RR. Then determine **only the SJF execution order** if all five processes instead arrive at $t=0$.
 6. If the RR quantum becomes $10$ ms, which studied algorithm does its execution match for this workload? Explain. Also identify which of FCFS, SJF and RR can starve a ready process under a continuing stream of arrivals.
+
+
+## Solutions 
+
+These solutions use the stated resource assumptions, SJF tie-breaking rule, and RR convention that arrivals at quantum expiry are enqueued **before** the unfinished running process.
+
+### Exercise 1 — A three-process semaphore deadlock
+
+#### Deadlocking execution
+
+One valid interleaving is:
+
+| Step | Process | Operation | Result | Resources held afterwards |
+|---:|---|---|---|---|
+| 1 | $P_1$ | `wait(L)` | Succeeds | $P_1:L$ |
+| 2 | $P_2$ | `wait(M)` | Succeeds | $P_1:L;\ P_2:M$ |
+| 3 | $P_3$ | `wait(N)` | Succeeds | $P_1:L;\ P_2:M;\ P_3:N$ |
+| 4 | $P_1$ | `wait(M)` | Blocks: $P_2$ holds $M$ | Unchanged |
+| 5 | $P_2$ | `wait(N)` | Blocks: $P_3$ holds $N$ | Unchanged |
+| 6 | $P_3$ | `wait(L)` | Blocks: $P_1$ holds $L$ | Unchanged |
+
+The resulting dependencies are:
+
+$$
+P_1\text{ waits for }P_2,\qquad
+P_2\text{ waits for }P_3,\qquad
+P_3\text{ waits for }P_1.
+$$
+
+All three are blocked before `work()` and before their release operations.
+
+Other interleavings are equally valid if they establish these holdings and blocked requests.
+
+#### Definition and Coffman conditions
+
+**Definition:** A group of processes is deadlocked when every process in the group waits for an event that only another blocked process in that group can cause.
+
+Here, those events are resource releases.
+
+| Condition | Explanation in this execution |
+|---|---|
+| **Mutual exclusion** | Each semaphore has one permit, so each resource can be held by only one process. |
+| **Hold and wait** | Each process retains its first resource while waiting for its second. |
+| **No preemption** | Resources are released through `signal`; they cannot be forcibly reclaimed under the assumptions. |
+| **Circular wait** | $P_1\rightarrow P_2\rightarrow P_3\rightarrow P_1$. |
+
+#### Why more CPU turns do not help
+
+Each process is blocked at its second `wait`. It cannot execute the later `signal` operations until that `wait` succeeds.
+
+Scheduling another process does not release the resource held by the suspended process. **CPU scheduling cannot break this resource dependency.**
+
+#### Repair through a global acquisition order
+
+Choose:
+
+$$
+L<M<N.
+$$
+
+Every process acquires its required resources in increasing order:
+
+```default
+P1:
+    wait(L)
+    wait(M)
+    work()
+    signal(M)
+    signal(L)
+
+P2:
+    wait(M)
+    wait(N)
+    work()
+    signal(N)
+    signal(M)
+
+P3:
+    wait(L)
+    wait(N)
+    work()
+    signal(N)
+    signal(L)
+```
+
+Only $P_3$'s acquisition order needed changing.
+
+A circular wait would now require resource ranks to increase around a cycle and return to the starting rank, which is impossible.
+
+Releasing in reverse order is conventional. **Consistent acquisition ordering** is what prevents this deadlock.
+
+#### Would FIFO semaphores repair it?
+
+**No.**
+
+FIFO determines which waiting process receives a permit **when one becomes available**. Here, no process can reach its release operations, so no permit becomes available.
+
+Fairness does not eliminate this circular wait.
+
+### Exercise 2 — Resource situation → graph → matrices → Banker
+
+#### Resource-allocation graph
+
+One valid naming of the individual instances is:
+
+| Type | Instance allocations |
+|---|---|
+| Cameras $K$ | $K_1\rightarrow P_1,\ K_2\rightarrow P_3,\ K_3\rightarrow P_4$ |
+| Storage interfaces $S$ | $S_1\rightarrow P_2,\ S_2\rightarrow P_4$ |
+| Accelerators $G$ | $G_1\rightarrow P_1;\ G_2$ is free |
+
+The instance numbers are arbitrary; assigning different instance names gives an equivalent graph.
+
+The requests are:
+
+$$
+P_1\rightarrow S,\qquad
+P_2\rightarrow K,\qquad
+P_2\rightarrow G,\qquad
+P_3\rightarrow S,\qquad
+P_4\rightarrow G.
+$$
+
+This compact graph labels allocation edges with instance names:
+
+```{mermaid}
+flowchart TD
+    K["K: 3 instances"] -->|"K1 allocated"| P1(("P1"))
+    K -->|"K2 allocated"| P3(("P3"))
+    K -->|"K3 allocated"| P4(("P4"))
+    S["S: 2 instances"] -->|"S1 allocated"| P2(("P2"))
+    S -->|"S2 allocated"| P4
+    G["G: 2 instances; G2 free"] -->|"G1 allocated"| P1
+    P1 -->|"requests 1"| S
+    P2 -->|"requests 1"| K
+    P2 -->|"requests 1"| G
+    P3 -->|"requests 1"| S
+    P4 -->|"requests 1"| G
+```
+
+#### Cycle and its interpretation
+
+One directed cycle is:
+
+$$
+\boxed{P_1\rightarrow S\rightarrow P_2\rightarrow K\rightarrow P_1}.
+$$
+
+Another is:
+
+$$
+P_1\rightarrow S\rightarrow P_4\rightarrow G\rightarrow P_1.
+$$
+
+Because the resource types have multiple instances, **a cycle alone does not establish deadlock**. An interchangeable instance may become available through another process’s completion.
+
+#### Vectors and matrices
+
+Use columns $(K,S,G)$ and rows $(P_1,P_2,P_3,P_4)$.
+
+The total resource vector is:
+
+$$
+\boxed{E=(3,2,2)}.
+$$
+
+The allocation matrix is:
+
+$$
+\boxed{
+C=
+\begin{pmatrix}
+1&0&1\\
+0&1&0\\
+1&0&0\\
+1&1&0
+\end{pmatrix}
+}.
+$$
+
+The request matrix is:
+
+$$
+\boxed{
+R=
+\begin{pmatrix}
+0&1&0\\
+1&0&1\\
+0&1&0\\
+0&0&1
+\end{pmatrix}
+}.
+$$
+
+The column sums of $C$ are:
+
+$$
+\sum_i C_i=(3,2,1).
+$$
+
+Therefore:
+
+$$
+\boxed{A=E-\sum_i C_i=(0,0,1)}.
+$$
+
+Resource conservation holds separately:
+
+| Type | Total | Allocated | Free |
+|---|---:|---:|---:|
+| $K$ | 3 | 3 | 0 |
+| $S$ | 2 | 2 | 0 |
+| $G$ | 2 | 1 | 1 |
+
+#### Banker execution
+
+Initially:
+
+$$
+A=(0,0,1).
+$$
+
+- $P_1$ is ineligible: it needs a storage interface.
+- $P_2$ is ineligible: it needs a camera.
+- $P_3$ is ineligible: it needs a storage interface.
+- $P_4$ is eligible: its request is $(0,0,1)$.
+
+Applying the smallest-eligible-index rule:
+
+| Step | Selected process | Request $R_i$ | $A$ before | Allocation released $C_i$ | $A$ after |
+|---:|---|---|---|---|---|
+| 1 | $P_4$ | $(0,0,1)$ | $(0,0,1)$ | $(1,1,0)$ | $(1,1,1)$ |
+| 2 | $P_1$ | $(0,1,0)$ | $(1,1,1)$ | $(1,0,1)$ | $(2,1,2)$ |
+| 3 | $P_2$ | $(1,0,1)$ | $(2,1,2)$ | $(0,1,0)$ | $(2,2,2)$ |
+| 4 | $P_3$ | $(0,1,0)$ | $(2,2,2)$ | $(1,0,0)$ | $(3,2,2)$ |
+
+After $P_4$ finishes, $P_1,P_2,P_3$ are all eligible. The specified rule selects $P_1$ first.
+
+Remember:
+
+$$
+A_{\text{after}}=A_{\text{before}}+C_i.
+$$
+
+The requested resources are temporarily granted and subsequently returned; they do not produce an additional net increase.
+
+#### Conclusion for the original state
+
+All processes can complete:
+
+$$
+\boxed{P_4,\ P_1,\ P_2,\ P_3}.
+$$
+
+Thus:
+
+$$
+\boxed{\text{No deadlock under the stated model.}}
+$$
+
+The final availability vector equals $E$, as expected when every process has released its resources.
+
+Other completion sequences can also be valid, but the question’s smallest-index rule determines the sequence above.
+
+#### Changed-request variant
+
+Return to the **original allocations and initial availability**. Only $P_4$'s request changes.
+
+The new request matrix is:
+
+$$
+\boxed{
+R'=
+\begin{pmatrix}
+0&1&0\\
+1&0&1\\
+0&1&0\\
+1&0&1
+\end{pmatrix}
+}.
+$$
+
+The graph gains an additional request edge:
+
+$$
+P_4\rightarrow K.
+$$
+
+Its request edge to $G$ remains.
+
+Since $E$ and $C$ are unchanged:
+
+$$
+A=(0,0,1).
+$$
+
+| Process | Request | Why it is ineligible |
+|---|---|---|
+| $P_1$ | $(0,1,0)$ | No storage interface is free. |
+| $P_2$ | $(1,0,1)$ | No camera is free. |
+| $P_3$ | $(0,1,0)$ | No storage interface is free. |
+| $P_4$ | $(1,0,1)$ | No camera is free. |
+
+No process can be marked. The algorithm stops immediately with:
+
+$$
+\boxed{\text{Unmarked processes: }P_1,P_2,P_3,P_4}.
+$$
+
+Therefore:
+
+$$
+\boxed{\text{The variant is deadlocked under the stated model.}}
+$$
+
+#### Why the free accelerator does not establish progress
+
+The free accelerator satisfies only part of the requests of $P_2$ and $P_4$. Both also need a camera.
+
+Meanwhile, $P_1$ and $P_3$ need storage interfaces held by $P_2$ and $P_4$.
+
+No process can obtain its **complete request**, finish and release its existing allocation. Availability must be checked **component by component**, for the complete request vector.
+
+### Exercise 3 — Scheduling with arrivals and queue boundaries
+
+All times below are in milliseconds.
+
+Use:
+
+$$
+T_i=f_i-a_i,\qquad W_i=T_i-b_i.
+$$
+
+#### Gantt diagrams
+
+
+
+![gantt diagrams](./imgs/day5-scheduling-gnatt.png)
+
+
+
+
+#### FCFS
+
+The arrival order is:
+
+$$
+P_1,\ P_2,\ P_3,\ P_4,\ P_5.
+$$
+
+| Interval | Running process |
+|---|---|
+| $0$–$7$ | $P_1$ |
+| $7$–$11$ | $P_2$ |
+| $11$–$12$ | $P_3$ |
+| $12$–$16$ | $P_4$ |
+| $16$–$18$ | $P_5$ |
+
+The resulting times are:
+
+| Process | Arrival $a_i$ | Burst $b_i$ | Completion $f_i$ | Turnaround $T_i$ | Waiting $W_i$ |
+|---|---:|---:|---:|---:|---:|
+| $P_1$ | 0 | 7 | 7 | 7 | 0 |
+| $P_2$ | 1 | 4 | 11 | 10 | 6 |
+| $P_3$ | 2 | 1 | 12 | 10 | 9 |
+| $P_4$ | 4 | 4 | 16 | 12 | 8 |
+| $P_5$ | 5 | 2 | 18 | 13 | 11 |
+
+Hence:
+
+$$
+\boxed{
+\overline W_{\mathrm{FCFS}}
+=\frac{0+6+9+8+11}{5}
+=\frac{34}{5}
+=6.8\text{ ms}
+}.
+$$
+
+#### Non-preemptive SJF
+
+At $t=0$, only $P_1$ has arrived. It runs until $t=7$, because SJF is non-preemptive.
+
+At $t=7$, all other processes are ready. Their burst lengths are:
+
+$$
+P_3:1,\qquad P_5:2,\qquad P_2:4,\qquad P_4:4.
+$$
+
+$P_2$ precedes $P_4$ because it arrived earlier.
+
+The execution order is:
+
+$$
+\boxed{P_1,\ P_3,\ P_5,\ P_2,\ P_4}.
+$$
+
+| Interval | Running process |
+|---|---|
+| $0$–$7$ | $P_1$ |
+| $7$–$8$ | $P_3$ |
+| $8$–$10$ | $P_5$ |
+| $10$–$14$ | $P_2$ |
+| $14$–$18$ | $P_4$ |
+
+| Process | Arrival $a_i$ | Burst $b_i$ | Completion $f_i$ | Turnaround $T_i$ | Waiting $W_i$ |
+|---|---:|---:|---:|---:|---:|
+| $P_1$ | 0 | 7 | 7 | 7 | 0 |
+| $P_2$ | 1 | 4 | 14 | 13 | 9 |
+| $P_3$ | 2 | 1 | 8 | 6 | 5 |
+| $P_4$ | 4 | 4 | 18 | 14 | 10 |
+| $P_5$ | 5 | 2 | 10 | 5 | 3 |
+
+Thus:
+
+$$
+\boxed{
+\overline W_{\mathrm{SJF}}
+=\frac{0+9+5+10+3}{5}
+=\frac{27}{5}
+=5.4\text{ ms}
+}.
+$$
+
+#### Round Robin with $q=2$ ms
+
+Queue fronts are shown on the **left**. Each queue below is recorded after the interval’s arrivals, completion or re-enqueue have been handled.
+
+| Interval | Running process | Its remaining burst afterwards | Ready queue afterwards |
+|---|---|---:|---|
+| $0$–$2$ | $P_1$ | 5 | $P_2,P_3,P_1$ |
+| $2$–$4$ | $P_2$ | 2 | $P_3,P_1,P_4,P_2$ |
+| $4$–$5$ | $P_3$ | 0 | $P_1,P_4,P_2,P_5$ |
+| $5$–$7$ | $P_1$ | 3 | $P_4,P_2,P_5,P_1$ |
+| $7$–$9$ | $P_4$ | 2 | $P_2,P_5,P_1,P_4$ |
+| $9$–$11$ | $P_2$ | 0 | $P_5,P_1,P_4$ |
+| $11$–$13$ | $P_5$ | 0 | $P_1,P_4$ |
+| $13$–$15$ | $P_1$ | 1 | $P_4,P_1$ |
+| $15$–$17$ | $P_4$ | 0 | $P_1$ |
+| $17$–$18$ | $P_1$ | 0 | Empty |
+
+Notice that $P_3$ needs only one millisecond. Its interval ends at $t=5$, so the next process starts immediately.
+
+| Process | Arrival $a_i$ | Burst $b_i$ | Completion $f_i$ | Turnaround $T_i$ | Waiting $W_i$ |
+|---|---:|---:|---:|---:|---:|
+| $P_1$ | 0 | 7 | 18 | 18 | 11 |
+| $P_2$ | 1 | 4 | 11 | 10 | 6 |
+| $P_3$ | 2 | 1 | 5 | 3 | 2 |
+| $P_4$ | 4 | 4 | 17 | 13 | 9 |
+| $P_5$ | 5 | 2 | 13 | 8 | 6 |
+
+For example:
+
+$$
+W_1=18-0-7=11\text{ ms}.
+$$
+
+Although $P_1$ starts immediately, it waits between later slices.
+
+The average is:
+
+$$
+\boxed{
+\overline W_{\mathrm{RR}}
+=\frac{11+6+2+9+6}{5}
+=\frac{34}{5}
+=6.8\text{ ms}
+}.
+$$
+
+#### Comparison of average waiting times
+
+| Policy | Average waiting time |
+|---|---:|
+| FCFS | $6.8$ ms |
+| Non-preemptive SJF | **$5.4$ ms** |
+| RR, $q=2$ ms | $6.8$ ms |
+
+**SJF gives the smallest average waiting time for this workload.**
+
+FCFS and RR happen to have equal averages, despite different individual waiting times. For example, $P_3$ waits $9$ ms under FCFS and only $2$ ms under RR.
+
+All schedules end at:
+
+$$
+7+4+1+4+2=\boxed{18\text{ ms}},
+$$
+
+because the CPU is continuously busy and overhead is ignored.
+
+#### Requested RR queue snapshots
+
+These queues are recorded **immediately before selecting the next process**, after all events at the stated time have been handled.
+
+| Time | Ready queue, front first | Next process |
+|---|---|---|
+| $t=2$ | $\boxed{P_2,P_3,P_1}$ | $P_2$ |
+| $t=4$ | $\boxed{P_3,P_1,P_4,P_2}$ | $P_3$ |
+| $t=5$ | $\boxed{P_1,P_4,P_2,P_5}$ | $P_1$ |
+
+Explanation:
+
+- **At $t=2$:** $P_2$ has been waiting since $t=1$. Newly arriving $P_3$ is enqueued before unfinished $P_1$ is re-enqueued.
+- **At $t=4$:** $P_3,P_1$ are already waiting. Newly arriving $P_4$ is appended before unfinished $P_2$.
+- **At $t=5$:** $P_3$ finishes and is removed. Newly arriving $P_5$ joins behind $P_1,P_4,P_2$.
+
+#### Does $P_2$'s arrival interrupt $P_1$?
+
+**No, under either policy.**
+
+- **Non-preemptive SJF:** $P_1$ continues until its burst finishes at $t=7$.
+- **RR:** the arrival does not interrupt the current slice. $P_1$ continues until quantum expiry at $t=2$.
+
+#### SJF order if all processes arrive at zero
+
+Sort by burst length, breaking the tie between $P_2$ and $P_4$ by lower index:
+
+$$
+\boxed{P_3,\ P_5,\ P_2,\ P_4,\ P_1}.
+$$
+
+Their bursts are:
+
+$$
+1,\ 2,\ 4,\ 4,\ 7.
+$$
+
+#### RR with a quantum of $10$ ms
+
+Every burst is at most $7$ ms, so every process finishes during its first CPU allocation.
+
+RR therefore matches **FCFS** for this workload:
+
+$$
+\boxed{P_1,\ P_2,\ P_3,\ P_4,\ P_5}.
+$$
+
+#### Starvation under continuing arrivals
+
+| Policy | Starvation possible? | Reason |
+|---|---|---|
+| FCFS | **No**, under the usual finite-burst assumptions | New arrivals join behind already waiting processes. |
+| SJF | **Yes** | A continuing stream of short jobs can indefinitely postpone a long ready job. |
+| RR | **No**, under the usual FIFO and positive-quantum assumptions | A ready process repeatedly receives a turn. |
+
+For this finite set of five processes, all three policies eventually finish every process.
+
+### Suggested self-marking guide
+
+This is an **unofficial 60-point scheme** you can use for comparison:
+
+| Exercise | Suggested points | Allocation |
+|---|---:|---|
+| Exercise 1 | **12** | Trace 3; definition and conditions 5; CPU-turn explanation 1; repair 2; FIFO explanation 1 |
+| Exercise 2 | **20** | Graph 4; cycle interpretation 1; vectors/matrices 4; Banker trace 4; original conclusion 1; variant 4; free-resource explanation 2 |
+| Exercise 3 | **28** | Gantt diagrams 8; completion/turnaround/waiting tables 9; averages 2; queues 3; arrival behaviour and simultaneous-arrival SJF 3; large quantum and starvation 3 |
+
+For **Folgefehler**, identify the original mistake and still award method credit for later steps calculated correctly from your earlier result. A consistently propagated arithmetic error should receive less deduction than using the wrong algorithm or resource-update rule.
