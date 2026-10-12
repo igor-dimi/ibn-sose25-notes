@@ -1,0 +1,584 @@
+The unit below focuses on **encapsulation, addressing across router hops, and IPv4 fragmentation**, followed by **three integrated exercises with numbered subparts**.
+
+A reusable copy is available here: day-7-network-stack.md[day-7-network-stack.md](sandbox:/workspace/scratch/2f5c269da647/day-7-network-stack.md).
+
+The scope follows the ten-day plan in 15-Operating-Systems-and-Networks-SoSe-25-Notes.pdf and A4/A9 in 09-ueb09-ibn-SS2025.pdf. The strongest direct calibration is **Aufgabe 4, worth 8 points**, in 12-ibn-klausur-2016.pdf; its appended mini-test also supports the TCP demultiplexing exercise. Layer terminology follows 01-ibn-zusammenfassung.pdf.
+
+The networking questions reported in 13-Ged-chtnisprotokoll_Klausur\_-IBN_Ersttermin.pdf concern subnetting, forwarding and Dijkstra, which remain for Days 8–9. The uploaded 14-Operating-Systems-and-Networs-SoSe-25-Solutions.pdf skips Sheet 9, so I have independently checked the calculations.
+
+# Network stack
+
+## 1. Layers: different services and different endpoints
+
+A network application needs several problems solved:
+
+- interpret the message;
+- deliver it to the right application;
+- reach the right host;
+- transmit it over each local link.
+
+The protocol stack assigns these problems to different layers.
+
+A **service** is what a layer offers to the layer above. A **protocol** specifies how participants at that layer communicate: message formats and rules for processing them. Participants communicate logically with their peers, while actual transmission uses the lower layers.
+
+The course uses five Internet layers. Here we concentrate on the upper four; the **physical layer (*Bitübertragungsschicht*)** carries bits through the transmission medium.
+
+| Layer | Service and communication endpoints | Course PDU name | Destination identification | Examples |
+|---|---|---|---|---|
+| **Application — Anwendungsschicht** | Application-specific communication: e.g. browser ↔ web service, sender ↔ recipient account | **Message — Nachricht** | Depends on the application: e.g. URL or email address | HTTP, DNS, SMTP |
+| **Transport — Transportschicht** | Process/socket-to-process/socket communication; distinguishes applications sharing a host | TCP: **segment — Segment**; UDP: **datagram — Datagramm** | Destination port within the addressed host and transport protocol | TCP, UDP |
+| **Network — Netzwerkschicht** | Communication between hosts across interconnected networks; more precisely, IP addresses identify interfaces | **IP datagram — IP-Datagramm** | Destination IP address; IPv4 addresses have 32 bits | IP, ICMP |
+| **Link — Sicherungsschicht** | Delivery over the current link/local network between neighboring nodes or interfaces; framing and link-dependent error detection | **Frame — Rahmen** | On Ethernet: destination MAC address, usually 48 bits | Ethernet, Wi-Fi, PPP |
+
+A **PDU (*protocol data unit*)** is the unit handled by a particular layer, including that protocol’s control information. “Packet” is often used loosely; in an exam, identify the layer and use its specific PDU name.
+
+### Application identifiers depend on the application
+
+Two useful examples for Sheet 9 A4:
+
+- **Web:** a browser communicates with a web service. A URL such as `http://example.org/notes` identifies a server/service and resource. DNS can resolve the hostname to an IP address; the resource path `/notes` is interpreted at the application layer.
+- **Email:** users/accounts are logical endpoints. An address such as `igor@example.org` identifies the recipient mailbox. SMTP transfers messages between mail-system processes; a transport port does not identify the recipient account.
+
+There is **no universal application-layer address field** shared by all applications. Application identifiers belong to the application’s message format and semantics.
+
+### Ports, IP addresses and MAC addresses answer different questions
+
+- **IP address:** which destination host/interface should receive this IP datagram?
+- **Port number:** which transport endpoint on that host should receive its data?
+- **MAC address:** which interface should receive this frame on the current Ethernet network?
+
+A port is a 16-bit transport identifier, **not an operating-system PID**.
+
+A process uses a **socket**, the software interface through which it sends and receives network data. One process can use multiple sockets; one TCP server port can serve multiple connections.
+
+For a basic transport endpoint, think:
+
+$$
+\boxed{\text{IP address}+\text{port}+\text{transport protocol}}
+$$
+
+Port 9000 on two different hosts does not identify the same endpoint. TCP port 9000 and UDP port 9000 also belong to different protocol namespaces.
+
+### TCP and UDP: the necessary distinction
+
+**IP provides a best-effort datagram service:** delivery, order and freedom from duplication are not guaranteed.
+
+| UDP | TCP |
+|---|---|
+| Adds ports and preserves message boundaries | Provides a connection-oriented, reliable, ordered byte stream |
+| Does not itself provide reliable delivery or retransmission | Can divide stream data among multiple segments |
+| Application sends individual UDP datagrams | Application message boundaries are not preserved automatically |
+
+Both use source and destination ports. TCP’s detailed reliability mechanisms are outside today’s core scope.
+
+## 2. Encapsulation and decapsulation
+
+Suppose an application gives a complete message $N$ to UDP. Assume it fits into one IP datagram before any fragmentation.
+
+Each lower layer wraps the complete higher-layer PDU:
+
+| Step | Added control information | Payload | Resulting PDU |
+|---|---|---|---|
+| Application constructs its message | Application-specific fields, if required | Application content | Message $N$ |
+| UDP encapsulates $N$ | UDP header | Entire application message $N$ | UDP datagram |
+| IPv4 encapsulates the UDP datagram | IPv4 header | Entire UDP header **and** message $N$ | IP datagram |
+| Ethernet encapsulates the IP datagram | Ethernet header and trailer | Entire IP header **and** UDP datagram | Frame |
+
+**A higher-layer header becomes part of the lower layer’s payload.**
+
+Thus:
+
+- UDP payload = application message;
+- IP payload = UDP header + application message;
+- Ethernet payload = IP header + UDP header + application message.
+
+For the unfragmented UDP case, the frame’s conceptual order is:
+
+| Ethernet header | IPv4 header | UDP header | Application message $N$ | Ethernet trailer |
+|---|---|---|---|---|
+| Source/destination MAC | Source/destination IP | Source/destination port | Application fields and content | FCS |
+
+This gives the order of **whole headers**, not the internal field order within each header.
+
+Ethernet’s trailer is the **Frame Check Sequence (FCS)** for error detection. If an exam asks only for the layer headers, the essential order is:
+
+**link → network → transport → application message**
+
+An application message can already contain application headers, such as HTTP fields. Do not invent an additional universal application header if the question simply supplies message $N$.
+
+### How the receiving host delivers data upward
+
+**Decapsulation** removes the wrapping; **demultiplexing** selects the appropriate next protocol or endpoint.
+
+For an ordinary unicast Ethernet/IPv4/UDP message:
+
+1. **Link layer:** accepts the addressed frame, checks its link control information and extracts the IP datagram. Ethernet’s **EtherType** identifies the payload protocol, such as IPv4.
+2. **IP layer:** processes the datagram. Its **Protocol** field identifies UDP or TCP: UDP is 17, TCP is 6. If fragmented, IP first reassembles the datagram before transport delivery.
+3. **Transport layer:** uses addressing information to select a socket and passes the data to its application.
+4. **Application layer:** interprets the message according to its application protocol.
+
+In the **basic course model**, UDP delivery selects a receiving socket using the **destination IP and destination port**, within UDP.
+
+An **established TCP connection** is distinguished by the four-tuple:
+
+$$
+\boxed{
+(\text{source IP},\text{source port},
+\text{destination IP},\text{destination port})
+}
+$$
+
+Consequently, several established TCP connections can share the server’s local port. Their remote IP addresses and/or ports distinguish them.
+
+A TCP **listening socket** accepts new connections; established **connection sockets** carry each connection’s data.
+
+## 3. Hosts, routers and the next hop
+
+The **ultimate IP destination** and the **next link-layer recipient** need not be the same device.
+
+### Local destination versus remote destination
+
+In the ordinary single-LAN setting used in these problems, the host compares the destination’s network part with its own, using its configured subnet mask/prefix.
+
+Conceptually, with subnet mask $S$:
+
+$$
+(IP_{\mathrm{dest}}\mathbin{\&}S)
+=
+(IP_{\mathrm{local}}\mathbin{\&}S)
+$$
+
+means the destination is on the same configured subnet. Here $\&$ means bitwise AND. Detailed mask calculations belong to Day 8.
+
+| Destination | IP datagram’s destination | Ethernet frame’s destination |
+|---|---|---|
+| Another host on the same local Ethernet network | That host’s IP | That host’s MAC |
+| A remote host reached through the gateway | The remote host’s IP | The gateway’s **local interface MAC** |
+
+The gateway’s IP helps identify the next hop. It **does not replace the remote host’s IP** in the original data datagram.
+
+### ARP: obtaining the next-hop MAC
+
+For IPv4 over Ethernet, **ARP (*Address Resolution Protocol*)** maps a known **local next-hop IP address** to its MAC address.
+
+The sender first checks its ARP cache. If the mapping is missing, it broadcasts an ARP request on the local network. The node owning the requested IP replies with its MAC, and the sender can cache the mapping. [rfc-editor.org](https://www.rfc-editor.org/rfc/rfc826.html?utm_source=chatgpt.com)
+
+Therefore:
+
+- **Local delivery:** resolve the destination host’s IP.
+- **Remote delivery through a gateway:** resolve the gateway’s local IP.
+
+A host does not broadcast ARP across the Internet to discover a remote host’s MAC.
+
+### What a forwarding router does
+
+Consider **A → R → B**, with A and B on different Ethernet networks. Assume no address translation (NAT), tunneling or fragmentation.
+
+| Link | Source MAC | Destination MAC | Source IP | Destination IP |
+|---|---|---|---|---|
+| A → R | A’s MAC | R’s incoming-interface MAC | A’s IP | B’s IP |
+| R → B | R’s outgoing-interface MAC | B’s MAC | A’s IP | B’s IP |
+
+The router:
+
+1. Receives the frame addressed to its incoming interface and removes the link-layer wrapping.
+2. Examines the IP destination and selects an outgoing interface/next hop.
+3. Decrements IPv4 **TTL** and updates the IPv4 header checksum.
+4. Creates a new link-layer frame suitable for the outgoing link, addressed to the next hop.
+
+If another router follows, the new destination MAC is that router’s receiving-interface MAC. Only on the last local network is the destination MAC normally B’s MAC.
+
+**Source/destination IP addresses and transport ports normally remain associated with A and B throughout forwarding. Link-layer addresses change at router hops.**
+
+The **whole IP header** is not unchanged: TTL and its checksum change, and fragmentation can change additional fields.
+
+For ordinary forwarding, a router processes through the **network layer**. It does not deliver the transit message to a local UDP/TCP application.
+
+Hosts implement all layers; routers need the lower three for forwarding. An ordinary layer-2 switch forwards within the LAN **without replacing the frame’s source and destination MAC addresses**. A frame can therefore reach its addressed next-hop interface through switches.
+
+## 4. IPv4 fragmentation
+
+### MTU and what is split
+
+A link’s **MTU (*Maximum Transmission Unit*)** limits the size of the network-layer PDU carried as link-layer payload. In these IPv4 problems:
+
+$$
+\boxed{\text{IP header}+\text{IP payload}\leq\text{MTU}}
+$$
+
+Ethernet headers and the FCS are **outside this IP MTU**.
+
+If an IPv4 datagram is larger than the outgoing MTU, the sender or a router can fragment it, provided fragmentation is permitted.
+
+Fragmentation splits the **original IP payload**, which includes any transport header. Every fragment receives its **own IP header** and is itself an IP datagram, carried in its own link-layer frame.
+
+Reassembly occurs at the **destination host’s IP layer**, before delivery to UDP/TCP. Intermediate forwarding routers do not normally reassemble transit datagrams. If a fragment is missing, the complete original datagram cannot be delivered upward.
+
+### Header fields needed for calculations
+
+Assume a **20-byte IPv4 header without options** unless stated otherwise.
+
+IPv4’s **IHL** measures the header length in 4-byte words:
+
+$$
+\text{IHL}=5 \quad\Longrightarrow\quad H=20\text{ bytes}.
+$$
+
+| Field | Meaning for fragmentation |
+|---|---|
+| **Total Length** | This fragment’s IP header + its IP payload, in **bytes** |
+| **Identification / ID** | 16-bit value shared by all fragments of the original datagram |
+| **DF — Don’t Fragment** | 1: fragmentation forbidden; 0: permitted |
+| **MF — More Fragments** | 1: more original payload follows this fragment; 0: this is the final fragment |
+| **Fragment Offset** | Where this fragment’s payload begins within the **original IP payload**, measured in **8-byte units** |
+| **IHL / header length** | Determines how much MTU space this fragment’s IP header occupies |
+
+The reserved flag is zero. An initially unfragmented datagram has **offset 0 and MF = 0**. When fragmenting it, all fragments keep its ID; DF must be 0.
+
+ID is not globally unique by itself. Reassembly groups fragments using:
+
+$$
+\text{source IP, destination IP, protocol and ID}.
+$$
+
+Offsets place the payload bytes in their correct positions.
+
+If DF = 1 and a forwarding router cannot fit the datagram onto the outgoing link, it drops it and normally reports **ICMP “fragmentation needed”** to the sender.
+
+### Why non-final payload lengths must be multiples of eight
+
+Suppose the first fragment carries $p_1$ bytes of original IP payload. The second begins at byte $p_1$, so its offset field must contain:
+
+$$
+\mathrm{Offset}_2=\frac{p_1}{8}.
+$$
+
+This must be an integer. The same reasoning applies at every subsequent boundary. Therefore, every **non-final fragment payload** must be a multiple of eight bytes. The IPv4 specification explicitly defines the offset in these 8-byte units. [rfc-editor.org](https://www.rfc-editor.org/rfc/rfc791.html?utm_source=chatgpt.com)
+
+The **final payload** can have a different length: its starting position still lies on an 8-byte boundary, but no subsequent fragment needs to start after it.
+
+The alignment rule concerns **payload lengths**, not Total Lengths including IP headers.
+
+### A reusable procedure
+
+This procedure assumes an initially unfragmented datagram, constant header length $H$, and maximal payloads for non-final fragments.
+
+Let:
+
+- $L$: original IP **Total Length**;
+- $H$: IP header size;
+- $M$: outgoing MTU;
+- $D=L-H$: original IP payload size.
+
+If application data size is given instead, first add the transport header to obtain $D$, then add the IP header to obtain $L$.
+
+A stated **“IP datagram length” includes its IP header**, unless the question explicitly says *payload*.
+
+**Step 1 — Check necessity and permission.**
+
+If $L\leq M$, fragmentation is unnecessary. If $L>M$, check DF.
+
+**Step 2 — Calculate fragment payload capacity.**
+
+$$
+\boxed{C=M-H}
+$$
+
+**Step 3 — Round down for a non-final payload.**
+
+$$
+\boxed{
+F=8\left\lfloor\frac{M-H}{8}\right\rfloor
+}
+$$
+
+**Step 4 — Distribute the original payload.**
+
+- While the remaining payload exceeds $C$, emit a fragment with $F$ payload bytes.
+- Once the remainder is at most $C$, put all of it in the final fragment.
+- Count the resulting fragments.
+
+**The final fragment may carry up to $C$, even if this is slightly larger than $F$.** Do not force its length to be a multiple of eight or mechanically calculate the count as $\lceil D/F\rceil$.
+
+**Step 5 — Fill the fields.**
+
+If fragment $i$ has payload length $p_i$ and begins after $b_i$ bytes of original payload:
+
+$$
+\mathrm{TotalLength}_i=H+p_i,
+$$
+
+$$
+\mathrm{Offset}_i=\frac{b_i}{8},
+\qquad
+b_i=\sum_{j<i}p_j.
+$$
+
+Set **MF = 1** except on the final fragment, where **MF = 0**. Keep the original ID for every fragment.
+
+**Step 6 — Check the result.**
+
+- Payload lengths sum to $D$.
+- Every Total Length is at most $M$.
+- Non-final payloads are divisible by eight.
+- Offsets refer to original payload positions and count **no IP headers**.
+
+### Short worked example
+
+An IPv4 datagram has **Total Length 1700 bytes**, ID = 91, DF = 0, and a 20-byte header. The outgoing MTU is **622 bytes**.
+
+$$
+D=1700-20=1680,
+\qquad
+C=622-20=602,
+$$
+
+$$
+F=8\lfloor602/8\rfloor=600.
+$$
+
+Send 600 bytes, then another 600. The remaining 480 fit into the final fragment.
+
+| Fragment | Original payload byte range | Payload bytes | Total Length | Offset field | MF | ID |
+|---|---|---:|---:|---:|---:|---:|
+| 1 | 0–599 | 600 | 620 | 0 | 1 | 91 |
+| 2 | 600–1199 | 600 | 620 | 75 | 1 | 91 |
+| 3 | 1200–1679 | 480 | 500 | 150 | 0 | 91 |
+filesystems.qmd
+For fragment 2, the ordinary byte offset is 600, but the header stores:
+
+$$
+600/8=\boxed{75}.
+$$
+
+The first two fragments leave two bytes of MTU capacity unused because a 602-byte non-final payload would violate alignment.
+
+### Fragmentation versus transport segmentation
+
+| TCP segmentation | IPv4 fragmentation |
+|---|---|
+| Divides transport stream data into TCP segments | Divides one existing IP datagram’s payload |
+| Each segment receives its own TCP header | Each fragment receives its own IP header |
+| Does not automatically preserve application message boundaries | Does not create a fresh transport PDU for every fragment |
+
+In today’s UDP examples, the UDP header is at the beginning of the original IP payload and appears **only in the first fragment**. Later fragments carry subsequent portions of that payload.
+
+UDP receives the **complete reassembled UDP datagram** at the destination.
+
+## 5. Common exam traps
+
+- Putting headers in sender-processing order instead of their final frame order: the **link header is outermost**.
+- Treating IP payload as application data alone: it includes the transport header.
+- Addressing a remote data datagram to the gateway’s IP instead of the remote host’s IP.
+- Using the remote host’s MAC on the first LAN, or preserving MAC addresses through router hops.
+- Claiming the entire IP header remains unchanged: TTL and its checksum change.
+- Treating ports as PIDs, or assuming one TCP server port identifies one established connection.
+- Subtracting Ethernet overhead from the IP MTU, or forgetting to subtract the IP header.
+- Using $M-H$ directly for non-final payloads without checking divisibility by eight.
+- Counting IP headers in offsets, or writing ordinary byte offsets into the Fragment Offset field.
+- Copying the UDP header into every fragment; treating MF = 0 as proof that reassembly is complete.
+
+## 6. Exam-like exercises
+
+**Three exercises, 40 suggested points; approximately 50–65 minutes.**
+
+The points are a practice marking scheme. Use the subquestion labels when comparing your answers later. Solutions are intentionally left out.
+
+### Exercise 1 — A UDP message through two routers
+
+**16 points; suggested time: 20–25 minutes.**
+
+A status client on A sends a **32-byte application message $N$** from UDP port **53000** to a status server on B at UDP port **9000**.
+
+The path is **A → R1 → R2 → B**.
+
+All links are Ethernet:
+
+- A and C share the first LAN.
+- R1’s outgoing interface and R2’s incoming interface share the middle LAN.
+- B shares the last LAN with R2’s outgoing interface.
+
+These relationships are given; no subnet calculation is required. The symbols below denote distinct MAC addresses.
+
+| Node/interface | IPv4 address | MAC address |
+|---|---|---|
+| A | 192.0.2.10 | $M_A$ |
+| C, local to A | 192.0.2.20 | $M_C$ |
+| R1, incoming from A’s LAN | 192.0.2.1 | $M_{R1,in}$ |
+| R1, outgoing toward R2 | 198.51.100.1 | $M_{R1,out}$ |
+| R2, incoming from R1 | 198.51.100.2 | $M_{R2,in}$ |
+| R2, outgoing toward B | 203.0.113.1 | $M_{R2,out}$ |
+| B | 203.0.113.40 | $M_B$ |
+
+A uses R1 as its gateway. Assume no NAT, fragmentation, packet loss or tunneling.
+
+The initial IPv4 TTL is **64**. UDP headers are **8 bytes**, IPv4 headers **20 bytes**, and Ethernet has a **14-byte header and 4-byte FCS**. Ignore preamble and other transmission overhead; padding is unnecessary for this message.
+
+**1(a) — Encapsulation and sizes (4 points)**
+
+Sketch the complete frame leaving A, in order, labeling each header by its layer and protocol. Include the FCS.
+
+Name the application, transport, network and link PDUs. Calculate:
+
+- UDP datagram length;
+- IP Total Length;
+- frame length under the stated counting convention.
+
+**1(b) — Addresses and endpoints (4 points)**
+
+For each of the three links, give:
+
+- UDP source and destination ports;
+- IP source and destination addresses;
+- Ethernet source and destination MAC addresses.
+
+Explain which endpoints the transport, network and link addresses represent in this scenario.
+
+**1(c) — Processing at R1 (4 points)**
+
+Explain why R1 accepts the arriving frame even though the IP destination is B.
+
+Describe its forwarding steps, including what happens to:
+
+- Ethernet wrapping;
+- IP addresses;
+- ports;
+- TTL;
+- IPv4 header checksum.
+
+Give the TTL on all three links. Does R1 deliver this message to a local socket on port 9000?
+
+**1(d) — Local alternative and ARP (2 points)**
+
+Independently, A sends the same message to a server on C, also at UDP port 9000.
+
+State the IP and MAC destinations of the frame leaving A.
+
+If the needed MAC mapping is absent, which IP address does A ask about using ARP:
+
+- in the B case;
+- in the C case?
+
+**1(e) — Reply reasoning (2 points)**
+
+After receiving the original message, B replies to A.
+
+Which IP address and UDP port should identify the reply destination?
+
+Can B use the source MAC observed on its incoming frame as A’s address for delivery across the Internet? Explain.
+
+### Exercise 2 — One server port, several TCP connections
+
+**8 points; suggested time: 10–15 minutes.**
+
+Server S has IP **203.0.113.40** and TCP port **8080**. Three established TCP connections deliver data to it:
+
+| Connection | Client IP | Client source port | Server destination port |
+|---|---|---:|---:|
+| K1 | 192.0.2.10 | 51000 | 8080 |
+| K2 | 198.51.100.20 | 51000 | 8080 |
+| K3 | 192.0.2.10 | 51001 | 8080 |
+
+**2(a) — Connection identification (3 points)**
+
+Write the four-tuple identifying each connection as seen in incoming client-to-server data.
+
+Mark which component distinguishes:
+
+- K1 from K2;
+- K1 from K3.
+
+**2(b) — Demultiplexing (2 points)**
+
+A student argues:
+
+> “Because all data have destination port 8080, the operating system cannot distinguish the receiving connection sockets.”
+
+Assess this claim and explain what information the operating system actually uses.
+
+Distinguish the TCP listening socket’s role from that of an established connection socket.
+
+**2(c) — Another transport protocol (2 points)**
+
+S also runs a UDP service on UDP port 8080.
+
+An unfragmented Ethernet frame arrives carrying an IPv4 datagram with **Protocol = 17** and transport destination port **8080**.
+
+Trace how Ethernet, IP and transport select the next protocol or endpoint.
+
+Is this delivered to one of K1–K3 because its port is 8080?
+
+**2(d) — Port versus PID (1 point)**
+
+Does source port 51000 mean that the client process’s operating-system PID is 51000? Explain briefly.
+
+### Exercise 3 — Fragmenting one UDP datagram
+
+**16 points; suggested time: 20–25 minutes.**
+
+A measurement application produces **3995 bytes of application data**, sent in **one UDP datagram** with an **8-byte UDP header**. IPv4 adds a **20-byte header without options**.
+
+The initially unfragmented IP datagram reaches router R over a link with sufficient MTU. It has:
+
+- **Identification = 1207**;
+- **DF = 0**;
+- **MF = 0**;
+- **Fragment Offset = 0**.
+
+R must forward it onto an Ethernet link with **MTU = 1023 bytes**. All subsequent links have MTU at least 1023 bytes; no NAT or tunneling occurs.
+
+Use maximal permissible payloads for non-final fragments. Put the entire remaining payload in the final fragment as soon as it fits.
+
+All byte positions are zero-based. Label inclusive ranges clearly.
+
+**3(a) — Original lengths (2 points)**
+
+Calculate:
+
+- original UDP datagram length;
+- original IP payload length;
+- original IP Total Length.
+
+Explain which includes the UDP header and which includes the IP header.
+
+**3(b) — Fragment capacity (2 points)**
+
+Derive:
+
+- maximum IP payload capacity under the MTU;
+- maximum permissible non-final payload size.
+
+Explain why these two numbers can differ.
+
+**3(c) — Complete fragmentation table (6 points)**
+
+Determine the fragment count and construct a table with one row per fragment:
+
+| Fragment | Original IP payload byte range | Payload bytes | Total Length | ID | DF | MF | Fragment Offset field |
+|---|---|---|---|---|---|---|---|
+| … | … | … | … | … | … | … | … |
+
+Show how you obtained the offsets.
+
+Check the sum of the payload lengths and the MTU bound.
+
+**3(d) — Header overhead (2 points)**
+
+Calculate the sum of the fragments’ IP Total Lengths.
+
+How many additional IP-header bytes are transmitted compared with sending the original unfragmented datagram? Ignore link-layer overhead.
+
+**3(e) — Transport and reassembly (2 points)**
+
+Does each fragment receive a fresh UDP header?
+
+Explain:
+
+- which fragment contains the original UDP header in this problem;
+- where IP reassembly takes place;
+- what UDP receives after successful reassembly.
+
+**3(f) — Two independent variants (2 points)**
+
+1. The fragment with MF = 0 arrives first. Can the destination immediately deliver the application’s complete message? Justify.
+2. Instead, the original datagram has DF = 1. What should R do when forwarding onto the same 1023-byte-MTU link?
