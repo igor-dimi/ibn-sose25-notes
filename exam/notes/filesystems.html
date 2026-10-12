@@ -2,13 +2,16 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.7.31">
+<meta name="generator" content="quarto-1.9.37">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
 <title>8&nbsp; File systems – Operating Systems and Networks SoSe 25 Notes</title>
 <style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
 div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -37,10 +40,10 @@ ul.task-list li input[type="checkbox"] {
 <script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-e1a5c8363afafaef2c763b6775fbf3ca.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-b330ada5220959fbd7d7e7c55953a312.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-8dddca75a0c745965e348927a205e40e.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -70,7 +73,7 @@ ul.task-list li input[type="checkbox"] {
 }</script>
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -83,7 +86,7 @@ const typesetMath = (el) => {
     var macros = [];
     for (var i = 0; i < mathElements.length; i++) {
       var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN") {
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
         window.katex.render(texText.data, mathElements[i], {
           displayMode: mathElements[i].classList.contains('display'),
           throwOnError: false,
@@ -250,6 +253,12 @@ window.Quarto = {
   <li><a href="#exercise-1-fat-fragmented-files-growth-and-consistency" id="toc-exercise-1-fat-fragmented-files-growth-and-consistency" class="nav-link" data-scroll-target="#exercise-1-fat-fragmented-files-growth-and-consistency">Exercise 1 — FAT: fragmented files, growth and consistency</a></li>
   <li><a href="#exercise-2-i-node-capacity-addressing-and-actual-allocation" id="toc-exercise-2-i-node-capacity-addressing-and-actual-allocation" class="nav-link" data-scroll-target="#exercise-2-i-node-capacity-addressing-and-actual-allocation">Exercise 2 — I-node capacity, addressing and actual allocation</a></li>
   <li><a href="#exercise-3-pathname-lookup-partial-caching-and-links" id="toc-exercise-3-pathname-lookup-partial-caching-and-links" class="nav-link" data-scroll-target="#exercise-3-pathname-lookup-partial-caching-and-links">Exercise 3 — Pathname lookup, partial caching and links</a></li>
+  </ul></li>
+  <li><a href="#solutions" id="toc-solutions" class="nav-link" data-scroll-target="#solutions">Solutions</a>
+  <ul class="collapse">
+  <li><a href="#exercise-1-fat" id="toc-exercise-1-fat" class="nav-link" data-scroll-target="#exercise-1-fat">Exercise 1 — FAT</a></li>
+  <li><a href="#exercise-2-i-node-addressing" id="toc-exercise-2-i-node-addressing" class="nav-link" data-scroll-target="#exercise-2-i-node-addressing">Exercise 2 — I-node addressing</a></li>
+  <li><a href="#exercise-3-pathname-traversal-and-links" id="toc-exercise-3-pathname-traversal-and-links" class="nav-link" data-scroll-target="#exercise-3-pathname-traversal-and-links">Exercise 3 — Pathname traversal and links</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -1070,8 +1079,531 @@ x_1=32\,785,\qquad x_2=2\,129\,937.
 <p>Now the directory entry <code>day6.pdf</code> is deleted, while the other two entries remain.</p>
 <p>Explain whether <code>copy.pdf</code> and <code>shortcut.pdf</code> still provide access to the PDF. Distinguish deletion of a <strong>name</strong> from deletion of the underlying <strong>file object</strong>.</p></li>
 </ol>
+<p>Below, <strong>1.1 means Exercise 1, sub-exercise 1</strong>, and similarly for the others. The point values match the original <strong>30-point practice set</strong>.</p>
+</section>
+</section>
+<section id="solutions" class="level2">
+<h2 class="anchored" data-anchor-id="solutions">Solutions</h2>
+<section id="exercise-1-fat" class="level3">
+<h3 class="anchored" data-anchor-id="exercise-1-fat">Exercise 1 — FAT</h3>
+<section id="chains-and-space-calculations-3-points" class="level4">
+<h4 class="anchored" data-anchor-id="chains-and-space-calculations-3-points">1.1 — Chains and space calculations (3 points)</h4>
+<p>With cluster size <span class="math inline">\(C=2048\)</span> bytes:</p>
+<p><span class="math display">\[
+n=\left\lceil\frac{S}{2048}\right\rceil,\qquad
+\text{allocated space}=2048n,\qquad
+\text{unused space}=2048n-S.
+\]</span></p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 22%">
+<col style="width: 22%">
+<col style="width: 22%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>File</th>
+<th>Ordered cluster chain</th>
+<th style="text-align: right;">Required clusters</th>
+<th style="text-align: right;">Allocated space</th>
+<th style="text-align: right;">Unused space</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>notes.txt</code></td>
+<td><span class="math inline">\(6\rightarrow1\rightarrow9\rightarrow\text{EOC}\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(\lceil5100/2048\rceil=3\)</span></td>
+<td style="text-align: right;">6144 bytes</td>
+<td style="text-align: right;">1044 bytes</td>
+</tr>
+<tr class="even">
+<td><code>image.bin</code></td>
+<td><span class="math inline">\(8\rightarrow3\rightarrow11\rightarrow\text{EOC}\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(\lceil6100/2048\rceil=3\)</span></td>
+<td style="text-align: right;">6144 bytes</td>
+<td style="text-align: right;">44 bytes</td>
+</tr>
+<tr class="odd">
+<td><code>old.dat</code></td>
+<td><span class="math inline">\(4\rightarrow14\rightarrow\text{EOC}\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(\lceil3000/2048\rceil=2\)</span></td>
+<td style="text-align: right;">4096 bytes</td>
+<td style="text-align: right;">1096 bytes</td>
+</tr>
+</tbody>
+</table>
+<p><strong>All three chains have exactly the required length.</strong></p>
+</section>
+<section id="free-and-occupied-clusters-1-point" class="level4">
+<h4 class="anchored" data-anchor-id="free-and-occupied-clusters-1-point">1.2 — Free and occupied clusters (1 point)</h4>
+<p>The free clusters are:</p>
+<p><span class="math display">\[
+\boxed{\{0,2,5,7,10,12,13,15\}}.
+\]</span></p>
+<p>There are eight free clusters and therefore:</p>
+<p><span class="math display">\[
+\boxed{16-8=8\text{ occupied clusters}}.
+\]</span></p>
+<p>Clusters <strong>9, 11 and 14</strong>, whose entries contain <code>EOC</code>, are occupied: each stores the final portion of a file. <code>EOC</code> means <strong>no successor</strong>, not <strong>unused cluster</strong>.</p>
+</section>
+<section id="growing-notes.txt-3-points" class="level4">
+<h4 class="anchored" data-anchor-id="growing-notes.txt-3-points">1.3 — Growing <code>notes.txt</code> (3 points)</h4>
+<p>The new size is 10 500 bytes:</p>
+<p><span class="math display">\[
+n_{\text{new}}=\left\lceil\frac{10\,500}{2048}\right\rceil=6.
+\]</span></p>
+<p>The file already has three clusters, so it needs:</p>
+<p><span class="math display">\[
+\boxed{6-3=3\text{ additional clusters}}.
+\]</span></p>
+<p>The smallest-free-index rule selects:</p>
+<p><span class="math display">\[
+\boxed{0,\ 2,\ 5}
+\]</span></p>
+<p>in that order.</p>
+<p>The old last cluster is 9. The changed entries are:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>FAT entry</th>
+<th>Original value</th>
+<th>New value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>FAT[9]</code></td>
+<td>EOC</td>
+<td>0</td>
+</tr>
+<tr class="even">
+<td><code>FAT[0]</code></td>
+<td>FREE</td>
+<td>2</td>
+</tr>
+<tr class="odd">
+<td><code>FAT[2]</code></td>
+<td>FREE</td>
+<td>5</td>
+</tr>
+<tr class="even">
+<td><code>FAT[5]</code></td>
+<td>FREE</td>
+<td>EOC</td>
+</tr>
+</tbody>
+</table>
+<p>The resulting chain is:</p>
+<p><span class="math display">\[
+\boxed{6\rightarrow1\rightarrow9\rightarrow0\rightarrow2\rightarrow5
+\rightarrow\text{EOC}}.
+\]</span></p>
+<p>Its allocated space and unused space are:</p>
+<p><span class="math display">\[
+6\cdot2048=12\,288\text{ bytes},
+\]</span></p>
+<p><span class="math display">\[
+\boxed{12\,288-10\,500=1788\text{ unused bytes}}.
+\]</span></p>
+<p>The first-cluster value <strong>remains 6</strong>. The directory entry’s file size changes to <strong>10 500 bytes</strong>.</p>
+<p>Remember that <strong>cluster 0 is a valid data cluster in this exercise</strong>.</p>
+</section>
+<section id="independent-faulty-variants-3-points" class="level4">
+<h4 class="anchored" data-anchor-id="independent-faulty-variants-3-points">1.4 — Independent faulty variants (3 points)</h4>
+<p><strong>Variant A: <code>FAT[9] = 1</code></strong></p>
+<p>Tracing <code>notes.txt</code> gives:</p>
+<p><span class="math display">\[
+6\rightarrow1\rightarrow9\rightarrow1\rightarrow9\rightarrow\cdots
+\]</span></p>
+<p>Cluster 1 is revisited. This is a <strong>cycle</strong>, and traversal never reaches <code>EOC</code>.</p>
+<p><strong>Variant B: <code>FAT[3] = 2</code></strong></p>
+<p>Tracing <code>image.bin</code> gives:</p>
+<p><span class="math display">\[
+8\rightarrow3\rightarrow2.
+\]</span></p>
+<p>But <code>FAT[2] = FREE</code>. The chain points to an <strong>unallocated cluster</strong>, so it is invalid.</p>
+<p><strong>Variant C: <code>image.bin</code> has size 9000 bytes</strong></p>
+<p>Its unchanged chain contains three clusters, providing:</p>
+<p><span class="math display">\[
+3\cdot2048=6144\text{ bytes}.
+\]</span></p>
+<p>However:</p>
+<p><span class="math display">\[
+\left\lceil\frac{9000}{2048}\right\rceil=5\text{ clusters}.
+\]</span></p>
+<p>The chain is <strong>too short for the declared size</strong>: two additional clusters would be required.</p>
+<hr>
+</section>
+</section>
+<section id="exercise-2-i-node-addressing" class="level3">
+<h3 class="anchored" data-anchor-id="exercise-2-i-node-addressing">Exercise 2 — I-node addressing</h3>
+<section id="addresses-per-indirect-block-1-point" class="level4">
+<h4 class="anchored" data-anchor-id="addresses-per-indirect-block-1-point">2.1 — Addresses per indirect block (1 point)</h4>
+<p>The block size is:</p>
+<p><span class="math display">\[
+B=4\text{ KiB}=4096\text{ bytes}.
+\]</span></p>
+<p>Each address occupies eight bytes, so:</p>
+<p><span class="math display">\[
+\boxed{m=\frac{4096}{8}=512\text{ addresses per indirect block}}.
+\]</span></p>
+</section>
+<section id="maximum-file-size-3-points" class="level4">
+<h4 class="anchored" data-anchor-id="maximum-file-size-3-points">2.2 — Maximum file size (3 points)</h4>
+<p>The eight direct pointers reach eight data blocks.</p>
+<p>Each single-indirect pointer reaches 512 data blocks. Therefore, the two single-indirect pointers together reach:</p>
+<p><span class="math display">\[
+2\cdot512=1024\text{ data blocks}.
+\]</span></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Contribution</th>
+<th style="text-align: right;">Reachable data blocks</th>
+<th style="text-align: right;">File-data capacity</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Eight direct pointers</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">32 768 bytes = 32 KiB</td>
+</tr>
+<tr class="even">
+<td>First single-indirect pointer</td>
+<td style="text-align: right;">512</td>
+<td style="text-align: right;">2 097 152 bytes = 2 MiB</td>
+</tr>
+<tr class="odd">
+<td>Second single-indirect pointer</td>
+<td style="text-align: right;">512</td>
+<td style="text-align: right;">2 097 152 bytes = 2 MiB</td>
+</tr>
+<tr class="even">
+<td><strong>Total</strong></td>
+<td style="text-align: right;"><strong>1032</strong></td>
+<td style="text-align: right;"><strong>4 227 072 bytes</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Thus:</p>
+<p><span class="math display">\[
+\boxed{S_{\max}=(8+2\cdot512)\cdot4096=4\,227\,072\text{ bytes}}.
+\]</span></p>
+<p>In the requested units:</p>
+<p><span class="math display">\[
+\boxed{S_{\max}=4128\text{ KiB}=4.03125\text{ MiB}}.
+\]</span></p>
+<p>The two indirect blocks contain <strong>addresses</strong>, not file contents. Their storage is additional metadata overhead and does not contribute to maximum file-data capacity.</p>
+</section>
+<section id="locating-particular-bytes-2-points" class="level4">
+<h4 class="anchored" data-anchor-id="locating-particular-bytes-2-points">2.3 — Locating particular bytes (2 points)</h4>
+<p>For each byte offset:</p>
+<p><span class="math display">\[
+q=\left\lfloor\frac{x}{4096}\right\rfloor,\qquad
+r=x\bmod4096.
+\]</span></p>
+<p>The logical block ranges are:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Pointer group</th>
+<th>Logical file blocks</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Direct pointers</td>
+<td>0–7</td>
+</tr>
+<tr class="even">
+<td>First single-indirect pointer</td>
+<td>8–519</td>
+</tr>
+<tr class="odd">
+<td>Second single-indirect pointer</td>
+<td>520–1031</td>
+</tr>
+</tbody>
+</table>
+<p><strong>For <span class="math inline">\(x_1=32\,785\)</span>:</strong></p>
+<p><span class="math display">\[
+32\,785=8\cdot4096+17.
+\]</span></p>
+<p>Therefore:</p>
+<ul>
+<li>logical block: <strong>8</strong>;</li>
+<li>offset within the block: <strong>17 bytes</strong>;</li>
+<li>i-node pointer: <strong>first single-indirect pointer</strong>, index 0;</li>
+<li>address index within its indirect block: <strong>0</strong>.</li>
+</ul>
+<p><strong>For <span class="math inline">\(x_2=2\,129\,937\)</span>:</strong></p>
+<p><span class="math display">\[
+2\,129\,937=520\cdot4096+17.
+\]</span></p>
+<p>After the eight direct blocks:</p>
+<p><span class="math display">\[
+u=520-8=512,
+\]</span></p>
+<p><span class="math display">\[
+\left\lfloor512/512\right\rfloor=1,\qquad512\bmod512=0.
+\]</span></p>
+<p>Therefore:</p>
+<ul>
+<li>logical block: <strong>520</strong>;</li>
+<li>offset within the block: <strong>17 bytes</strong>;</li>
+<li>i-node pointer: <strong>second single-indirect pointer</strong>, index 1;</li>
+<li>address index within its indirect block: <strong>0</strong>.</li>
+</ul>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 21%">
+<col style="width: 21%">
+<col style="width: 21%">
+<col style="width: 15%">
+<col style="width: 21%">
+</colgroup>
+<thead>
+<tr class="header">
+<th style="text-align: right;">Byte offset</th>
+<th style="text-align: right;">Logical block</th>
+<th style="text-align: right;">Within-block offset</th>
+<th>Pointer used</th>
+<th style="text-align: right;">Indirect address index</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">32 785</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">17</td>
+<td>First single-indirect</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2 129 937</td>
+<td style="text-align: right;">520</td>
+<td style="text-align: right;">17</td>
+<td>Second single-indirect</td>
+<td style="text-align: right;">0</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="actual-storage-for-the-smaller-file-2-points" class="level4">
+<h4 class="anchored" data-anchor-id="actual-storage-for-the-smaller-file-2-points">2.4 — Actual storage for the smaller file (2 points)</h4>
+<p>The file size is:</p>
+<p><span class="math display">\[
+S=40\cdot1024+37=40\,997\text{ bytes}.
+\]</span></p>
+<p>Since:</p>
+<p><span class="math display">\[
+40\,997=10\cdot4096+37,
+\]</span></p>
+<p>the file needs:</p>
+<p><span class="math display">\[
+\boxed{11\text{ data blocks}}.
+\]</span></p>
+<p>Their addressing is:</p>
+<ul>
+<li>eight blocks through direct pointers;</li>
+<li>three blocks through the first single-indirect pointer.</li>
+</ul>
+<p>Those three addresses fit into one indirect block. Therefore:</p>
+<p><span class="math display">\[
+\boxed{1\text{ indirect block is allocated}}.
+\]</span></p>
+<p>Total storage, excluding the i-node:</p>
+<p><span class="math display">\[
+(11+1)\cdot4096
+=\boxed{49\,152\text{ bytes}=48\text{ KiB}}.
+\]</span></p>
+<p>The second single-indirect pointer is unused. <strong>Having a pointer slot in the i-node does not require allocating its pointer block.</strong></p>
+</section>
+<section id="adding-a-double-indirect-pointer-2-points" class="level4">
+<h4 class="anchored" data-anchor-id="adding-a-double-indirect-pointer-2-points">2.5 — Adding a double-indirect pointer (2 points)</h4>
+<p>One double-indirect pointer reaches:</p>
+<p><span class="math display">\[
+m^2=512^2=262\,144\text{ data blocks}.
+\]</span></p>
+<p>Its additional file-data capacity is:</p>
+<p><span class="math display">\[
+262\,144\cdot4096
+=\boxed{1\,073\,741\,824\text{ bytes}=1\text{ GiB}}.
+\]</span></p>
+<p>The new total number of addressable data blocks is:</p>
+<p><span class="math display">\[
+8+2\cdot512+512^2=263\,176.
+\]</span></p>
+<p>Thus:</p>
+<p><span class="math display">\[
+\boxed{S_{\max,\text{new}}=263\,176\cdot4096
+=1\,077\,968\,896\text{ bytes}}.
+\]</span></p>
+<p>Equivalently:</p>
+<p><span class="math display">\[
+\boxed{1028.03125\text{ MiB}
+=1\text{ GiB}+4.03125\text{ MiB}}.
+\]</span></p>
+<p>The double-indirect traversal works as follows:</p>
+<ol type="1">
+<li>The i-node points to the double-indirect block.</li>
+<li>One of its 512 addresses selects a single-indirect block.</li>
+<li>One of that block’s 512 addresses selects a data block.</li>
+</ol>
+<p>Therefore, it reaches <span class="math inline">\(512\cdot512\)</span> data blocks. Both pointer-block levels contain metadata.</p>
+<hr>
+</section>
+</section>
+<section id="exercise-3-pathname-traversal-and-links" class="level3">
+<h3 class="anchored" data-anchor-id="exercise-3-pathname-traversal-and-links">Exercise 3 — Pathname traversal and links</h3>
+<section id="partially-cached-lookup-4-points" class="level4">
+<h4 class="anchored" data-anchor-id="partially-cached-lookup-4-points">3.1 — Partially cached lookup (4 points)</h4>
+<p>The target is:</p>
+<pre class="text"><code>/courses/ibn/notes/day6.pdf</code></pre>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 16%">
+<col style="width: 16%">
+<col style="width: 22%">
+<col style="width: 22%">
+<col style="width: 22%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Component sought</th>
+<th>Directory searched</th>
+<th style="text-align: right;">Directory-block reads</th>
+<th style="text-align: right;">Child i-node reads</th>
+<th style="text-align: right;">Subtotal</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>courses</code></td>
+<td><code>/</code></td>
+<td style="text-align: right;">1: root contents uncached</td>
+<td style="text-align: right;">0: <code>courses</code> i-node cached</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td><code>ibn</code></td>
+<td><code>/courses</code></td>
+<td style="text-align: right;">1: contents uncached</td>
+<td style="text-align: right;">1: <code>ibn</code> i-node uncached</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="odd">
+<td><code>notes</code></td>
+<td><code>/courses/ibn</code></td>
+<td style="text-align: right;">0: contents cached</td>
+<td style="text-align: right;">1: <code>notes</code> i-node uncached</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td><code>day6.pdf</code></td>
+<td><code>/courses/ibn/notes</code></td>
+<td style="text-align: right;">1: contents uncached</td>
+<td style="text-align: right;">1: PDF i-node uncached</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="odd">
+<td><strong>Total</strong></td>
+<td></td>
+<td style="text-align: right;"><strong>3</strong></td>
+<td style="text-align: right;"><strong>3</strong></td>
+<td style="text-align: right;"><strong>6</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Hence:</p>
+<p><span class="math display">\[
+\boxed{6\text{ disk operations}}.
+\]</span></p>
+<p>The cached contents of <code>/courses/ibn</code> contain directory entries. Its i-node is a <strong>separate metadata object</strong>. Under the stated traversal model, that i-node must still be loaded; its already-cached directory block then requires no read.</p>
+<p>Notice that the <code>ibn</code> i-node read occurs in the row where <code>ibn</code> is found in <code>/courses</code>.</p>
+</section>
+<section id="cold-lookup-except-for-the-root-i-node-1-point" class="level4">
+<h4 class="anchored" data-anchor-id="cold-lookup-except-for-the-root-i-node-1-point">3.2 — Cold lookup except for the root i-node (1 point)</h4>
+<p>There are four named components:</p>
+<p><span class="math display">\[
+\texttt{courses},\quad\texttt{ibn},\quad\texttt{notes},\quad\texttt{day6.pdf}.
+\]</span></p>
+<p>Each requires one uncached parent-directory block read and one uncached child i-node read:</p>
+<p><span class="math display">\[
+\boxed{4\cdot(1+1)=8\text{ disk operations}}.
+\]</span></p>
+<p>The root i-node requires no read, and the PDF’s contents are not requested.</p>
+</section>
+<section id="reading-the-first-byte-1-point" class="level4">
+<h4 class="anchored" data-anchor-id="reading-the-first-byte-1-point">3.3 — Reading the first byte (1 point)</h4>
+<p>After part 1, the PDF’s i-node is cached, but its first data block is not.</p>
+<p>Because that block is directly addressed, reading it requires:</p>
+<p><span class="math display">\[
+\boxed{1\text{ additional disk operation}}.
+\]</span></p>
+<p>The cumulative total for lookup plus the first-byte read is:</p>
+<p><span class="math display">\[
+\boxed{6+1=7\text{ operations}}.
+\]</span></p>
+<p>No indirect-block read is needed.</p>
+</section>
+<section id="looking-up-the-sibling-file-2-points" class="level4">
+<h4 class="anchored" data-anchor-id="looking-up-the-sibling-file-2-points">3.4 — Looking up the sibling file (2 points)</h4>
+<p>The next target is:</p>
+<pre class="text"><code>/courses/ibn/notes/day5.pdf</code></pre>
+<p>The previous lookup has cached:</p>
+<ul>
+<li>all four directory blocks along this path;</li>
+<li>all intermediate directory i-nodes.</li>
+</ul>
+<p>Therefore, finding the <code>day5.pdf</code> entry requires no further disk reads. Its own i-node remains uncached and must be loaded:</p>
+<p><span class="math display">\[
+\boxed{1\text{ additional disk operation: reading the day5.pdf i-node}}.
+\]</span></p>
+<p>No PDF data block is requested.</p>
+</section>
+<section id="deleting-a-name-hard-link-versus-symbolic-link-2-points" class="level4">
+<h4 class="anchored" data-anchor-id="deleting-a-name-hard-link-versus-symbolic-link-2-points">3.5 — Deleting a name: hard link versus symbolic link (2 points)</h4>
+<p><strong><code>copy.pdf</code> remains valid.</strong></p>
+<p>Its directory entry points to the same i-node as <code>day6.pdf</code>. Deleting <code>day6.pdf</code> removes one name and reduces the hard-link count by one. The remaining <code>copy.pdf</code> entry still identifies the file, so its i-node and contents remain available.</p>
+<p><strong><code>shortcut.pdf</code> becomes a dangling symbolic link.</strong></p>
+<p>It still stores:</p>
+<pre class="text"><code>/courses/ibn/notes/day6.pdf</code></pre>
+<p>That pathname no longer resolves because the <code>day6.pdf</code> directory entry has been removed. The symbolic link does not automatically switch to <code>copy.pdf</code>.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Remaining name</th>
+<th>Can access the PDF?</th>
+<th>Reason</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>copy.pdf</code></td>
+<td><strong>Yes</strong></td>
+<td>Identifies the same i-node directly</td>
+</tr>
+<tr class="even">
+<td><code>shortcut.pdf</code></td>
+<td><strong>No</strong></td>
+<td>Its stored target pathname no longer exists</td>
+</tr>
+</tbody>
+</table>
+<p>For self-grading, distinguish an incorrect method from a single arithmetic error carried through later calculations—a <strong>Folgefehler</strong>. Give credit for subsequent reasoning that correctly uses the earlier result.</p>
 
 
+</section>
 </section>
 </section>
 
@@ -1127,13 +1659,14 @@ x_1=32\,785,\qquad x_2=2\,129\,937.
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-        const codeEl = trigger.previousElementSibling.cloneNode(true);
-        for (const childEl of codeEl.children) {
-          if (isCodeAnnotation(childEl)) {
-            childEl.remove();
-          }
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
         }
-        return codeEl.innerText;
+      }
+      return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
