@@ -1,37 +1,15 @@
 project:
   type: book
 
+profile:
+  group:
+    - [full, share]
+
 book:
   title: "Operating Systems and Networks SoSe 25 Notes"
   reader-mode: true
   author: "Igor Dimitrov"
   date: "12/18/2024"
-  chapters:
-    - index.qmd
-    # - part: "Operating Systems"
-    #   chapters:
-    #   - process.qmd
-    #   - memory.qmd
-    # - part: "Networks"
-    #   chapters:
-    #   - networks-intro.qmd
-    #   - application-layer.qmd
-    #   - ip-layer-subnetting.qmd
-    - part: "Exam Notes"
-      chapters:
-      # - exam/notes/00.qmd
-      - exam/notes/assignment_overview.qmd
-      - exam/notes/plan.qmd
-      - exam/notes/processes_and_fork.qmd
-      - exam/notes/synchronization.qmd
-      - exam/notes/paging_1.qmd
-      - exam/notes/paging_2.qmd
-      - exam/notes/deadlocks_and_scheduling.qmd
-      - exam/notes/filesystems.qmd
-      # - exam/notes/assisted_review.qmd
-      # - exam/notes/01.qmd
-      # - exam/notes/02.qmd
-      # - exam/2016.qmd
   downloads: ["pdf"]
   page-navigation: true
 

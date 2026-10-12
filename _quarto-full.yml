@@ -1,0 +1,14 @@
+book:
+  chapters:
+    - index.qmd
+    - part: "Exam Notes"
+      chapters:
+      - exam/notes/assignment_overview.qmd
+      - exam/notes/plan.qmd
+      - exam/notes/processes_and_fork.qmd
+      - exam/notes/synchronization.qmd
+      - exam/notes/paging_1.qmd
+      - exam/notes/paging_2.qmd
+      - exam/notes/deadlocks_and_scheduling.qmd
+      - exam/notes/filesystems.qmd
+      - exam/notes/network_stack.qmd
