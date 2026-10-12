@@ -12,3 +12,4 @@ book:
       - exam/notes/deadlocks_and_scheduling.qmd
       - exam/notes/filesystems.qmd
       - exam/notes/network_stack.qmd
+      - exam/notes/subnetting_forwarding_routing.qmd
