@@ -1,0 +1,1534 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.37">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>9&nbsp; Network stack – Operating Systems and Networks SoSe 25 Notes</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../exam/notes/subnetting_forwarding_routing.html" rel="next">
+<link href="../../exam/notes/filesystems.html" rel="prev">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-8dddca75a0c745965e348927a205e40e.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../exam/notes/assignment_overview.html">Exam Notes</a></li><li class="breadcrumb-item"><a href="../../exam/notes/network_stack.html"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Network stack</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../../">Operating Systems and Networks SoSe 25 Notes</a> 
+        <div class="sidebar-tools-main">
+    <a href="../../Operating-Systems-and-Networks-SoSe-25-Notes.pdf" title="Download PDF" class="quarto-navigation-tool px-1" aria-label="Download PDF"><i class="bi bi-file-pdf"></i></a>
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Exam Notes</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../exam/notes/assignment_overview.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Assignment Sheets Overview</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../exam/notes/plan.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Plan</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../exam/notes/processes_and_fork.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Processes and <code>fork()</code></span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../exam/notes/synchronization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Race conditions, semaphores and synchronization</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../exam/notes/paging_1.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Paging fundamentals</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../exam/notes/paging_2.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Advanced paging and virtual memory</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../exam/notes/deadlocks_and_scheduling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Day 5 — Deadlocks and CPU scheduling</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../exam/notes/filesystems.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">File systems</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../exam/notes/network_stack.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Network stack</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../exam/notes/subnetting_forwarding_routing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Combined Day 8/9 — Subnetting, forwarding and routing algorithms</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active" data-toc-expanded="-1">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#layers-different-services-and-different-endpoints" id="toc-layers-different-services-and-different-endpoints" class="nav-link active" data-scroll-target="#layers-different-services-and-different-endpoints">1. Layers: different services and different endpoints</a>
+  <ul class="collapse">
+  <li><a href="#application-identifiers-depend-on-the-application" id="toc-application-identifiers-depend-on-the-application" class="nav-link" data-scroll-target="#application-identifiers-depend-on-the-application">Application identifiers depend on the application</a></li>
+  <li><a href="#ports-ip-addresses-and-mac-addresses-answer-different-questions" id="toc-ports-ip-addresses-and-mac-addresses-answer-different-questions" class="nav-link" data-scroll-target="#ports-ip-addresses-and-mac-addresses-answer-different-questions">Ports, IP addresses and MAC addresses answer different questions</a></li>
+  <li><a href="#tcp-and-udp-the-necessary-distinction" id="toc-tcp-and-udp-the-necessary-distinction" class="nav-link" data-scroll-target="#tcp-and-udp-the-necessary-distinction">TCP and UDP: the necessary distinction</a></li>
+  </ul></li>
+  <li><a href="#encapsulation-and-decapsulation" id="toc-encapsulation-and-decapsulation" class="nav-link" data-scroll-target="#encapsulation-and-decapsulation">2. Encapsulation and decapsulation</a>
+  <ul class="collapse">
+  <li><a href="#how-the-receiving-host-delivers-data-upward" id="toc-how-the-receiving-host-delivers-data-upward" class="nav-link" data-scroll-target="#how-the-receiving-host-delivers-data-upward">How the receiving host delivers data upward</a></li>
+  </ul></li>
+  <li><a href="#hosts-routers-and-the-next-hop" id="toc-hosts-routers-and-the-next-hop" class="nav-link" data-scroll-target="#hosts-routers-and-the-next-hop">3. Hosts, routers and the next hop</a>
+  <ul class="collapse">
+  <li><a href="#local-destination-versus-remote-destination" id="toc-local-destination-versus-remote-destination" class="nav-link" data-scroll-target="#local-destination-versus-remote-destination">Local destination versus remote destination</a></li>
+  <li><a href="#arp-obtaining-the-next-hop-mac" id="toc-arp-obtaining-the-next-hop-mac" class="nav-link" data-scroll-target="#arp-obtaining-the-next-hop-mac">ARP: obtaining the next-hop MAC</a></li>
+  <li><a href="#what-a-forwarding-router-does" id="toc-what-a-forwarding-router-does" class="nav-link" data-scroll-target="#what-a-forwarding-router-does">What a forwarding router does</a></li>
+  </ul></li>
+  <li><a href="#ipv4-fragmentation" id="toc-ipv4-fragmentation" class="nav-link" data-scroll-target="#ipv4-fragmentation">4. IPv4 fragmentation</a>
+  <ul class="collapse">
+  <li><a href="#mtu-and-what-is-split" id="toc-mtu-and-what-is-split" class="nav-link" data-scroll-target="#mtu-and-what-is-split">MTU and what is split</a></li>
+  <li><a href="#header-fields-needed-for-calculations" id="toc-header-fields-needed-for-calculations" class="nav-link" data-scroll-target="#header-fields-needed-for-calculations">Header fields needed for calculations</a></li>
+  <li><a href="#why-non-final-payload-lengths-must-be-multiples-of-eight" id="toc-why-non-final-payload-lengths-must-be-multiples-of-eight" class="nav-link" data-scroll-target="#why-non-final-payload-lengths-must-be-multiples-of-eight">Why non-final payload lengths must be multiples of eight</a></li>
+  <li><a href="#a-reusable-procedure" id="toc-a-reusable-procedure" class="nav-link" data-scroll-target="#a-reusable-procedure">A reusable procedure</a></li>
+  <li><a href="#short-worked-example" id="toc-short-worked-example" class="nav-link" data-scroll-target="#short-worked-example">Short worked example</a></li>
+  <li><a href="#fragmentation-versus-transport-segmentation" id="toc-fragmentation-versus-transport-segmentation" class="nav-link" data-scroll-target="#fragmentation-versus-transport-segmentation">Fragmentation versus transport segmentation</a></li>
+  </ul></li>
+  <li><a href="#common-exam-traps" id="toc-common-exam-traps" class="nav-link" data-scroll-target="#common-exam-traps">5. Common exam traps</a></li>
+  <li><a href="#exam-like-exercises" id="toc-exam-like-exercises" class="nav-link" data-scroll-target="#exam-like-exercises">6. Exam-like exercises</a>
+  <ul class="collapse">
+  <li><a href="#exercise-1-a-udp-message-through-two-routers" id="toc-exercise-1-a-udp-message-through-two-routers" class="nav-link" data-scroll-target="#exercise-1-a-udp-message-through-two-routers">Exercise 1 — A UDP message through two routers</a></li>
+  <li><a href="#exercise-2-one-server-port-several-tcp-connections" id="toc-exercise-2-one-server-port-several-tcp-connections" class="nav-link" data-scroll-target="#exercise-2-one-server-port-several-tcp-connections">Exercise 2 — One server port, several TCP connections</a></li>
+  <li><a href="#exercise-3-fragmenting-one-udp-datagram" id="toc-exercise-3-fragmenting-one-udp-datagram" class="nav-link" data-scroll-target="#exercise-3-fragmenting-one-udp-datagram">Exercise 3 — Fragmenting one UDP datagram</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../exam/notes/assignment_overview.html">Exam Notes</a></li><li class="breadcrumb-item"><a href="../../exam/notes/network_stack.html"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Network stack</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Network stack</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>The unit below focuses on <strong>encapsulation, addressing across router hops, and IPv4 fragmentation</strong>, followed by <strong>three integrated exercises with numbered subparts</strong>.</p>
+<p>A reusable copy is available here: day-7-network-stack.md<a href="sandbox:/workspace/scratch/2f5c269da647/day-7-network-stack.md">day-7-network-stack.md</a>.</p>
+<p>The scope follows the ten-day plan in 15-Operating-Systems-and-Networks-SoSe-25-Notes.pdf and A4/A9 in 09-ueb09-ibn-SS2025.pdf. The strongest direct calibration is <strong>Aufgabe 4, worth 8 points</strong>, in 12-ibn-klausur-2016.pdf; its appended mini-test also supports the TCP demultiplexing exercise. Layer terminology follows 01-ibn-zusammenfassung.pdf.</p>
+<p>The networking questions reported in 13-Ged-chtnisprotokoll_Klausur_-IBN_Ersttermin.pdf concern subnetting, forwarding and Dijkstra, which remain for Days 8–9. The uploaded 14-Operating-Systems-and-Networs-SoSe-25-Solutions.pdf skips Sheet 9, so I have independently checked the calculations.</p>
+<section id="layers-different-services-and-different-endpoints" class="level2">
+<h2 class="anchored" data-anchor-id="layers-different-services-and-different-endpoints">1. Layers: different services and different endpoints</h2>
+<p>A network application needs several problems solved:</p>
+<ul>
+<li>interpret the message;</li>
+<li>deliver it to the right application;</li>
+<li>reach the right host;</li>
+<li>transmit it over each local link.</li>
+</ul>
+<p>The protocol stack assigns these problems to different layers.</p>
+<p>A <strong>service</strong> is what a layer offers to the layer above. A <strong>protocol</strong> specifies how participants at that layer communicate: message formats and rules for processing them. Participants communicate logically with their peers, while actual transmission uses the lower layers.</p>
+<p>The course uses five Internet layers. Here we concentrate on the upper four; the <strong>physical layer (<em>Bitübertragungsschicht</em>)</strong> carries bits through the transmission medium.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Layer</th>
+<th>Service and communication endpoints</th>
+<th>Course PDU name</th>
+<th>Destination identification</th>
+<th>Examples</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Application — Anwendungsschicht</strong></td>
+<td>Application-specific communication: e.g.&nbsp;browser ↔︎ web service, sender ↔︎ recipient account</td>
+<td><strong>Message — Nachricht</strong></td>
+<td>Depends on the application: e.g.&nbsp;URL or email address</td>
+<td>HTTP, DNS, SMTP</td>
+</tr>
+<tr class="even">
+<td><strong>Transport — Transportschicht</strong></td>
+<td>Process/socket-to-process/socket communication; distinguishes applications sharing a host</td>
+<td>TCP: <strong>segment — Segment</strong>; UDP: <strong>datagram — Datagramm</strong></td>
+<td>Destination port within the addressed host and transport protocol</td>
+<td>TCP, UDP</td>
+</tr>
+<tr class="odd">
+<td><strong>Network — Netzwerkschicht</strong></td>
+<td>Communication between hosts across interconnected networks; more precisely, IP addresses identify interfaces</td>
+<td><strong>IP datagram — IP-Datagramm</strong></td>
+<td>Destination IP address; IPv4 addresses have 32 bits</td>
+<td>IP, ICMP</td>
+</tr>
+<tr class="even">
+<td><strong>Link — Sicherungsschicht</strong></td>
+<td>Delivery over the current link/local network between neighboring nodes or interfaces; framing and link-dependent error detection</td>
+<td><strong>Frame — Rahmen</strong></td>
+<td>On Ethernet: destination MAC address, usually 48 bits</td>
+<td>Ethernet, Wi-Fi, PPP</td>
+</tr>
+</tbody>
+</table>
+<p>A <strong>PDU (<em>protocol data unit</em>)</strong> is the unit handled by a particular layer, including that protocol’s control information. “Packet” is often used loosely; in an exam, identify the layer and use its specific PDU name.</p>
+<section id="application-identifiers-depend-on-the-application" class="level3">
+<h3 class="anchored" data-anchor-id="application-identifiers-depend-on-the-application">Application identifiers depend on the application</h3>
+<p>Two useful examples for Sheet 9 A4:</p>
+<ul>
+<li><strong>Web:</strong> a browser communicates with a web service. A URL such as <code>http://example.org/notes</code> identifies a server/service and resource. DNS can resolve the hostname to an IP address; the resource path <code>/notes</code> is interpreted at the application layer.</li>
+<li><strong>Email:</strong> users/accounts are logical endpoints. An address such as <code>igor@example.org</code> identifies the recipient mailbox. SMTP transfers messages between mail-system processes; a transport port does not identify the recipient account.</li>
+</ul>
+<p>There is <strong>no universal application-layer address field</strong> shared by all applications. Application identifiers belong to the application’s message format and semantics.</p>
+</section>
+<section id="ports-ip-addresses-and-mac-addresses-answer-different-questions" class="level3">
+<h3 class="anchored" data-anchor-id="ports-ip-addresses-and-mac-addresses-answer-different-questions">Ports, IP addresses and MAC addresses answer different questions</h3>
+<ul>
+<li><strong>IP address:</strong> which destination host/interface should receive this IP datagram?</li>
+<li><strong>Port number:</strong> which transport endpoint on that host should receive its data?</li>
+<li><strong>MAC address:</strong> which interface should receive this frame on the current Ethernet network?</li>
+</ul>
+<p>A port is a 16-bit transport identifier, <strong>not an operating-system PID</strong>.</p>
+<p>A process uses a <strong>socket</strong>, the software interface through which it sends and receives network data. One process can use multiple sockets; one TCP server port can serve multiple connections.</p>
+<p>For a basic transport endpoint, think:</p>
+<p><span class="math display">\[
+\boxed{\text{IP address}+\text{port}+\text{transport protocol}}
+\]</span></p>
+<p>Port 9000 on two different hosts does not identify the same endpoint. TCP port 9000 and UDP port 9000 also belong to different protocol namespaces.</p>
+</section>
+<section id="tcp-and-udp-the-necessary-distinction" class="level3">
+<h3 class="anchored" data-anchor-id="tcp-and-udp-the-necessary-distinction">TCP and UDP: the necessary distinction</h3>
+<p><strong>IP provides a best-effort datagram service:</strong> delivery, order and freedom from duplication are not guaranteed.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>UDP</th>
+<th>TCP</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Adds ports and preserves message boundaries</td>
+<td>Provides a connection-oriented, reliable, ordered byte stream</td>
+</tr>
+<tr class="even">
+<td>Does not itself provide reliable delivery or retransmission</td>
+<td>Can divide stream data among multiple segments</td>
+</tr>
+<tr class="odd">
+<td>Application sends individual UDP datagrams</td>
+<td>Application message boundaries are not preserved automatically</td>
+</tr>
+</tbody>
+</table>
+<p>Both use source and destination ports. TCP’s detailed reliability mechanisms are outside today’s core scope.</p>
+</section>
+</section>
+<section id="encapsulation-and-decapsulation" class="level2">
+<h2 class="anchored" data-anchor-id="encapsulation-and-decapsulation">2. Encapsulation and decapsulation</h2>
+<p>Suppose an application gives a complete message <span class="math inline">\(N\)</span> to UDP. Assume it fits into one IP datagram before any fragmentation.</p>
+<p>Each lower layer wraps the complete higher-layer PDU:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Step</th>
+<th>Added control information</th>
+<th>Payload</th>
+<th>Resulting PDU</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Application constructs its message</td>
+<td>Application-specific fields, if required</td>
+<td>Application content</td>
+<td>Message <span class="math inline">\(N\)</span></td>
+</tr>
+<tr class="even">
+<td>UDP encapsulates <span class="math inline">\(N\)</span></td>
+<td>UDP header</td>
+<td>Entire application message <span class="math inline">\(N\)</span></td>
+<td>UDP datagram</td>
+</tr>
+<tr class="odd">
+<td>IPv4 encapsulates the UDP datagram</td>
+<td>IPv4 header</td>
+<td>Entire UDP header <strong>and</strong> message <span class="math inline">\(N\)</span></td>
+<td>IP datagram</td>
+</tr>
+<tr class="even">
+<td>Ethernet encapsulates the IP datagram</td>
+<td>Ethernet header and trailer</td>
+<td>Entire IP header <strong>and</strong> UDP datagram</td>
+<td>Frame</td>
+</tr>
+</tbody>
+</table>
+<p><strong>A higher-layer header becomes part of the lower layer’s payload.</strong></p>
+<p>Thus:</p>
+<ul>
+<li>UDP payload = application message;</li>
+<li>IP payload = UDP header + application message;</li>
+<li>Ethernet payload = IP header + UDP header + application message.</li>
+</ul>
+<p>For the unfragmented UDP case, the frame’s conceptual order is:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Ethernet header</th>
+<th>IPv4 header</th>
+<th>UDP header</th>
+<th>Application message <span class="math inline">\(N\)</span></th>
+<th>Ethernet trailer</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Source/destination MAC</td>
+<td>Source/destination IP</td>
+<td>Source/destination port</td>
+<td>Application fields and content</td>
+<td>FCS</td>
+</tr>
+</tbody>
+</table>
+<p>This gives the order of <strong>whole headers</strong>, not the internal field order within each header.</p>
+<p>Ethernet’s trailer is the <strong>Frame Check Sequence (FCS)</strong> for error detection. If an exam asks only for the layer headers, the essential order is:</p>
+<p><strong>link → network → transport → application message</strong></p>
+<p>An application message can already contain application headers, such as HTTP fields. Do not invent an additional universal application header if the question simply supplies message <span class="math inline">\(N\)</span>.</p>
+<section id="how-the-receiving-host-delivers-data-upward" class="level3">
+<h3 class="anchored" data-anchor-id="how-the-receiving-host-delivers-data-upward">How the receiving host delivers data upward</h3>
+<p><strong>Decapsulation</strong> removes the wrapping; <strong>demultiplexing</strong> selects the appropriate next protocol or endpoint.</p>
+<p>For an ordinary unicast Ethernet/IPv4/UDP message:</p>
+<ol type="1">
+<li><strong>Link layer:</strong> accepts the addressed frame, checks its link control information and extracts the IP datagram. Ethernet’s <strong>EtherType</strong> identifies the payload protocol, such as IPv4.</li>
+<li><strong>IP layer:</strong> processes the datagram. Its <strong>Protocol</strong> field identifies UDP or TCP: UDP is 17, TCP is 6. If fragmented, IP first reassembles the datagram before transport delivery.</li>
+<li><strong>Transport layer:</strong> uses addressing information to select a socket and passes the data to its application.</li>
+<li><strong>Application layer:</strong> interprets the message according to its application protocol.</li>
+</ol>
+<p>In the <strong>basic course model</strong>, UDP delivery selects a receiving socket using the <strong>destination IP and destination port</strong>, within UDP.</p>
+<p>An <strong>established TCP connection</strong> is distinguished by the four-tuple:</p>
+<p><span class="math display">\[
+\boxed{
+(\text{source IP},\text{source port},
+\text{destination IP},\text{destination port})
+}
+\]</span></p>
+<p>Consequently, several established TCP connections can share the server’s local port. Their remote IP addresses and/or ports distinguish them.</p>
+<p>A TCP <strong>listening socket</strong> accepts new connections; established <strong>connection sockets</strong> carry each connection’s data.</p>
+</section>
+</section>
+<section id="hosts-routers-and-the-next-hop" class="level2">
+<h2 class="anchored" data-anchor-id="hosts-routers-and-the-next-hop">3. Hosts, routers and the next hop</h2>
+<p>The <strong>ultimate IP destination</strong> and the <strong>next link-layer recipient</strong> need not be the same device.</p>
+<section id="local-destination-versus-remote-destination" class="level3">
+<h3 class="anchored" data-anchor-id="local-destination-versus-remote-destination">Local destination versus remote destination</h3>
+<p>In the ordinary single-LAN setting used in these problems, the host compares the destination’s network part with its own, using its configured subnet mask/prefix.</p>
+<p>Conceptually, with subnet mask <span class="math inline">\(S\)</span>:</p>
+<p><span class="math display">\[
+(IP_{\mathrm{dest}}\mathbin{\&amp;}S)
+=
+(IP_{\mathrm{local}}\mathbin{\&amp;}S)
+\]</span></p>
+<p>means the destination is on the same configured subnet. Here <span class="math inline">\(\&amp;\)</span> means bitwise AND. Detailed mask calculations belong to Day 8.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Destination</th>
+<th>IP datagram’s destination</th>
+<th>Ethernet frame’s destination</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Another host on the same local Ethernet network</td>
+<td>That host’s IP</td>
+<td>That host’s MAC</td>
+</tr>
+<tr class="even">
+<td>A remote host reached through the gateway</td>
+<td>The remote host’s IP</td>
+<td>The gateway’s <strong>local interface MAC</strong></td>
+</tr>
+</tbody>
+</table>
+<p>The gateway’s IP helps identify the next hop. It <strong>does not replace the remote host’s IP</strong> in the original data datagram.</p>
+</section>
+<section id="arp-obtaining-the-next-hop-mac" class="level3">
+<h3 class="anchored" data-anchor-id="arp-obtaining-the-next-hop-mac">ARP: obtaining the next-hop MAC</h3>
+<p>For IPv4 over Ethernet, <strong>ARP (<em>Address Resolution Protocol</em>)</strong> maps a known <strong>local next-hop IP address</strong> to its MAC address.</p>
+<p>The sender first checks its ARP cache. If the mapping is missing, it broadcasts an ARP request on the local network. The node owning the requested IP replies with its MAC, and the sender can cache the mapping. <a href="https://www.rfc-editor.org/rfc/rfc826.html?utm_source=chatgpt.com">rfc-editor.org</a></p>
+<p>Therefore:</p>
+<ul>
+<li><strong>Local delivery:</strong> resolve the destination host’s IP.</li>
+<li><strong>Remote delivery through a gateway:</strong> resolve the gateway’s local IP.</li>
+</ul>
+<p>A host does not broadcast ARP across the Internet to discover a remote host’s MAC.</p>
+</section>
+<section id="what-a-forwarding-router-does" class="level3">
+<h3 class="anchored" data-anchor-id="what-a-forwarding-router-does">What a forwarding router does</h3>
+<p>Consider <strong>A → R → B</strong>, with A and B on different Ethernet networks. Assume no address translation (NAT), tunneling or fragmentation.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Link</th>
+<th>Source MAC</th>
+<th>Destination MAC</th>
+<th>Source IP</th>
+<th>Destination IP</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>A → R</td>
+<td>A’s MAC</td>
+<td>R’s incoming-interface MAC</td>
+<td>A’s IP</td>
+<td>B’s IP</td>
+</tr>
+<tr class="even">
+<td>R → B</td>
+<td>R’s outgoing-interface MAC</td>
+<td>B’s MAC</td>
+<td>A’s IP</td>
+<td>B’s IP</td>
+</tr>
+</tbody>
+</table>
+<p>The router:</p>
+<ol type="1">
+<li>Receives the frame addressed to its incoming interface and removes the link-layer wrapping.</li>
+<li>Examines the IP destination and selects an outgoing interface/next hop.</li>
+<li>Decrements IPv4 <strong>TTL</strong> and updates the IPv4 header checksum.</li>
+<li>Creates a new link-layer frame suitable for the outgoing link, addressed to the next hop.</li>
+</ol>
+<p>If another router follows, the new destination MAC is that router’s receiving-interface MAC. Only on the last local network is the destination MAC normally B’s MAC.</p>
+<p><strong>Source/destination IP addresses and transport ports normally remain associated with A and B throughout forwarding. Link-layer addresses change at router hops.</strong></p>
+<p>The <strong>whole IP header</strong> is not unchanged: TTL and its checksum change, and fragmentation can change additional fields.</p>
+<p>For ordinary forwarding, a router processes through the <strong>network layer</strong>. It does not deliver the transit message to a local UDP/TCP application.</p>
+<p>Hosts implement all layers; routers need the lower three for forwarding. An ordinary layer-2 switch forwards within the LAN <strong>without replacing the frame’s source and destination MAC addresses</strong>. A frame can therefore reach its addressed next-hop interface through switches.</p>
+</section>
+</section>
+<section id="ipv4-fragmentation" class="level2">
+<h2 class="anchored" data-anchor-id="ipv4-fragmentation">4. IPv4 fragmentation</h2>
+<section id="mtu-and-what-is-split" class="level3">
+<h3 class="anchored" data-anchor-id="mtu-and-what-is-split">MTU and what is split</h3>
+<p>A link’s <strong>MTU (<em>Maximum Transmission Unit</em>)</strong> limits the size of the network-layer PDU carried as link-layer payload. In these IPv4 problems:</p>
+<p><span class="math display">\[
+\boxed{\text{IP header}+\text{IP payload}\leq\text{MTU}}
+\]</span></p>
+<p>Ethernet headers and the FCS are <strong>outside this IP MTU</strong>.</p>
+<p>If an IPv4 datagram is larger than the outgoing MTU, the sender or a router can fragment it, provided fragmentation is permitted.</p>
+<p>Fragmentation splits the <strong>original IP payload</strong>, which includes any transport header. Every fragment receives its <strong>own IP header</strong> and is itself an IP datagram, carried in its own link-layer frame.</p>
+<p>Reassembly occurs at the <strong>destination host’s IP layer</strong>, before delivery to UDP/TCP. Intermediate forwarding routers do not normally reassemble transit datagrams. If a fragment is missing, the complete original datagram cannot be delivered upward.</p>
+</section>
+<section id="header-fields-needed-for-calculations" class="level3">
+<h3 class="anchored" data-anchor-id="header-fields-needed-for-calculations">Header fields needed for calculations</h3>
+<p>Assume a <strong>20-byte IPv4 header without options</strong> unless stated otherwise.</p>
+<p>IPv4’s <strong>IHL</strong> measures the header length in 4-byte words:</p>
+<p><span class="math display">\[
+\text{IHL}=5 \quad\Longrightarrow\quad H=20\text{ bytes}.
+\]</span></p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Field</th>
+<th>Meaning for fragmentation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Total Length</strong></td>
+<td>This fragment’s IP header + its IP payload, in <strong>bytes</strong></td>
+</tr>
+<tr class="even">
+<td><strong>Identification / ID</strong></td>
+<td>16-bit value shared by all fragments of the original datagram</td>
+</tr>
+<tr class="odd">
+<td><strong>DF — Don’t Fragment</strong></td>
+<td>1: fragmentation forbidden; 0: permitted</td>
+</tr>
+<tr class="even">
+<td><strong>MF — More Fragments</strong></td>
+<td>1: more original payload follows this fragment; 0: this is the final fragment</td>
+</tr>
+<tr class="odd">
+<td><strong>Fragment Offset</strong></td>
+<td>Where this fragment’s payload begins within the <strong>original IP payload</strong>, measured in <strong>8-byte units</strong></td>
+</tr>
+<tr class="even">
+<td><strong>IHL / header length</strong></td>
+<td>Determines how much MTU space this fragment’s IP header occupies</td>
+</tr>
+</tbody>
+</table>
+<p>The reserved flag is zero. An initially unfragmented datagram has <strong>offset 0 and MF = 0</strong>. When fragmenting it, all fragments keep its ID; DF must be 0.</p>
+<p>ID is not globally unique by itself. Reassembly groups fragments using:</p>
+<p><span class="math display">\[
+\text{source IP, destination IP, protocol and ID}.
+\]</span></p>
+<p>Offsets place the payload bytes in their correct positions.</p>
+<p>If DF = 1 and a forwarding router cannot fit the datagram onto the outgoing link, it drops it and normally reports <strong>ICMP “fragmentation needed”</strong> to the sender.</p>
+</section>
+<section id="why-non-final-payload-lengths-must-be-multiples-of-eight" class="level3">
+<h3 class="anchored" data-anchor-id="why-non-final-payload-lengths-must-be-multiples-of-eight">Why non-final payload lengths must be multiples of eight</h3>
+<p>Suppose the first fragment carries <span class="math inline">\(p_1\)</span> bytes of original IP payload. The second begins at byte <span class="math inline">\(p_1\)</span>, so its offset field must contain:</p>
+<p><span class="math display">\[
+\mathrm{Offset}_2=\frac{p_1}{8}.
+\]</span></p>
+<p>This must be an integer. The same reasoning applies at every subsequent boundary. Therefore, every <strong>non-final fragment payload</strong> must be a multiple of eight bytes. The IPv4 specification explicitly defines the offset in these 8-byte units. <a href="https://www.rfc-editor.org/rfc/rfc791.html?utm_source=chatgpt.com">rfc-editor.org</a></p>
+<p>The <strong>final payload</strong> can have a different length: its starting position still lies on an 8-byte boundary, but no subsequent fragment needs to start after it.</p>
+<p>The alignment rule concerns <strong>payload lengths</strong>, not Total Lengths including IP headers.</p>
+</section>
+<section id="a-reusable-procedure" class="level3">
+<h3 class="anchored" data-anchor-id="a-reusable-procedure">A reusable procedure</h3>
+<p>This procedure assumes an initially unfragmented datagram, constant header length <span class="math inline">\(H\)</span>, and maximal payloads for non-final fragments.</p>
+<p>Let:</p>
+<ul>
+<li><span class="math inline">\(L\)</span>: original IP <strong>Total Length</strong>;</li>
+<li><span class="math inline">\(H\)</span>: IP header size;</li>
+<li><span class="math inline">\(M\)</span>: outgoing MTU;</li>
+<li><span class="math inline">\(D=L-H\)</span>: original IP payload size.</li>
+</ul>
+<p>If application data size is given instead, first add the transport header to obtain <span class="math inline">\(D\)</span>, then add the IP header to obtain <span class="math inline">\(L\)</span>.</p>
+<p>A stated <strong>“IP datagram length” includes its IP header</strong>, unless the question explicitly says <em>payload</em>.</p>
+<p><strong>Step 1 — Check necessity and permission.</strong></p>
+<p>If <span class="math inline">\(L\leq M\)</span>, fragmentation is unnecessary. If <span class="math inline">\(L&gt;M\)</span>, check DF.</p>
+<p><strong>Step 2 — Calculate fragment payload capacity.</strong></p>
+<p><span class="math display">\[
+\boxed{C=M-H}
+\]</span></p>
+<p><strong>Step 3 — Round down for a non-final payload.</strong></p>
+<p><span class="math display">\[
+\boxed{
+F=8\left\lfloor\frac{M-H}{8}\right\rfloor
+}
+\]</span></p>
+<p><strong>Step 4 — Distribute the original payload.</strong></p>
+<ul>
+<li>While the remaining payload exceeds <span class="math inline">\(C\)</span>, emit a fragment with <span class="math inline">\(F\)</span> payload bytes.</li>
+<li>Once the remainder is at most <span class="math inline">\(C\)</span>, put all of it in the final fragment.</li>
+<li>Count the resulting fragments.</li>
+</ul>
+<p><strong>The final fragment may carry up to <span class="math inline">\(C\)</span>, even if this is slightly larger than <span class="math inline">\(F\)</span>.</strong> Do not force its length to be a multiple of eight or mechanically calculate the count as <span class="math inline">\(\lceil D/F\rceil\)</span>.</p>
+<p><strong>Step 5 — Fill the fields.</strong></p>
+<p>If fragment <span class="math inline">\(i\)</span> has payload length <span class="math inline">\(p_i\)</span> and begins after <span class="math inline">\(b_i\)</span> bytes of original payload:</p>
+<p><span class="math display">\[
+\mathrm{TotalLength}_i=H+p_i,
+\]</span></p>
+<p><span class="math display">\[
+\mathrm{Offset}_i=\frac{b_i}{8},
+\qquad
+b_i=\sum_{j&lt;i}p_j.
+\]</span></p>
+<p>Set <strong>MF = 1</strong> except on the final fragment, where <strong>MF = 0</strong>. Keep the original ID for every fragment.</p>
+<p><strong>Step 6 — Check the result.</strong></p>
+<ul>
+<li>Payload lengths sum to <span class="math inline">\(D\)</span>.</li>
+<li>Every Total Length is at most <span class="math inline">\(M\)</span>.</li>
+<li>Non-final payloads are divisible by eight.</li>
+<li>Offsets refer to original payload positions and count <strong>no IP headers</strong>.</li>
+</ul>
+</section>
+<section id="short-worked-example" class="level3">
+<h3 class="anchored" data-anchor-id="short-worked-example">Short worked example</h3>
+<p>An IPv4 datagram has <strong>Total Length 1700 bytes</strong>, ID = 91, DF = 0, and a 20-byte header. The outgoing MTU is <strong>622 bytes</strong>.</p>
+<p><span class="math display">\[
+D=1700-20=1680,
+\qquad
+C=622-20=602,
+\]</span></p>
+<p><span class="math display">\[
+F=8\lfloor602/8\rfloor=600.
+\]</span></p>
+<p>Send 600 bytes, then another 600. The remaining 480 fit into the final fragment.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 11%">
+<col style="width: 11%">
+<col style="width: 15%">
+<col style="width: 15%">
+<col style="width: 15%">
+<col style="width: 15%">
+<col style="width: 15%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Fragment</th>
+<th>Original payload byte range</th>
+<th style="text-align: right;">Payload bytes</th>
+<th style="text-align: right;">Total Length</th>
+<th style="text-align: right;">Offset field</th>
+<th style="text-align: right;">MF</th>
+<th style="text-align: right;">ID</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>0–599</td>
+<td style="text-align: right;">600</td>
+<td style="text-align: right;">620</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">91</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>600–1199</td>
+<td style="text-align: right;">600</td>
+<td style="text-align: right;">620</td>
+<td style="text-align: right;">75</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">91</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>1200–1679</td>
+<td style="text-align: right;">480</td>
+<td style="text-align: right;">500</td>
+<td style="text-align: right;">150</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">91</td>
+</tr>
+</tbody>
+</table>
+<p>filesystems.qmd For fragment 2, the ordinary byte offset is 600, but the header stores:</p>
+<p><span class="math display">\[
+600/8=\boxed{75}.
+\]</span></p>
+<p>The first two fragments leave two bytes of MTU capacity unused because a 602-byte non-final payload would violate alignment.</p>
+</section>
+<section id="fragmentation-versus-transport-segmentation" class="level3">
+<h3 class="anchored" data-anchor-id="fragmentation-versus-transport-segmentation">Fragmentation versus transport segmentation</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>TCP segmentation</th>
+<th>IPv4 fragmentation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Divides transport stream data into TCP segments</td>
+<td>Divides one existing IP datagram’s payload</td>
+</tr>
+<tr class="even">
+<td>Each segment receives its own TCP header</td>
+<td>Each fragment receives its own IP header</td>
+</tr>
+<tr class="odd">
+<td>Does not automatically preserve application message boundaries</td>
+<td>Does not create a fresh transport PDU for every fragment</td>
+</tr>
+</tbody>
+</table>
+<p>In today’s UDP examples, the UDP header is at the beginning of the original IP payload and appears <strong>only in the first fragment</strong>. Later fragments carry subsequent portions of that payload.</p>
+<p>UDP receives the <strong>complete reassembled UDP datagram</strong> at the destination.</p>
+</section>
+</section>
+<section id="common-exam-traps" class="level2">
+<h2 class="anchored" data-anchor-id="common-exam-traps">5. Common exam traps</h2>
+<ul>
+<li>Putting headers in sender-processing order instead of their final frame order: the <strong>link header is outermost</strong>.</li>
+<li>Treating IP payload as application data alone: it includes the transport header.</li>
+<li>Addressing a remote data datagram to the gateway’s IP instead of the remote host’s IP.</li>
+<li>Using the remote host’s MAC on the first LAN, or preserving MAC addresses through router hops.</li>
+<li>Claiming the entire IP header remains unchanged: TTL and its checksum change.</li>
+<li>Treating ports as PIDs, or assuming one TCP server port identifies one established connection.</li>
+<li>Subtracting Ethernet overhead from the IP MTU, or forgetting to subtract the IP header.</li>
+<li>Using <span class="math inline">\(M-H\)</span> directly for non-final payloads without checking divisibility by eight.</li>
+<li>Counting IP headers in offsets, or writing ordinary byte offsets into the Fragment Offset field.</li>
+<li>Copying the UDP header into every fragment; treating MF = 0 as proof that reassembly is complete.</li>
+</ul>
+</section>
+<section id="exam-like-exercises" class="level2">
+<h2 class="anchored" data-anchor-id="exam-like-exercises">6. Exam-like exercises</h2>
+<p><strong>Three exercises, 40 suggested points; approximately 50–65 minutes.</strong></p>
+<p>The points are a practice marking scheme. Use the subquestion labels when comparing your answers later. Solutions are intentionally left out.</p>
+<section id="exercise-1-a-udp-message-through-two-routers" class="level3">
+<h3 class="anchored" data-anchor-id="exercise-1-a-udp-message-through-two-routers">Exercise 1 — A UDP message through two routers</h3>
+<p><strong>16 points; suggested time: 20–25 minutes.</strong></p>
+<p>A status client on A sends a <strong>32-byte application message <span class="math inline">\(N\)</span></strong> from UDP port <strong>53000</strong> to a status server on B at UDP port <strong>9000</strong>.</p>
+<p>The path is <strong>A → R1 → R2 → B</strong>.</p>
+<p>All links are Ethernet:</p>
+<ul>
+<li>A and C share the first LAN.</li>
+<li>R1’s outgoing interface and R2’s incoming interface share the middle LAN.</li>
+<li>B shares the last LAN with R2’s outgoing interface.</li>
+</ul>
+<p>These relationships are given; no subnet calculation is required. The symbols below denote distinct MAC addresses.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Node/interface</th>
+<th>IPv4 address</th>
+<th>MAC address</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>A</td>
+<td>192.0.2.10</td>
+<td><span class="math inline">\(M_A\)</span></td>
+</tr>
+<tr class="even">
+<td>C, local to A</td>
+<td>192.0.2.20</td>
+<td><span class="math inline">\(M_C\)</span></td>
+</tr>
+<tr class="odd">
+<td>R1, incoming from A’s LAN</td>
+<td>192.0.2.1</td>
+<td><span class="math inline">\(M_{R1,in}\)</span></td>
+</tr>
+<tr class="even">
+<td>R1, outgoing toward R2</td>
+<td>198.51.100.1</td>
+<td><span class="math inline">\(M_{R1,out}\)</span></td>
+</tr>
+<tr class="odd">
+<td>R2, incoming from R1</td>
+<td>198.51.100.2</td>
+<td><span class="math inline">\(M_{R2,in}\)</span></td>
+</tr>
+<tr class="even">
+<td>R2, outgoing toward B</td>
+<td>203.0.113.1</td>
+<td><span class="math inline">\(M_{R2,out}\)</span></td>
+</tr>
+<tr class="odd">
+<td>B</td>
+<td>203.0.113.40</td>
+<td><span class="math inline">\(M_B\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>A uses R1 as its gateway. Assume no NAT, fragmentation, packet loss or tunneling.</p>
+<p>The initial IPv4 TTL is <strong>64</strong>. UDP headers are <strong>8 bytes</strong>, IPv4 headers <strong>20 bytes</strong>, and Ethernet has a <strong>14-byte header and 4-byte FCS</strong>. Ignore preamble and other transmission overhead; padding is unnecessary for this message.</p>
+<p><strong>1(a) — Encapsulation and sizes (4 points)</strong></p>
+<p>Sketch the complete frame leaving A, in order, labeling each header by its layer and protocol. Include the FCS.</p>
+<p>Name the application, transport, network and link PDUs. Calculate:</p>
+<ul>
+<li>UDP datagram length;</li>
+<li>IP Total Length;</li>
+<li>frame length under the stated counting convention.</li>
+</ul>
+<p><strong>1(b) — Addresses and endpoints (4 points)</strong></p>
+<p>For each of the three links, give:</p>
+<ul>
+<li>UDP source and destination ports;</li>
+<li>IP source and destination addresses;</li>
+<li>Ethernet source and destination MAC addresses.</li>
+</ul>
+<p>Explain which endpoints the transport, network and link addresses represent in this scenario.</p>
+<p><strong>1(c) — Processing at R1 (4 points)</strong></p>
+<p>Explain why R1 accepts the arriving frame even though the IP destination is B.</p>
+<p>Describe its forwarding steps, including what happens to:</p>
+<ul>
+<li>Ethernet wrapping;</li>
+<li>IP addresses;</li>
+<li>ports;</li>
+<li>TTL;</li>
+<li>IPv4 header checksum.</li>
+</ul>
+<p>Give the TTL on all three links. Does R1 deliver this message to a local socket on port 9000?</p>
+<p><strong>1(d) — Local alternative and ARP (2 points)</strong></p>
+<p>Independently, A sends the same message to a server on C, also at UDP port 9000.</p>
+<p>State the IP and MAC destinations of the frame leaving A.</p>
+<p>If the needed MAC mapping is absent, which IP address does A ask about using ARP:</p>
+<ul>
+<li>in the B case;</li>
+<li>in the C case?</li>
+</ul>
+<p><strong>1(e) — Reply reasoning (2 points)</strong></p>
+<p>After receiving the original message, B replies to A.</p>
+<p>Which IP address and UDP port should identify the reply destination?</p>
+<p>Can B use the source MAC observed on its incoming frame as A’s address for delivery across the Internet? Explain.</p>
+</section>
+<section id="exercise-2-one-server-port-several-tcp-connections" class="level3">
+<h3 class="anchored" data-anchor-id="exercise-2-one-server-port-several-tcp-connections">Exercise 2 — One server port, several TCP connections</h3>
+<p><strong>8 points; suggested time: 10–15 minutes.</strong></p>
+<p>Server S has IP <strong>203.0.113.40</strong> and TCP port <strong>8080</strong>. Three established TCP connections deliver data to it:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 21%">
+<col style="width: 21%">
+<col style="width: 28%">
+<col style="width: 28%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Connection</th>
+<th>Client IP</th>
+<th style="text-align: right;">Client source port</th>
+<th style="text-align: right;">Server destination port</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>K1</td>
+<td>192.0.2.10</td>
+<td style="text-align: right;">51000</td>
+<td style="text-align: right;">8080</td>
+</tr>
+<tr class="even">
+<td>K2</td>
+<td>198.51.100.20</td>
+<td style="text-align: right;">51000</td>
+<td style="text-align: right;">8080</td>
+</tr>
+<tr class="odd">
+<td>K3</td>
+<td>192.0.2.10</td>
+<td style="text-align: right;">51001</td>
+<td style="text-align: right;">8080</td>
+</tr>
+</tbody>
+</table>
+<p><strong>2(a) — Connection identification (3 points)</strong></p>
+<p>Write the four-tuple identifying each connection as seen in incoming client-to-server data.</p>
+<p>Mark which component distinguishes:</p>
+<ul>
+<li>K1 from K2;</li>
+<li>K1 from K3.</li>
+</ul>
+<p><strong>2(b) — Demultiplexing (2 points)</strong></p>
+<p>A student argues:</p>
+<blockquote class="blockquote">
+<p>“Because all data have destination port 8080, the operating system cannot distinguish the receiving connection sockets.”</p>
+</blockquote>
+<p>Assess this claim and explain what information the operating system actually uses.</p>
+<p>Distinguish the TCP listening socket’s role from that of an established connection socket.</p>
+<p><strong>2(c) — Another transport protocol (2 points)</strong></p>
+<p>S also runs a UDP service on UDP port 8080.</p>
+<p>An unfragmented Ethernet frame arrives carrying an IPv4 datagram with <strong>Protocol = 17</strong> and transport destination port <strong>8080</strong>.</p>
+<p>Trace how Ethernet, IP and transport select the next protocol or endpoint.</p>
+<p>Is this delivered to one of K1–K3 because its port is 8080?</p>
+<p><strong>2(d) — Port versus PID (1 point)</strong></p>
+<p>Does source port 51000 mean that the client process’s operating-system PID is 51000? Explain briefly.</p>
+</section>
+<section id="exercise-3-fragmenting-one-udp-datagram" class="level3">
+<h3 class="anchored" data-anchor-id="exercise-3-fragmenting-one-udp-datagram">Exercise 3 — Fragmenting one UDP datagram</h3>
+<p><strong>16 points; suggested time: 20–25 minutes.</strong></p>
+<p>A measurement application produces <strong>3995 bytes of application data</strong>, sent in <strong>one UDP datagram</strong> with an <strong>8-byte UDP header</strong>. IPv4 adds a <strong>20-byte header without options</strong>.</p>
+<p>The initially unfragmented IP datagram reaches router R over a link with sufficient MTU. It has:</p>
+<ul>
+<li><strong>Identification = 1207</strong>;</li>
+<li><strong>DF = 0</strong>;</li>
+<li><strong>MF = 0</strong>;</li>
+<li><strong>Fragment Offset = 0</strong>.</li>
+</ul>
+<p>R must forward it onto an Ethernet link with <strong>MTU = 1023 bytes</strong>. All subsequent links have MTU at least 1023 bytes; no NAT or tunneling occurs.</p>
+<p>Use maximal permissible payloads for non-final fragments. Put the entire remaining payload in the final fragment as soon as it fits.</p>
+<p>All byte positions are zero-based. Label inclusive ranges clearly.</p>
+<p><strong>3(a) — Original lengths (2 points)</strong></p>
+<p>Calculate:</p>
+<ul>
+<li>original UDP datagram length;</li>
+<li>original IP payload length;</li>
+<li>original IP Total Length.</li>
+</ul>
+<p>Explain which includes the UDP header and which includes the IP header.</p>
+<p><strong>3(b) — Fragment capacity (2 points)</strong></p>
+<p>Derive:</p>
+<ul>
+<li>maximum IP payload capacity under the MTU;</li>
+<li>maximum permissible non-final payload size.</li>
+</ul>
+<p>Explain why these two numbers can differ.</p>
+<p><strong>3(c) — Complete fragmentation table (6 points)</strong></p>
+<p>Determine the fragment count and construct a table with one row per fragment:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+<col style="width: 12%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Fragment</th>
+<th>Original IP payload byte range</th>
+<th>Payload bytes</th>
+<th>Total Length</th>
+<th>ID</th>
+<th>DF</th>
+<th>MF</th>
+<th>Fragment Offset field</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+<td>…</td>
+</tr>
+</tbody>
+</table>
+<p>Show how you obtained the offsets.</p>
+<p>Check the sum of the payload lengths and the MTU bound.</p>
+<p><strong>3(d) — Header overhead (2 points)</strong></p>
+<p>Calculate the sum of the fragments’ IP Total Lengths.</p>
+<p>How many additional IP-header bytes are transmitted compared with sending the original unfragmented datagram? Ignore link-layer overhead.</p>
+<p><strong>3(e) — Transport and reassembly (2 points)</strong></p>
+<p>Does each fragment receive a fresh UDP header?</p>
+<p>Explain:</p>
+<ul>
+<li>which fragment contains the original UDP header in this problem;</li>
+<li>where IP reassembly takes place;</li>
+<li>what UDP receives after successful reassembly.</li>
+</ul>
+<p><strong>3(f) — Two independent variants (2 points)</strong></p>
+<ol type="1">
+<li>The fragment with MF = 0 arrives first. Can the destination immediately deliver the application’s complete message? Justify.</li>
+<li>Instead, the original datagram has DF = 1. What should R do when forwarding onto the same 1023-byte-MTU link?</li>
+</ol>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../../exam/notes/filesystems.html" class="pagination-link" aria-label="File systems">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">File systems</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../../exam/notes/subnetting_forwarding_routing.html" class="pagination-link" aria-label="Combined Day 8/9 — Subnetting, forwarding and routing algorithms">
+        <span class="nav-page-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Combined Day 8/9 — Subnetting, forwarding and routing algorithms</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

@@ -1,0 +1,1810 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.37">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>10&nbsp; Combined Day 8/9 — Subnetting, forwarding and routing algorithms – Operating Systems and Networks SoSe 25 Notes</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../exam/notes/network_stack.html" rel="prev">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-8dddca75a0c745965e348927a205e40e.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../exam/notes/assignment_overview.html">Exam Notes</a></li><li class="breadcrumb-item"><a href="../../exam/notes/subnetting_forwarding_routing.html"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Combined Day 8/9 — Subnetting, forwarding and routing algorithms</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../../">Operating Systems and Networks SoSe 25 Notes</a> 
+        <div class="sidebar-tools-main">
+    <a href="../../Operating-Systems-and-Networks-SoSe-25-Notes.pdf" title="Download PDF" class="quarto-navigation-tool px-1" aria-label="Download PDF"><i class="bi bi-file-pdf"></i></a>
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Exam Notes</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../exam/notes/assignment_overview.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Assignment Sheets Overview</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../exam/notes/plan.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Plan</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../exam/notes/processes_and_fork.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Processes and <code>fork()</code></span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../exam/notes/synchronization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Race conditions, semaphores and synchronization</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../exam/notes/paging_1.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Paging fundamentals</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../exam/notes/paging_2.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Advanced paging and virtual memory</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../exam/notes/deadlocks_and_scheduling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Day 5 — Deadlocks and CPU scheduling</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../exam/notes/filesystems.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">File systems</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../exam/notes/network_stack.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Network stack</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../exam/notes/subnetting_forwarding_routing.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Combined Day 8/9 — Subnetting, forwarding and routing algorithms</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active" data-toc-expanded="-1">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#ipv4-addresses-prefixes-and-masks" id="toc-ipv4-addresses-prefixes-and-masks" class="nav-link active" data-scroll-target="#ipv4-addresses-prefixes-and-masks">1. IPv4 addresses, prefixes and masks</a>
+  <ul class="collapse">
+  <li><a href="#construct-a-subnet-mask-from-scratch" id="toc-construct-a-subnet-mask-from-scratch" class="nav-link" data-scroll-target="#construct-a-subnet-mask-from-scratch">Construct a subnet mask from scratch</a></li>
+  <li><a href="#total-addresses-versus-usable-host-addresses" id="toc-total-addresses-versus-usable-host-addresses" class="nav-link" data-scroll-target="#total-addresses-versus-usable-host-addresses">Total addresses versus usable host addresses</a></li>
+  <li><a href="#network-address-host-id-and-represented-range" id="toc-network-address-host-id-and-represented-range" class="nav-link" data-scroll-target="#network-address-host-id-and-represented-range">Network address, host ID and represented range</a></li>
+  <li><a href="#a-faster-block-boundary-method" id="toc-a-faster-block-boundary-method" class="nav-link" data-scroll-target="#a-faster-block-boundary-method">A faster block-boundary method</a></li>
+  <li><a href="#are-two-addresses-in-the-same-subnet" id="toc-are-two-addresses-in-the-same-subnet" class="nav-link" data-scroll-target="#are-two-addresses-in-the-same-subnet">Are two addresses in the same subnet?</a></li>
+  </ul></li>
+  <li><a href="#subnet-allocation-capacity-alignment-and-vlsm" id="toc-subnet-allocation-capacity-alignment-and-vlsm" class="nav-link" data-scroll-target="#subnet-allocation-capacity-alignment-and-vlsm">2. Subnet allocation: capacity, alignment and VLSM</a>
+  <ul class="collapse">
+  <li><a href="#reusable-allocation-procedure" id="toc-reusable-allocation-procedure" class="nav-link" data-scroll-target="#reusable-allocation-procedure">Reusable allocation procedure</a></li>
+  <li><a href="#why-alignment-matters" id="toc-why-alignment-matters" class="nav-link" data-scroll-target="#why-alignment-matters">Why alignment matters</a></li>
+  <li><a href="#sheet-10-a3s-special-allocation-notation" id="toc-sheet-10-a3s-special-allocation-notation" class="nav-link" data-scroll-target="#sheet-10-a3s-special-allocation-notation">Sheet 10 A3’s special allocation notation</a></li>
+  </ul></li>
+  <li><a href="#prefixes-aggregation-and-longest-prefix-matching" id="toc-prefixes-aggregation-and-longest-prefix-matching" class="nav-link" data-scroll-target="#prefixes-aggregation-and-longest-prefix-matching">3. Prefixes, aggregation and longest-prefix matching</a>
+  <ul class="collapse">
+  <li><a href="#convert-an-address-range-into-one-prefix" id="toc-convert-an-address-range-into-one-prefix" class="nav-link" data-scroll-target="#convert-an-address-range-into-one-prefix">Convert an address range into one prefix</a></li>
+  <li><a href="#route-aggregation" id="toc-route-aggregation" class="nav-link" data-scroll-target="#route-aggregation">Route aggregation</a></li>
+  <li><a href="#longest-prefix-matching" id="toc-longest-prefix-matching" class="nav-link" data-scroll-target="#longest-prefix-matching">Longest-prefix matching</a></li>
+  </ul></li>
+  <li><a href="#routing-versus-forwarding" id="toc-routing-versus-forwarding" class="nav-link" data-scroll-target="#routing-versus-forwarding">4. Routing versus forwarding</a></li>
+  <li><a href="#dijkstra-construct-and-complete-the-table" id="toc-dijkstra-construct-and-complete-the-table" class="nav-link" data-scroll-target="#dijkstra-construct-and-complete-the-table">5. Dijkstra: construct and complete the table</a>
+  <ul class="collapse">
+  <li><a href="#blank-page-procedure" id="toc-blank-page-procedure" class="nav-link" data-scroll-target="#blank-page-procedure">Blank-page procedure</a></li>
+  <li><a href="#why-finalize-the-smallest-tentative-distance" id="toc-why-finalize-the-smallest-tentative-distance" class="nav-link" data-scroll-target="#why-finalize-the-smallest-tentative-distance">Why finalize the smallest tentative distance?</a></li>
+  <li><a href="#two-short-iterations" id="toc-two-short-iterations" class="nav-link" data-scroll-target="#two-short-iterations">Two short iterations</a></li>
+  <li><a href="#ties-and-useful-checks" id="toc-ties-and-useful-checks" class="nav-link" data-scroll-target="#ties-and-useful-checks">Ties and useful checks</a></li>
+  </ul></li>
+  <li><a href="#from-predecessors-to-next-hops" id="toc-from-predecessors-to-next-hops" class="nav-link" data-scroll-target="#from-predecessors-to-next-hops">6. From predecessors to next hops</a></li>
+  <li><a href="#bellmanford-and-distance-vector-updates" id="toc-bellmanford-and-distance-vector-updates" class="nav-link" data-scroll-target="#bellmanford-and-distance-vector-updates">7. Bellman–Ford and distance-vector updates</a>
+  <ul class="collapse">
+  <li><a href="#one-concrete-update" id="toc-one-concrete-update" class="nav-link" data-scroll-target="#one-concrete-update">One concrete update</a></li>
+  <li><a href="#updating-from-one-new-advertisement" id="toc-updating-from-one-new-advertisement" class="nav-link" data-scroll-target="#updating-from-one-new-advertisement">Updating from one new advertisement</a></li>
+  <li><a href="#dijkstra-versus-distance-vector" id="toc-dijkstra-versus-distance-vector" class="nav-link" data-scroll-target="#dijkstra-versus-distance-vector">Dijkstra versus distance vector</a></li>
+  </ul></li>
+  <li><a href="#common-exam-traps" id="toc-common-exam-traps" class="nav-link" data-scroll-target="#common-exam-traps">8. Common exam traps</a></li>
+  <li><a href="#exam-like-exercises" id="toc-exam-like-exercises" class="nav-link" data-scroll-target="#exam-like-exercises">9. Exam-like exercises</a>
+  <ul class="collapse">
+  <li><a href="#exercise-1-subnetting-fundamentals" id="toc-exercise-1-subnetting-fundamentals" class="nav-link" data-scroll-target="#exercise-1-subnetting-fundamentals">Exercise 1 — Subnetting fundamentals</a></li>
+  <li><a href="#exercise-2-subnet-allocation-forwarding-and-longest-prefix-matching" id="toc-exercise-2-subnet-allocation-forwarding-and-longest-prefix-matching" class="nav-link" data-scroll-target="#exercise-2-subnet-allocation-forwarding-and-longest-prefix-matching">Exercise 2 — Subnet allocation, forwarding and longest-prefix matching</a></li>
+  <li><a href="#exercise-3-routing-algorithms" id="toc-exercise-3-routing-algorithms" class="nav-link" data-scroll-target="#exercise-3-routing-algorithms">Exercise 3 — Routing algorithms</a></li>
+  </ul></li>
+  <li><a href="#source-calibration" id="toc-source-calibration" class="nav-link" data-scroll-target="#source-calibration">Source calibration</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../exam/notes/assignment_overview.html">Exam Notes</a></li><li class="breadcrumb-item"><a href="../../exam/notes/subnetting_forwarding_routing.html"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Combined Day 8/9 — Subnetting, forwarding and routing algorithms</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Combined Day 8/9 — Subnetting, forwarding and routing algorithms</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>Allow approximately <strong>60–90 minutes for the theory and worked examples</strong>, followed by <strong>90–110 minutes for the three exercises</strong>. Solutions are omitted.</p>
+<p>The connection throughout is:</p>
+<p><strong>Subnets define address ranges; prefixes describe those ranges in forwarding tables; routing computes paths; each path supplies a next hop; forwarding selects that next hop using the destination address.</strong></p>
+<section id="ipv4-addresses-prefixes-and-masks" class="level2">
+<h2 class="anchored" data-anchor-id="ipv4-addresses-prefixes-and-masks">1. IPv4 addresses, prefixes and masks</h2>
+<p>An IPv4 address contains <strong>32 bits</strong>, written as four 8-bit octets in dotted decimal.</p>
+<p>In <code>a.b.c.d/p</code>:</p>
+<ul>
+<li>the first <span class="math inline">\(p\)</span> bits form the <strong>network/prefix part</strong> (<em>Netzanteil, Netz-ID</em>);</li>
+<li>the remaining <span class="math inline">\(h=32-p\)</span> bits form the <strong>host part</strong> (<em>Hostanteil, Host-ID</em>), identifying an interface within that subnet.</li>
+</ul>
+<p>The prefix length belongs to the network configuration: <strong>an address alone does not determine its subnet</strong>.</p>
+<p>Increasing the prefix length fixes more bits, making the represented block smaller. When a parent <code>/p</code> is divided into equal <code>/q</code> subnets, the additional <span class="math inline">\(q-p\)</span> prefix bits distinguish those subnets.</p>
+<p>Historically, a Class-C network meant <code>/24</code>. For these calculations, use the explicitly given CIDR prefix.</p>
+<section id="construct-a-subnet-mask-from-scratch" class="level3">
+<h3 class="anchored" data-anchor-id="construct-a-subnet-mask-from-scratch">Construct a subnet mask from scratch</h3>
+<p>A subnet mask contains <span class="math inline">\(p\)</span> leading ones followed by <span class="math inline">\(32-p\)</span> zeros.</p>
+<p>Its ones retain the network bits; its zeros remove the host bits when performing bitwise AND.</p>
+<ol type="1">
+<li>Write <code>255</code> for every complete group of eight prefix bits.</li>
+<li>If <span class="math inline">\(r\)</span> prefix bits remain in the next octet, write <span class="math inline">\(r\)</span> leading ones there.</li>
+<li>Fill all remaining bits with zeros.</li>
+</ol>
+<p>For <span class="math inline">\(1\le r\le7\)</span>, the partial octet has decimal value:</p>
+<p><span class="math display">\[
+256-2^{8-r}.
+\]</span></p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 17%">
+<col style="width: 17%">
+<col style="width: 17%">
+<col style="width: 23%">
+<col style="width: 23%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Prefix</th>
+<th>Mask construction</th>
+<th>Dotted-decimal mask</th>
+<th style="text-align: right;">Host bits</th>
+<th style="text-align: right;">Total addresses</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>/20</code></td>
+<td>16 ones, then <code>11110000</code>, then 8 zeros</td>
+<td><code>255.255.240.0</code></td>
+<td style="text-align: right;">12</td>
+<td style="text-align: right;">4096</td>
+</tr>
+<tr class="even">
+<td><code>/24</code></td>
+<td>24 ones, then 8 zeros</td>
+<td><code>255.255.255.0</code></td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">256</td>
+</tr>
+<tr class="odd">
+<td><code>/27</code></td>
+<td>24 ones, then <code>11100000</code></td>
+<td><code>255.255.255.224</code></td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">32</td>
+</tr>
+</tbody>
+</table>
+<p>For the reverse conversion, count the leading ones, including the complete <code>255</code> octets.</p>
+<p>For example:</p>
+<p><span class="math display">\[
+255.255.252.0
+\]</span></p>
+<p>contains <span class="math inline">\(8+8+6=22\)</span> leading ones because:</p>
+<pre class="text"><code>252 = 11111100</code></pre>
+<p>Therefore, its prefix is <code>/22</code>.</p>
+<p>A CIDR mask must contain <strong>contiguous leading ones</strong>. <code>255.255.250.0</code> is invalid because <code>250 = 11111010</code>.</p>
+</section>
+<section id="total-addresses-versus-usable-host-addresses" class="level3">
+<h3 class="anchored" data-anchor-id="total-addresses-versus-usable-host-addresses">Total addresses versus usable host addresses</h3>
+<p>For a <code>/p</code> block:</p>
+<p><span class="math display">\[
+h=32-p,\qquad S=2^h\text{ total addresses}.
+\]</span></p>
+<p>For an ordinary IPv4 LAN in this unit, exclude:</p>
+<ul>
+<li>the <strong>network address</strong>, whose host bits are all zero;</li>
+<li>the <strong>broadcast address</strong>, whose host bits are all one.</li>
+</ul>
+<p>Therefore:</p>
+<p><span class="math display">\[
+\text{usable interface addresses}=2^h-2.
+\]</span></p>
+<p>A router’s LAN interface also consumes one usable address. If a requirement counts only end devices, add the necessary router interfaces before sizing the subnet.</p>
+<p><strong>Follow the question’s convention.</strong> Sheet 10 A2 uses ordinary host counting; A3 explicitly permits all addresses.</p>
+<p>For ordinary point-to-point links here, use <code>/30</code>: four total addresses and two usable addresses. A <code>/31</code> can support a point-to-point link under a separate convention; do not silently switch conventions. A <code>/32</code> represents one address, often used as a host route.</p>
+<p>Thus, <span class="math inline">\(2^h-2\)</span> is the ordinary LAN rule, not a universal rule for every prefix length.</p>
+</section>
+<section id="network-address-host-id-and-represented-range" class="level3">
+<h3 class="anchored" data-anchor-id="network-address-host-id-and-represented-range">Network address, host ID and represented range</h3>
+<p>For address <span class="math inline">\(A\)</span> and mask <span class="math inline">\(M\)</span>:</p>
+<p><span class="math display">\[
+N=A\mathbin{\&amp;}M,
+\]</span></p>
+<p><span class="math display">\[
+H=A\mathbin{\&amp;}(\text{32-bit complement of }M).
+\]</span></p>
+<p>Here:</p>
+<ul>
+<li><span class="math inline">\(N\)</span> is the full network address;</li>
+<li><span class="math inline">\(H\)</span> is the host part with all network bits cleared.</li>
+</ul>
+<p>As integers:</p>
+<p><span class="math display">\[
+H=A-N.
+\]</span></p>
+<p>Once <span class="math inline">\(N\)</span> and block size <span class="math inline">\(S\)</span> are known:</p>
+<p><span class="math display">\[
+B=N+S-1,
+\]</span></p>
+<p>where <span class="math inline">\(B\)</span> is the broadcast address for an ordinary subnet.</p>
+<p>Its usable range is:</p>
+<p><span class="math display">\[
+N+1\quad\text{through}\quad B-1.
+\]</span></p>
+<p>Address arithmetic treats the address as one 32-bit integer, carrying between octets when necessary. For an aggregate prefix, <span class="math inline">\(B\)</span> is simply its highest represented address: an aggregate need not describe one physical broadcast subnet.</p>
+<p><strong>Worked example: <code>192.0.2.149/27</code>.</strong></p>
+<p>Only the last octet matters:</p>
+<pre class="text"><code>Address:  10010101   (149)
+Mask:     11100000   (224)
+AND:      10000000   (128)
+Host:     00010101   (21)</code></pre>
+<p>The five host bits are <code>10101</code>.</p>
+<p>Therefore:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Quantity</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Network</td>
+<td><code>192.0.2.128/27</code></td>
+</tr>
+<tr class="even">
+<td>Host ID</td>
+<td>21</td>
+</tr>
+<tr class="odd">
+<td>Broadcast</td>
+<td><code>192.0.2.159</code></td>
+</tr>
+<tr class="even">
+<td>Usable range</td>
+<td><code>192.0.2.129</code>–<code>192.0.2.158</code></td>
+</tr>
+<tr class="odd">
+<td>Usable addresses</td>
+<td>30</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="a-faster-block-boundary-method" class="level3">
+<h3 class="anchored" data-anchor-id="a-faster-block-boundary-method">A faster block-boundary method</h3>
+<p>In the octet containing the prefix boundary, calculate:</p>
+<p><span class="math display">\[
+\Delta=256-\text{mask octet}.
+\]</span></p>
+<p>Then:</p>
+<p><span class="math display">\[
+\text{network octet}
+=
+\left\lfloor
+\frac{\text{address octet}}{\Delta}
+\right\rfloor\Delta.
+\]</span></p>
+<p>Earlier octets stay unchanged. Later network-address octets become zero; later broadcast-address octets become 255.</p>
+<p>For <code>172.22.77.203/20</code>:</p>
+<ul>
+<li>mask: <code>255.255.240.0</code>;</li>
+<li>relevant octet: the third;</li>
+<li>increment: <span class="math inline">\(256-240=16\)</span>;</li>
+<li>77 belongs to the interval 64–79.</li>
+</ul>
+<p>Therefore:</p>
+<p><span class="math display">\[
+\text{network}=172.22.64.0/20,
+\]</span></p>
+<p><span class="math display">\[
+\text{broadcast}=172.22.79.255.
+\]</span></p>
+<p>Notice that the host part extends across two octets. Its numerical host ID cannot be determined from the last octet alone.</p>
+</section>
+<section id="are-two-addresses-in-the-same-subnet" class="level3">
+<h3 class="anchored" data-anchor-id="are-two-addresses-in-the-same-subnet">Are two addresses in the same subnet?</h3>
+<p>Under a specified mask <span class="math inline">\(M\)</span>, addresses <span class="math inline">\(A\)</span> and <span class="math inline">\(C\)</span> belong to the same subnet exactly when:</p>
+<p><span class="math display">\[
+(A\mathbin{\&amp;}M)=(C\mathbin{\&amp;}M).
+\]</span></p>
+<p>Compare their <strong>masked network addresses</strong>, not merely their first three decimal octets.</p>
+</section>
+</section>
+<section id="subnet-allocation-capacity-alignment-and-vlsm" class="level2">
+<h2 class="anchored" data-anchor-id="subnet-allocation-capacity-alignment-and-vlsm">2. Subnet allocation: capacity, alignment and VLSM</h2>
+<p><strong>VLSM</strong> (<em>Variable Length Subnet Masking</em>) allocates differently sized subnets within one parent block.</p>
+<p>Each ordinary subnet receives a complete power-of-two block, including its network and broadcast addresses.</p>
+<section id="reusable-allocation-procedure" class="level3">
+<h3 class="anchored" data-anchor-id="reusable-allocation-procedure">Reusable allocation procedure</h3>
+<ol type="1">
+<li><p>Establish whether requirements mean <strong>total addresses</strong> or <strong>usable interface addresses</strong>, and whether gateways are included.</p></li>
+<li><p>For <span class="math inline">\(H\)</span> ordinary usable addresses, choose the smallest integer <span class="math inline">\(h\ge2\)</span> satisfying:</p>
+<p><span class="math display">\[
+2^h-2\ge H.
+\]</span></p>
+<p>If all addresses are explicitly usable, use <span class="math inline">\(2^h\ge H\)</span>.</p></li>
+<li><p>Calculate:</p>
+<p><span class="math display">\[
+p=32-h,\qquad S=2^h.
+\]</span></p></li>
+<li><p>Allocate larger blocks first, choosing free, correctly aligned starts.</p></li>
+<li><p>Record each network, mask, complete range and usable range.</p></li>
+<li><p>Check containment within the parent, non-overlap and capacity.</p></li>
+</ol>
+<p>Count unused addresses using <strong>complete allocated block sizes</strong>, rather than requested host counts.</p>
+</section>
+<section id="why-alignment-matters" class="level3">
+<h3 class="anchored" data-anchor-id="why-alignment-matters">Why alignment matters</h3>
+<p>A network address must have <strong>all host bits zero</strong>.</p>
+<p>Equivalently, its 32-bit integer value must be divisible by its block size.</p>
+<p>A <code>/26</code> contains 64 addresses. Within one <code>/24</code>, its possible last-octet starts are:</p>
+<p><span class="math display">\[
+0,\ 64,\ 128,\ 192.
+\]</span></p>
+<p>A proposed start <code>.96/26</code> actually denotes the block beginning at <code>.64</code>; it does not create a <code>/26</code> beginning at <code>.96</code>.</p>
+<p><strong>Short example.</strong> Within <code>192.0.2.0/24</code>, two networks require 50 and 20 usable interface addresses.</p>
+<p>Their minimum sizes are:</p>
+<p><span class="math display">\[
+64-2\ge50\quad\Rightarrow\quad /26,
+\]</span></p>
+<p><span class="math display">\[
+32-2\ge20\quad\Rightarrow\quad /27.
+\]</span></p>
+<p>Allocate:</p>
+<ul>
+<li><code>192.0.2.0/26</code>;</li>
+<li><code>192.0.2.64/27</code>.</li>
+</ul>
+<p>Both starts are aligned and the ranges do not overlap.</p>
+<p>If the smaller subnet were allocated at <code>.0/27</code> first, the <code>/26</code> would need to start at <code>.64</code>, leaving a gap. <strong>Largest-first allocation makes packing simpler.</strong></p>
+<p>For equal-size subdivision:</p>
+<p><span class="math display">\[
+\text{number of `/q` subnets within `/p`}
+=
+2^{q-p}.
+\]</span></p>
+<p>No additional two subnets are subtracted under the conventions used here.</p>
+</section>
+<section id="sheet-10-a3s-special-allocation-notation" class="level3">
+<h3 class="anchored" data-anchor-id="sheet-10-a3s-special-allocation-notation">Sheet 10 A3’s special allocation notation</h3>
+<p>A3 also permits <strong>large prefix minus smaller prefix</strong>, with all addresses usable.</p>
+<p>For example:</p>
+<pre class="text"><code>10.30.6.0/25 - 10.30.6.124/30</code></pre>
+<p>allocates <code>.0</code>–<code>.123</code> to one address set and reserves <code>.124</code>–<code>.127</code> separately.</p>
+<p>The remainder contains:</p>
+<p><span class="math display">\[
+128-4=124\text{ addresses}.
+\]</span></p>
+<p>It is <strong>not itself one CIDR block</strong>. This is the exercise’s address-set notation rather than ordinary one-prefix LAN allocation.</p>
+<p>A forwarding entry for the covering <code>/25</code> still matches the reserved <code>/30</code>. If the smaller range needs another output, add a more-specific <code>/30</code> entry.</p>
+<p><strong>Subtracting an allocated range does not change the bits matched by the original prefix.</strong></p>
+</section>
+</section>
+<section id="prefixes-aggregation-and-longest-prefix-matching" class="level2">
+<h2 class="anchored" data-anchor-id="prefixes-aggregation-and-longest-prefix-matching">3. Prefixes, aggregation and longest-prefix matching</h2>
+<p>A forwarding-table entry associates a <strong>destination address range</strong> with an outgoing interface and, for a remote destination, a neighboring next-hop router.</p>
+<p>A destination <span class="math inline">\(A\)</span> matches <code>N/p</code> if:</p>
+<p><span class="math display">\[
+A\mathbin{\&amp;}M_p=N.
+\]</span></p>
+<p>Use a canonical network address <span class="math inline">\(N\)</span>, with zero host bits.</p>
+<section id="convert-an-address-range-into-one-prefix" class="level3">
+<h3 class="anchored" data-anchor-id="convert-an-address-range-into-one-prefix">Convert an address range into one prefix</h3>
+<p>For an inclusive range <span class="math inline">\(L\)</span> through <span class="math inline">\(U\)</span>:</p>
+<ol type="1">
+<li><p>Calculate <span class="math inline">\(S=U-L+1\)</span>.</p></li>
+<li><p>Check that <span class="math inline">\(S\)</span> is a power of two, say <span class="math inline">\(2^h\)</span>.</p></li>
+<li><p>Check that <span class="math inline">\(L\)</span> is aligned: its last <span class="math inline">\(h\)</span> bits must be zero.</p></li>
+<li><p>The exact prefix is then:</p>
+<p><span class="math display">\[
+L/(32-h).
+\]</span></p></li>
+</ol>
+<p>Alternatively, compare the endpoints’ binary forms. After their common leading bits:</p>
+<ul>
+<li>the lower endpoint must contain only zeros;</li>
+<li>the upper endpoint must contain only ones.</li>
+</ul>
+<p>For example, <code>192.0.2.64</code>–<code>192.0.2.127</code> contains 64 addresses and starts at a multiple of 64.</p>
+<p>Its last octets are:</p>
+<pre class="text"><code>64:   01000000
+127:  01111111</code></pre>
+<p>They share two leading bits, giving <span class="math inline">\(24+2=26\)</span> prefix bits:</p>
+<pre class="text"><code>192.0.2.64/26</code></pre>
+<p><strong>An arbitrary interval may require several prefixes.</strong> The common leading bits of its endpoints can describe a larger containing block, rather than the exact interval.</p>
+</section>
+<section id="route-aggregation" class="level3">
+<h3 class="anchored" data-anchor-id="route-aggregation">Route aggregation</h3>
+<p>Two equal-size prefixes can merge into a prefix one bit shorter when they are the two aligned halves of that parent.</p>
+<p>For example:</p>
+<pre class="text"><code>192.0.2.64/27
+192.0.2.96/27</code></pre>
+<p>merge into:</p>
+<pre class="text"><code>192.0.2.64/26</code></pre>
+<p>Adjacency alone is insufficient: <code>.32/27</code> and <code>.64/27</code> are not the aligned halves of one <code>/26</code>.</p>
+<p>For straightforward forwarding aggregation, the merged destinations must use the <strong>same next hop/output</strong>. More-specific exceptions can override an aggregate where explicitly required.</p>
+</section>
+<section id="longest-prefix-matching" class="level3">
+<h3 class="anchored" data-anchor-id="longest-prefix-matching">Longest-prefix matching</h3>
+<p><strong>Among all matching entries, select the entry with the greatest prefix length.</strong></p>
+<p>Use this procedure:</p>
+<ol type="1">
+<li>Identify every prefix containing the destination.</li>
+<li>Compare their prefix lengths.</li>
+<li>Select the largest length and use its output/next hop.</li>
+</ol>
+<p>A longer prefix fixes more destination bits, describing a smaller, more specific subset. This supports exceptions within broader routes.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Destination prefix</th>
+<th>Output</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>0.0.0.0/0</code></td>
+<td>WAN</td>
+</tr>
+<tr class="even">
+<td><code>10.8.0.0/16</code></td>
+<td>A</td>
+</tr>
+<tr class="odd">
+<td><code>10.8.12.0/24</code></td>
+<td>B</td>
+</tr>
+<tr class="even">
+<td><code>10.8.12.128/25</code></td>
+<td>C</td>
+</tr>
+</tbody>
+</table>
+<p>Examples:</p>
+<ul>
+<li><code>10.8.12.170</code> matches all four entries: <code>/25</code> selects C.</li>
+<li><code>10.8.12.20</code> matches the first three: <code>/24</code> selects B.</li>
+<li><code>10.8.13.20</code> matches <code>/16</code> and <code>/0</code>: select A.</li>
+</ul>
+<p>The <code>/0</code> entry fixes no bits and matches every destination. It is the <strong>default route</strong>.</p>
+<p>If nothing matches and there is no default, there is no forwarding route.</p>
+<p>For a paper table scanned until the first match, sort entries by <strong>decreasing prefix length</strong>. The underlying rule remains longest-prefix matching, regardless of physical row order.</p>
+<p>Adding a narrower exception does <strong>not</strong> shrink the broader prefix’s represented range. It changes which destinations actually select that broader entry.</p>
+</section>
+</section>
+<section id="routing-versus-forwarding" class="level2">
+<h2 class="anchored" data-anchor-id="routing-versus-forwarding">4. Routing versus forwarding</h2>
+<p><strong>Forwarding</strong> (<em>Weiterleitung</em>) is a router’s local per-packet action: inspect the destination, match a prefix and select an output.</p>
+<p><strong>Routing</strong> (<em>Wegewahl</em>) computes or learns the path information used to populate those entries.</p>
+<p>For example, routing establishes that the cheapest path to the router serving <code>10.50.4.0/24</code> begins through neighbor <span class="math inline">\(a\)</span>. The source installs:</p>
+<pre class="text"><code>10.50.4.0/24 → next hop a</code></pre>
+<p>Forwarding subsequently matches packet destinations against that entry.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Distinction</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Mask/prefix calculation versus path calculation</td>
+<td>Which addresses belong together versus which sequence of links reaches them</td>
+</tr>
+<tr class="even">
+<td>Destination prefix versus next hop</td>
+<td>Ultimate destination range versus adjacent router receiving the packet next</td>
+</tr>
+<tr class="odd">
+<td>Longest prefix versus shortest path</td>
+<td>Most specific matching destination range versus lowest sum of link costs</td>
+</tr>
+<tr class="even">
+<td>Predecessor versus next hop</td>
+<td>Last node before the destination versus first node after the source</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Longest-prefix matching does not run Dijkstra for every packet.</strong></p>
+<p>Among entries for different matching prefixes, it chooses the most specific prefix even if a broader entry has a smaller route cost.</p>
+</section>
+<section id="dijkstra-construct-and-complete-the-table" class="level2">
+<h2 class="anchored" data-anchor-id="dijkstra-construct-and-complete-the-table">5. Dijkstra: construct and complete the table</h2>
+<p>Model the network as a weighted graph:</p>
+<ul>
+<li>nodes represent routers;</li>
+<li>edges represent links;</li>
+<li><span class="math inline">\(c(v,w)\)</span> is the cost of link <span class="math inline">\((v,w)\)</span>.</li>
+</ul>
+<p>Path cost is the <strong>sum of edge costs</strong>, not necessarily the number of hops.</p>
+<p>Unless specified otherwise, assume an undirected graph with nonnegative costs.</p>
+<p>Use the course and 2016-exam notation:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Symbol</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(N'\)</span></td>
+<td>Nodes whose shortest-path costs from source <span class="math inline">\(u\)</span> are finalized</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(D(v)\)</span></td>
+<td>Current tentative cost from <span class="math inline">\(u\)</span> to <span class="math inline">\(v\)</span>; exact once <span class="math inline">\(v\in N'\)</span></td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(p(v)\)</span></td>
+<td>Predecessor: last node before <span class="math inline">\(v\)</span> on the currently recorded path</td>
+</tr>
+</tbody>
+</table>
+<section id="blank-page-procedure" class="level3">
+<h3 class="anchored" data-anchor-id="blank-page-procedure">Blank-page procedure</h3>
+<p><strong>Initialization</strong></p>
+<p>Set:</p>
+<p><span class="math display">\[
+N'=\{u\},\qquad D(u)=0.
+\]</span></p>
+<p>For every other node <span class="math inline">\(v\)</span>:</p>
+<ul>
+<li>if adjacent to <span class="math inline">\(u\)</span>, set <span class="math inline">\(D(v)=c(u,v)\)</span> and <span class="math inline">\(p(v)=u\)</span>;</li>
+<li>otherwise, set <span class="math inline">\(D(v)=\infty\)</span> and <span class="math inline">\(p(v)=-\)</span>.</li>
+</ul>
+<p>Write the initialization row.</p>
+<p><strong>One main iteration per subsequent row</strong></p>
+<ol type="1">
+<li><p>Among nodes outside <span class="math inline">\(N'\)</span>, select <span class="math inline">\(w\)</span> with the smallest <span class="math inline">\(D(w)\)</span>.</p></li>
+<li><p>Add <span class="math inline">\(w\)</span> to <span class="math inline">\(N'\)</span>. Its distance and predecessor are now fixed.</p></li>
+<li><p>For every neighbor <span class="math inline">\(v\)</span> of <span class="math inline">\(w\)</span> still outside <span class="math inline">\(N'\)</span>, calculate:</p>
+<p><span class="math display">\[
+\text{candidate}=D(w)+c(w,v).
+\]</span></p></li>
+<li><p>If this is smaller than <span class="math inline">\(D(v)\)</span>, update <strong>both</strong>:</p>
+<p><span class="math display">\[
+D(v)\leftarrow D(w)+c(w,v),
+\qquad p(v)\leftarrow w.
+\]</span></p></li>
+<li><p>Carry forward unchanged entries and record the row <strong>after relaxation</strong>.</p></li>
+</ol>
+<p>Stop when all required nodes are finalized. If the smallest remaining distance is infinity, the remaining nodes are unreachable.</p>
+</section>
+<section id="why-finalize-the-smallest-tentative-distance" class="level3">
+<h3 class="anchored" data-anchor-id="why-finalize-the-smallest-tentative-distance">Why finalize the smallest tentative distance?</h3>
+<p>With nonnegative links, a path reaching the selected node through a still-unfinalized node cannot improve its minimum distance: it must first reach a node whose tentative distance is at least as large, then add nonnegative cost.</p>
+<p>This supports finalization. <strong>Do not subsequently relax nodes already in <span class="math inline">\(N'\)</span>.</strong></p>
+</section>
+<section id="two-short-iterations" class="level3">
+<h3 class="anchored" data-anchor-id="two-short-iterations">Two short iterations</h3>
+<p>Consider edges:</p>
+<p><span class="math display">\[
+u-a=3,\quad u-b=7,\quad a-b=2,\quad a-c=6,\quad b-c=1.
+\]</span></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Phase</th>
+<th><span class="math inline">\(N'\)</span></th>
+<th><span class="math inline">\(D(a),p(a)\)</span></th>
+<th><span class="math inline">\(D(b),p(b)\)</span></th>
+<th><span class="math inline">\(D(c),p(c)\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Initialization</td>
+<td><span class="math inline">\(\{u\}\)</span></td>
+<td><span class="math inline">\(3,u\)</span></td>
+<td><span class="math inline">\(7,u\)</span></td>
+<td><span class="math inline">\(\infty,-\)</span></td>
+</tr>
+<tr class="even">
+<td>Add <span class="math inline">\(a\)</span></td>
+<td><span class="math inline">\(\{u,a\}\)</span></td>
+<td><span class="math inline">\(3,u\)</span></td>
+<td><span class="math inline">\(5,a\)</span></td>
+<td><span class="math inline">\(9,a\)</span></td>
+</tr>
+<tr class="odd">
+<td>Add <span class="math inline">\(b\)</span></td>
+<td><span class="math inline">\(\{u,a,b\}\)</span></td>
+<td><span class="math inline">\(3,u\)</span></td>
+<td><span class="math inline">\(5,a\)</span></td>
+<td><span class="math inline">\(6,b\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>Adding <span class="math inline">\(a\)</span>:</p>
+<ul>
+<li>improves <span class="math inline">\(b\)</span> using <span class="math inline">\(3+2=5\)</span>;</li>
+<li>discovers <span class="math inline">\(c\)</span> at <span class="math inline">\(3+6=9\)</span>.</li>
+</ul>
+<p>Adding <span class="math inline">\(b\)</span>:</p>
+<ul>
+<li>improves <span class="math inline">\(c\)</span> using <span class="math inline">\(5+1=6\)</span>;</li>
+<li>leaves finalized <span class="math inline">\(a\)</span> unchanged.</li>
+</ul>
+</section>
+<section id="ties-and-useful-checks" class="level3">
+<h3 class="anchored" data-anchor-id="ties-and-useful-checks">Ties and useful checks</h3>
+<p>If two unfinalized nodes have the same minimum distance, either may be selected unless a tie rule is specified.</p>
+<p>If a relaxation offers an equal-cost alternative, retaining the old predecessor or selecting another equal-cost predecessor can yield valid alternatives, provided finalized nodes remain fixed and predecessor chains form paths to the source.</p>
+<p>For this unit:</p>
+<ul>
+<li>select alphabetically when tentative distances tie;</li>
+<li><strong>retain the old predecessor on equal candidate cost</strong>.</li>
+</ul>
+<p>Different valid tie choices can change the predecessor tree and next hops while preserving shortest-path costs. A different cost is not explained by tie handling.</p>
+<p>For every final predecessor, check:</p>
+<p><span class="math display">\[
+D(v)=D(p(v))+c(p(v),v).
+\]</span></p>
+<p>Also check that:</p>
+<ul>
+<li>predecessor chains reach the source;</li>
+<li>finalized distances are nondecreasing.</li>
+</ul>
+</section>
+</section>
+<section id="from-predecessors-to-next-hops" class="level2">
+<h2 class="anchored" data-anchor-id="from-predecessors-to-next-hops">6. From predecessors to next hops</h2>
+<p>The <strong>predecessor tree</strong> contains edges:</p>
+<p><span class="math display">\[
+(p(v),v)
+\]</span></p>
+<p>for reachable destinations other than the source.</p>
+<p>It encodes complete shortest paths. Forwarding needs their <strong>first step</strong>.</p>
+<p>To derive the next hop from <span class="math inline">\(u\)</span> toward <span class="math inline">\(v\)</span>:</p>
+<ol type="1">
+<li>Start with <span class="math inline">\(z=v\)</span>.</li>
+<li>Follow predecessor pointers backward until <span class="math inline">\(p(z)=u\)</span>.</li>
+<li>That node <span class="math inline">\(z\)</span> is the next hop.</li>
+<li>Select the source interface connected to <span class="math inline">\(z\)</span>.</li>
+</ol>
+<p>If <span class="math inline">\(p(v)=u\)</span>, the next hop is <span class="math inline">\(v\)</span> itself. An unreachable destination has no predecessor chain or next hop.</p>
+<p><strong>Worked example</strong></p>
+<p>Suppose:</p>
+<p><span class="math display">\[
+p(t)=r,\qquad p(r)=b,\qquad p(b)=u.
+\]</span></p>
+<p>The complete path is:</p>
+<p><span class="math display">\[
+u\rightarrow b\rightarrow r\rightarrow t.
+\]</span></p>
+<p>For destination <span class="math inline">\(t\)</span>:</p>
+<ul>
+<li>predecessor: <span class="math inline">\(r\)</span>;</li>
+<li>next hop from <span class="math inline">\(u\)</span>: <span class="math inline">\(b\)</span>.</li>
+</ul>
+<p>If <span class="math inline">\(t\)</span> serves <code>10.50.4.0/24</code>, the source installs an entry for that <strong>destination prefix</strong>, using next hop <span class="math inline">\(b\)</span> and its interface toward <span class="math inline">\(b\)</span>.</p>
+<p>The graph identifies routers; attached-network information identifies destination prefixes. <strong>Dijkstra does not calculate subnet masks.</strong></p>
+<p>For a directly connected LAN, use the local interface without an intervening router.</p>
+<p>Also, a direct physical link to a destination router need not be its cheapest route: a path through other neighbors can cost less.</p>
+</section>
+<section id="bellmanford-and-distance-vector-updates" class="level2">
+<h2 class="anchored" data-anchor-id="bellmanford-and-distance-vector-updates">7. Bellman–Ford and distance-vector updates</h2>
+<p>The course relation is:</p>
+<p><span class="math display">\[
+d_x(y)
+=
+\min_{v\in\operatorname{neighbors}(x)}
+\left\{c(x,v)+d_v(y)\right\}.
+\]</span></p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Quantity</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(d_x(y)\)</span></td>
+<td>Cheapest-path cost from <span class="math inline">\(x\)</span> to destination <span class="math inline">\(y\)</span></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(c(x,v)\)</span></td>
+<td>Cost of the local link from <span class="math inline">\(x\)</span> to neighbor <span class="math inline">\(v\)</span></td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(d_v(y)\)</span></td>
+<td>Neighbor <span class="math inline">\(v\)</span>’s cost to <span class="math inline">\(y\)</span>; an advertised estimate during an update</td>
+</tr>
+</tbody>
+</table>
+<p>A path from <span class="math inline">\(x\)</span> starts through some neighbor <span class="math inline">\(v\)</span>. Pay:</p>
+<p><span class="math display">\[
+\text{cost to neighbor}+\text{neighbor’s cost to destination}.
+\]</span></p>
+<p>Then minimize over the possible first neighbors.</p>
+<p>This relates to shortest-path decomposition: a subpath of a shortest path must itself be shortest, because replacing it with a cheaper subpath would reduce the complete path’s cost.</p>
+<p>During distance-vector routing, routers exchange estimates and repeat the calculation when advertisements or link costs change. One update need not already equal the globally converged shortest distance.</p>
+<p>Each router keeps its distance to itself at zero.</p>
+<section id="one-concrete-update" class="level3">
+<h3 class="anchored" data-anchor-id="one-concrete-update">One concrete update</h3>
+<p>At router <span class="math inline">\(x\)</span>, for destination <span class="math inline">\(y\)</span>:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Neighbor <span class="math inline">\(v\)</span></th>
+<th style="text-align: right;"><span class="math inline">\(c(x,v)\)</span></th>
+<th style="text-align: right;">Advertised <span class="math inline">\(d_v(y)\)</span></th>
+<th style="text-align: right;">Candidate</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(a\)</span></td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">10</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(b\)</span></td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">7</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(c\)</span></td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">6</td>
+</tr>
+</tbody>
+</table>
+<p>Therefore:</p>
+<p><span class="math display">\[
+d_x(y)=6,\qquad\text{next hop}=c.
+\]</span></p>
+<p>Choosing the smallest advertisement alone would incorrectly select <span class="math inline">\(b\)</span>. <strong>The local link cost also matters.</strong></p>
+<p>For a whole distance vector, repeat the minimization <strong>separately for every destination column</strong>, recording both cost and next hop.</p>
+</section>
+<section id="updating-from-one-new-advertisement" class="level3">
+<h3 class="anchored" data-anchor-id="updating-from-one-new-advertisement">Updating from one new advertisement</h3>
+<p>For a 2016-style improvement question, compare a retained valid alternative with the candidate through the newly advertising neighbor:</p>
+<p><span class="math display">\[
+\min\left\{D_x^{old}(y),\ c(x,v)+D_v(y)\right\}.
+\]</span></p>
+<p>This works when the old alternative remains available.</p>
+<p>If a changed advertisement invalidates the route supporting the old minimum, that stale minimum cannot simply be retained. Recompute from the current neighbor information.</p>
+<p>When all neighbor advertisements are supplied, use the full neighbor minimum.</p>
+</section>
+<section id="dijkstra-versus-distance-vector" class="level3">
+<h3 class="anchored" data-anchor-id="dijkstra-versus-distance-vector">Dijkstra versus distance vector</h3>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 33%">
+<col style="width: 33%">
+<col style="width: 33%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Approach</th>
+<th>Information used</th>
+<th>Calculation</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Link-state / Dijkstra</td>
+<td>Complete weighted network topology</td>
+<td>Repeatedly finalize the smallest tentative source distance</td>
+</tr>
+<tr class="even">
+<td>Distance-vector / Bellman–Ford</td>
+<td>Local link costs and neighbors’ advertised destination distances</td>
+<td>Repeatedly minimize local-link cost plus neighbor distance</td>
+</tr>
+</tbody>
+</table>
+<p>Both can produce next-hop information. A distance-vector update does not use Dijkstra’s finalized set or predecessor tree.</p>
+</section>
+</section>
+<section id="common-exam-traps" class="level2">
+<h2 class="anchored" data-anchor-id="common-exam-traps">8. Common exam traps</h2>
+<ul>
+<li><strong>Addresses versus usable hosts:</strong> allocate complete power-of-two blocks and apply the stated network/broadcast convention. Include gateway interfaces where required.</li>
+<li><strong>Capacity without alignment:</strong> a sufficiently large interval is not automatically a CIDR block; network addresses require zero host bits.</li>
+<li><strong>Network versus first host versus broadcast:</strong> these are distinct under ordinary LAN conventions. A network address need not end in <code>.0</code>.</li>
+<li><strong>First match versus longest match:</strong> compare all matching prefix lengths. Adding an exception does not shrink the broader prefix.</li>
+<li><strong>Incorrect Dijkstra relaxation:</strong> use <span class="math inline">\(D(w)+c(w,v)\)</span>, update the predecessor with an improved distance, and leave finalized nodes fixed.</li>
+<li><strong>Predecessor versus next hop:</strong> trace backward to the first node after the source; the destination’s predecessor may be several hops away.</li>
+<li><strong>Incomplete Bellman–Ford calculation:</strong> add the local link cost to each advertisement. A stale old minimum cannot prevent a required cost increase.</li>
+</ul>
+</section>
+<section id="exam-like-exercises" class="level2">
+<h2 class="anchored" data-anchor-id="exam-like-exercises">9. Exam-like exercises</h2>
+<p>Show intermediate calculations. Each exercise’s conventions are part of the problem.</p>
+<p>The set contains <strong>50 practice points</strong>, weighted toward allocation/forwarding and Dijkstra. These are not predicted exam marks.</p>
+<section id="exercise-1-subnetting-fundamentals" class="level3">
+<h3 class="anchored" data-anchor-id="exercise-1-subnetting-fundamentals">Exercise 1 — Subnetting fundamentals</h3>
+<p><strong>12 points; suggested time: 20–25 minutes</strong></p>
+<p>A company has the inclusive address range:</p>
+<pre class="text"><code>172.19.80.0 through 172.19.87.255</code></pre>
+<p>Exclude ordinary network and broadcast addresses from usable hosts. All host requirements count every interface needing an address, including gateways.</p>
+<p><strong>1.1 — Parent block: 3 points</strong></p>
+<p>Determine:</p>
+<ul>
+<li>total address count;</li>
+<li>the single CIDR prefix representing the entire range;</li>
+<li>its dotted-decimal mask;</li>
+<li>the binary form of the nontrivial mask octet;</li>
+<li>number of host bits.</li>
+</ul>
+<p><strong>1.2 — Equal-size subdivision: 3 points</strong></p>
+<p>Divide the parent into the maximum number of equal-size subnets, each supporting at least <strong>62 usable interface addresses</strong>.</p>
+<p>Derive:</p>
+<ul>
+<li>minimum host-bit count;</li>
+<li>subnet prefix and mask;</li>
+<li>total and usable addresses per subnet;</li>
+<li>number of subnets.</li>
+</ul>
+<p><strong>1.3 — Address decomposition: 4 points</strong></p>
+<p>Using your mask from 1.2, analyze:</p>
+<pre class="text"><code>172.19.83.173</code></pre>
+<p>Give:</p>
+<ul>
+<li>network address;</li>
+<li>numerical host ID;</li>
+<li>broadcast address;</li>
+<li>usable host range.</li>
+</ul>
+<p>Show the bitwise-AND calculation in the octet containing the prefix boundary and give the host bit string.</p>
+<p>Explain which bits distinguish these subnets within the original parent block.</p>
+<p><strong>1.4 — Same-subnet decisions: 2 points</strong></p>
+<p>Which addresses belong to the same subnet as <code>172.19.83.173</code> under that mask?</p>
+<pre class="text"><code>172.19.83.190
+172.19.83.193
+172.19.82.173</code></pre>
+<p>Justify each decision using network addresses or prefix bits.</p>
+</section>
+<section id="exercise-2-subnet-allocation-forwarding-and-longest-prefix-matching" class="level3">
+<h3 class="anchored" data-anchor-id="exercise-2-subnet-allocation-forwarding-and-longest-prefix-matching">Exercise 2 — Subnet allocation, forwarding and longest-prefix matching</h3>
+<p><strong>18 points; suggested time: 35–40 minutes</strong></p>
+<p>Three routers form a triangle:</p>
+<ul>
+<li><span class="math inline">\(R_0\)</span> serves LAN A;</li>
+<li><span class="math inline">\(R_1\)</span> serves LAN B;</li>
+<li><span class="math inline">\(R_2\)</span> serves LANs C and D.</li>
+</ul>
+<p>All addresses must come from:</p>
+<pre class="text"><code>10.42.12.0/23</code></pre>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Subnet</th>
+<th style="text-align: right;">Required usable interface addresses</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>LAN A</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr class="even">
+<td>LAN B</td>
+<td style="text-align: right;">50</td>
+</tr>
+<tr class="odd">
+<td>LAN C</td>
+<td style="text-align: right;">25</td>
+</tr>
+<tr class="even">
+<td>LAN D</td>
+<td style="text-align: right;">25</td>
+</tr>
+<tr class="odd">
+<td>Link <span class="math inline">\(R_0-R_1\)</span></td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="even">
+<td>Link <span class="math inline">\(R_0-R_2\)</span></td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="odd">
+<td>Link <span class="math inline">\(R_1-R_2\)</span></td>
+<td style="text-align: right;">2</td>
+</tr>
+</tbody>
+</table>
+<p>Requirements include router interfaces.</p>
+<p>Exclude network and broadcast addresses in every allocated subnet. Use <code>/30</code> for links. Allocate complete CIDR blocks, without prefix subtraction.</p>
+<p>Use these allocation rules:</p>
+<ol type="1">
+<li>Largest block first.</li>
+<li>Lowest aligned free block.</li>
+<li>Alphabetical order for equal-size LANs.</li>
+<li>Links in the displayed order.</li>
+<li>On each link, the smaller-index router receives the lower usable address.</li>
+</ol>
+<p><strong>2.1 — Allocation table: 7 points</strong></p>
+<p>For all seven subnets, give:</p>
+<ul>
+<li>prefix;</li>
+<li>dotted-decimal mask;</li>
+<li>network and broadcast addresses;</li>
+<li>usable range and capacity.</li>
+</ul>
+<p>Assign both router interface addresses on every link.</p>
+<p>Calculate how many parent-block addresses remain unallocated, counting complete allocated blocks.</p>
+<p><strong>2.2 — Alignment check: 1 point</strong></p>
+<p>A colleague proposes that LAN B should start at:</p>
+<pre class="text"><code>10.42.12.160/26</code></pre>
+<p>Is this a canonical <code>/26</code> network address? What network does it actually denote?</p>
+<p><strong>2.3 — Base forwarding table and aggregation: 4 points</strong></p>
+<p>Construct <span class="math inline">\(R_0\)</span>’s forwarding table for all seven allocated subnets.</p>
+<p>Use these supplied routing decisions:</p>
+<ul>
+<li>LAN B through <span class="math inline">\(R_1\)</span>;</li>
+<li>LANs C and D through <span class="math inline">\(R_2\)</span>;</li>
+<li>the <span class="math inline">\(R_1-R_2\)</span> link subnet through <span class="math inline">\(R_1\)</span>.</li>
+</ul>
+<p>For directly connected subnets, write <code>direct</code> and identify the interface.</p>
+<p>For remote subnets, give:</p>
+<ul>
+<li>destination prefix;</li>
+<li>next-hop <strong>IP address on a link directly connected to <span class="math inline">\(R_0\)</span></strong>;</li>
+<li>outgoing interface.</li>
+</ul>
+<p>Then replace the LAN C and D entries with one exact aggregate.</p>
+<p>Give its prefix and the significant binary prefix bits in its final octet. Justify that it represents precisely those two allocations and uses a common next hop.</p>
+<p><strong>2.4 — Overlapping entries and lookup: 6 points</strong></p>
+<p>Extend the aggregated table from 2.3 with:</p>
+<ul>
+<li><code>10.42.12.0/23 → R1</code>, using <span class="math inline">\(R_0\)</span>’s interface toward <span class="math inline">\(R_1\)</span>;</li>
+<li><code>0.0.0.0/0 → WAN</code>;</li>
+<li>an exception sending the <strong>lowest 16 total addresses of LAN D’s allocated block</strong> through <span class="math inline">\(R_1\)</span>, which then forwards toward <span class="math inline">\(R_2\)</span>.</li>
+</ul>
+<p>Derive the exception’s prefix.</p>
+<p>This is a forwarding-policy range: it does not create a new physical subnet or change the allocation from 2.1.</p>
+<p>For each destination, list <strong>all matching prefixes</strong>, then give the selected prefix, interface and next hop where applicable:</p>
+<pre class="text"><code>10.42.12.20
+10.42.12.150
+10.42.12.210
+10.42.12.230
+10.42.12.246
+10.42.13.2
+10.42.13.6
+10.42.13.10
+10.42.13.100
+10.42.14.1</code></pre>
+<p>Finally: does adding the exception change the aggregate’s represented address count, or only which destinations select it?</p>
+</section>
+<section id="exercise-3-routing-algorithms" class="level3">
+<h3 class="anchored" data-anchor-id="exercise-3-routing-algorithms">Exercise 3 — Routing algorithms</h3>
+<p><strong>20 points; suggested time: 35–45 minutes</strong></p>
+<p>The graph is undirected. Edge labels are nonnegative link costs; only the displayed edges exist.</p>
+<p>Use:</p>
+<ul>
+<li>source <span class="math inline">\(u\)</span>;</li>
+<li>alphabetical selection when tentative distances tie;</li>
+<li>the existing predecessor when a candidate cost equals the current cost.</li>
+</ul>
+<pre class="mermaid"><code>flowchart TD
+    u((u)) ---|4| a((a))
+    u ---|2| b((b))
+    u ---|9| c((c))
+    a ---|2| b
+    a ---|2| c
+    a ---|7| d((d))
+    b ---|6| c
+    b ---|8| d
+    c ---|2| d
+    c ---|7| e((e))
+    d ---|1| e</code></pre>
+<p><strong>3.1 — Complete Dijkstra table: 8 points</strong></p>
+<p>Run Dijkstra to completion.</p>
+<p>Use one initialization row, then one row after each node is added and its eligible neighbors are relaxed.</p>
+<p>Keep finalized values visible. Each destination cell contains <code>distance, predecessor</code>.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Phase</th>
+<th><span class="math inline">\(N'\)</span></th>
+<th><span class="math inline">\(D(a),p(a)\)</span></th>
+<th><span class="math inline">\(D(b),p(b)\)</span></th>
+<th><span class="math inline">\(D(c),p(c)\)</span></th>
+<th><span class="math inline">\(D(d),p(d)\)</span></th>
+<th><span class="math inline">\(D(e),p(e)\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Initialization</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td>Step 1</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>Step 2</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td>Step 3</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>Step 4</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td>Step 5</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>3.2 — Tree and complete paths: 3 points</strong></p>
+<p>Give the final predecessor-tree edges.</p>
+<p>Write the complete shortest paths from <span class="math inline">\(u\)</span> to:</p>
+<p><span class="math display">\[
+c,\quad d,\quad e.
+\]</span></p>
+<p>Check their costs by summing the corresponding link weights.</p>
+<p><strong>3.3 — Convert to forwarding information: 4 points</strong></p>
+<p>Router <span class="math inline">\(u\)</span> has:</p>
+<ul>
+<li>interface <span class="math inline">\(I_a\)</span> toward <span class="math inline">\(a\)</span>;</li>
+<li>interface <span class="math inline">\(I_b\)</span> toward <span class="math inline">\(b\)</span>;</li>
+<li>interface <span class="math inline">\(I_c\)</span> toward <span class="math inline">\(c\)</span>.</li>
+</ul>
+<p>The routers serve these destination LANs:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Serving router</th>
+<th>Destination prefix</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(a\)</span></td>
+<td><code>10.60.0.0/24</code></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(b\)</span></td>
+<td><code>10.60.1.0/24</code></td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(c\)</span></td>
+<td><code>10.60.2.0/24</code></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(d\)</span></td>
+<td><code>10.60.4.0/23</code></td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(e\)</span></td>
+<td><code>10.60.6.0/24</code></td>
+</tr>
+</tbody>
+</table>
+<p>Ignore additional cost inside each destination LAN.</p>
+<p>Construct one forwarding entry per prefix, including:</p>
+<ul>
+<li>path cost to the serving router;</li>
+<li>next-hop router;</li>
+<li>outgoing interface.</li>
+</ul>
+<p>Show the predecessor-chain procedure explicitly for destination <span class="math inline">\(e\)</span>.</p>
+<p>Which entry, next hop and interface are selected for:</p>
+<pre class="text"><code>10.60.5.17</code></pre>
+<p>Are <span class="math inline">\(p(e)\)</span> and the next hop toward <span class="math inline">\(e\)</span> the same router?</p>
+<p><strong>3.4 — Equal-cost alternative: 1 point</strong></p>
+<p>Identify the two equal-cost paths from <span class="math inline">\(u\)</span> to <span class="math inline">\(a\)</span>.</p>
+<p>Explain which predecessor your table retains and why choosing the alternative under another valid tie convention would not itself constitute an algorithmic error.</p>
+<p><strong>3.5 — Independent distance-vector snapshot: 4 points</strong></p>
+<p>Router <span class="math inline">\(d\)</span> now uses distance-vector routing for destination <span class="math inline">\(z\)</span>, outside the drawn graph.</p>
+<p>Use <span class="math inline">\(d\)</span>’s incident link costs from the graph. Its neighbors advertise:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Neighbor <span class="math inline">\(v\)</span></th>
+<th style="text-align: right;">Advertised <span class="math inline">\(d_v(z)\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(a\)</span></td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(b\)</span></td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(c\)</span></td>
+<td style="text-align: right;">5</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(e\)</span></td>
+<td style="text-align: right;">4</td>
+</tr>
+</tbody>
+</table>
+<p>Write the Bellman–Ford equation for <span class="math inline">\(d_d(z)\)</span>, calculate every candidate sum, and identify the new distance and next hop.</p>
+<p>Explain why the smallest advertised distance need not identify the best neighbor.</p>
+<p>Then <span class="math inline">\(e\)</span> changes its advertisement to <strong>11</strong>. All other advertisements and link costs remain unchanged.</p>
+<p>Recompute using all current advertisements.</p>
+<p>Does retaining the previous minimum as an additional candidate produce a valid update? Briefly distinguish the information used here from the information used by Dijkstra.</p>
+</section>
+</section>
+<section id="source-calibration" class="level2">
+<h2 class="anchored" data-anchor-id="source-calibration">Source calibration</h2>
+<p>The preparation plan and Sheet 10 analysis identify A2–A5 as the core calculation material, with A6(c) supporting Bellman–Ford. I also inspected the earlier paging, scheduling and filesystem chapters for their theory–procedure–traps–exercises format. The attached notes end at Day 6, so Day 7 is treated as the prerequisite context you specified. 15-Operating-Systems-and-Networks-SoSe-25-Notes.pdf</p>
+<p>The recent memory protocol’s Aufgabe 4 explicitly combines Dijkstra, routing/forwarding-table completion, subnet division, prefixes and masks. It supports this integrated preparation pattern without preserving the exact original graph or marking scheme. 13-Ged-chtnisprotokoll_Klausur_-IBN_Ersttermin.pdf</p>
+<p>The 2016 exam’s Questions 5.1–5.3 directly test Dijkstra-table execution, predecessor-to-forwarding conversion and a distance-vector update. Question 4.3 supports same-subnet reasoning with a mask. 12-ibn-klausur-2016.pdf</p>
+<p>Sheet 10 supplies the allocation conventions, prefix/range calculations, longest-prefix matching, full Dijkstra execution and Bellman–Ford connection used here. 10-ueb10-ibn-SS2025.pdf Its supplied solutions cover A2–A4 and end after A4. The A3(b) tables omit explicit own-LAN entries and inconsistently follow the figure’s router labels; the exercises above therefore derive entries from their explicitly stated topology. 14-Operating-Systems-and-Networs-SoSe-25-Solutions.pdf</p>
+<p>The IBN summary supplies the network/host terminology, Dijkstra symbols and Bellman–Ford relation. 01-ibn-zusammenfassung.pdf</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../../exam/notes/network_stack.html" class="pagination-link" aria-label="Network stack">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Network stack</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
