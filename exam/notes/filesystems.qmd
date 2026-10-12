@@ -697,3 +697,432 @@ Neither PDF’s i-node nor any PDF data block is initially cached.
    Now the directory entry `day6.pdf` is deleted, while the other two entries remain.
 
    Explain whether `copy.pdf` and `shortcut.pdf` still provide access to the PDF. Distinguish deletion of a **name** from deletion of the underlying **file object**.
+
+
+Below, **1.1 means Exercise 1, sub-exercise 1**, and similarly for the others. The point values match the original **30-point practice set**.
+
+## Solutions
+
+### Exercise 1 — FAT
+
+#### 1.1 — Chains and space calculations (3 points)
+
+With cluster size $C=2048$ bytes:
+
+$$
+n=\left\lceil\frac{S}{2048}\right\rceil,\qquad
+\text{allocated space}=2048n,\qquad
+\text{unused space}=2048n-S.
+$$
+
+| File | Ordered cluster chain | Required clusters | Allocated space | Unused space |
+|---|---|---:|---:|---:|
+| `notes.txt` | $6\rightarrow1\rightarrow9\rightarrow\text{EOC}$ | $\lceil5100/2048\rceil=3$ | 6144 bytes | 1044 bytes |
+| `image.bin` | $8\rightarrow3\rightarrow11\rightarrow\text{EOC}$ | $\lceil6100/2048\rceil=3$ | 6144 bytes | 44 bytes |
+| `old.dat` | $4\rightarrow14\rightarrow\text{EOC}$ | $\lceil3000/2048\rceil=2$ | 4096 bytes | 1096 bytes |
+
+**All three chains have exactly the required length.**
+
+#### 1.2 — Free and occupied clusters (1 point)
+
+The free clusters are:
+
+$$
+\boxed{\{0,2,5,7,10,12,13,15\}}.
+$$
+
+There are eight free clusters and therefore:
+
+$$
+\boxed{16-8=8\text{ occupied clusters}}.
+$$
+
+Clusters **9, 11 and 14**, whose entries contain `EOC`, are occupied: each stores the final portion of a file. `EOC` means **no successor**, not **unused cluster**.
+
+#### 1.3 — Growing `notes.txt` (3 points)
+
+The new size is 10 500 bytes:
+
+$$
+n_{\text{new}}=\left\lceil\frac{10\,500}{2048}\right\rceil=6.
+$$
+
+The file already has three clusters, so it needs:
+
+$$
+\boxed{6-3=3\text{ additional clusters}}.
+$$
+
+The smallest-free-index rule selects:
+
+$$
+\boxed{0,\ 2,\ 5}
+$$
+
+in that order.
+
+The old last cluster is 9. The changed entries are:
+
+| FAT entry | Original value | New value |
+|---|---|---|
+| `FAT[9]` | EOC | 0 |
+| `FAT[0]` | FREE | 2 |
+| `FAT[2]` | FREE | 5 |
+| `FAT[5]` | FREE | EOC |
+
+The resulting chain is:
+
+$$
+\boxed{6\rightarrow1\rightarrow9\rightarrow0\rightarrow2\rightarrow5
+\rightarrow\text{EOC}}.
+$$
+
+Its allocated space and unused space are:
+
+$$
+6\cdot2048=12\,288\text{ bytes},
+$$
+
+$$
+\boxed{12\,288-10\,500=1788\text{ unused bytes}}.
+$$
+
+The first-cluster value **remains 6**. The directory entry’s file size changes to **10 500 bytes**.
+
+Remember that **cluster 0 is a valid data cluster in this exercise**.
+
+#### 1.4 — Independent faulty variants (3 points)
+
+**Variant A: `FAT[9] = 1`**
+
+Tracing `notes.txt` gives:
+
+$$
+6\rightarrow1\rightarrow9\rightarrow1\rightarrow9\rightarrow\cdots
+$$
+
+Cluster 1 is revisited. This is a **cycle**, and traversal never reaches `EOC`.
+
+**Variant B: `FAT[3] = 2`**
+
+Tracing `image.bin` gives:
+
+$$
+8\rightarrow3\rightarrow2.
+$$
+
+But `FAT[2] = FREE`. The chain points to an **unallocated cluster**, so it is invalid.
+
+**Variant C: `image.bin` has size 9000 bytes**
+
+Its unchanged chain contains three clusters, providing:
+
+$$
+3\cdot2048=6144\text{ bytes}.
+$$
+
+However:
+
+$$
+\left\lceil\frac{9000}{2048}\right\rceil=5\text{ clusters}.
+$$
+
+The chain is **too short for the declared size**: two additional clusters would be required.
+
+---
+
+### Exercise 2 — I-node addressing
+
+#### 2.1 — Addresses per indirect block (1 point)
+
+The block size is:
+
+$$
+B=4\text{ KiB}=4096\text{ bytes}.
+$$
+
+Each address occupies eight bytes, so:
+
+$$
+\boxed{m=\frac{4096}{8}=512\text{ addresses per indirect block}}.
+$$
+
+#### 2.2 — Maximum file size (3 points)
+
+The eight direct pointers reach eight data blocks.
+
+Each single-indirect pointer reaches 512 data blocks. Therefore, the two single-indirect pointers together reach:
+
+$$
+2\cdot512=1024\text{ data blocks}.
+$$
+
+| Contribution | Reachable data blocks | File-data capacity |
+|---|---:|---:|
+| Eight direct pointers | 8 | 32 768 bytes = 32 KiB |
+| First single-indirect pointer | 512 | 2 097 152 bytes = 2 MiB |
+| Second single-indirect pointer | 512 | 2 097 152 bytes = 2 MiB |
+| **Total** | **1032** | **4 227 072 bytes** |
+
+Thus:
+
+$$
+\boxed{S_{\max}=(8+2\cdot512)\cdot4096=4\,227\,072\text{ bytes}}.
+$$
+
+In the requested units:
+
+$$
+\boxed{S_{\max}=4128\text{ KiB}=4.03125\text{ MiB}}.
+$$
+
+The two indirect blocks contain **addresses**, not file contents. Their storage is additional metadata overhead and does not contribute to maximum file-data capacity.
+
+#### 2.3 — Locating particular bytes (2 points)
+
+For each byte offset:
+
+$$
+q=\left\lfloor\frac{x}{4096}\right\rfloor,\qquad
+r=x\bmod4096.
+$$
+
+The logical block ranges are:
+
+| Pointer group | Logical file blocks |
+|---|---|
+| Direct pointers | 0–7 |
+| First single-indirect pointer | 8–519 |
+| Second single-indirect pointer | 520–1031 |
+
+**For $x_1=32\,785$:**
+
+$$
+32\,785=8\cdot4096+17.
+$$
+
+Therefore:
+
+- logical block: **8**;
+- offset within the block: **17 bytes**;
+- i-node pointer: **first single-indirect pointer**, index 0;
+- address index within its indirect block: **0**.
+
+**For $x_2=2\,129\,937$:**
+
+$$
+2\,129\,937=520\cdot4096+17.
+$$
+
+After the eight direct blocks:
+
+$$
+u=520-8=512,
+$$
+
+$$
+\left\lfloor512/512\right\rfloor=1,\qquad512\bmod512=0.
+$$
+
+Therefore:
+
+- logical block: **520**;
+- offset within the block: **17 bytes**;
+- i-node pointer: **second single-indirect pointer**, index 1;
+- address index within its indirect block: **0**.
+
+| Byte offset | Logical block | Within-block offset | Pointer used | Indirect address index |
+|---:|---:|---:|---|---:|
+| 32 785 | 8 | 17 | First single-indirect | 0 |
+| 2 129 937 | 520 | 17 | Second single-indirect | 0 |
+
+#### 2.4 — Actual storage for the smaller file (2 points)
+
+The file size is:
+
+$$
+S=40\cdot1024+37=40\,997\text{ bytes}.
+$$
+
+Since:
+
+$$
+40\,997=10\cdot4096+37,
+$$
+
+the file needs:
+
+$$
+\boxed{11\text{ data blocks}}.
+$$
+
+Their addressing is:
+
+- eight blocks through direct pointers;
+- three blocks through the first single-indirect pointer.
+
+Those three addresses fit into one indirect block. Therefore:
+
+$$
+\boxed{1\text{ indirect block is allocated}}.
+$$
+
+Total storage, excluding the i-node:
+
+$$
+(11+1)\cdot4096
+=\boxed{49\,152\text{ bytes}=48\text{ KiB}}.
+$$
+
+The second single-indirect pointer is unused. **Having a pointer slot in the i-node does not require allocating its pointer block.**
+
+#### 2.5 — Adding a double-indirect pointer (2 points)
+
+One double-indirect pointer reaches:
+
+$$
+m^2=512^2=262\,144\text{ data blocks}.
+$$
+
+Its additional file-data capacity is:
+
+$$
+262\,144\cdot4096
+=\boxed{1\,073\,741\,824\text{ bytes}=1\text{ GiB}}.
+$$
+
+The new total number of addressable data blocks is:
+
+$$
+8+2\cdot512+512^2=263\,176.
+$$
+
+Thus:
+
+$$
+\boxed{S_{\max,\text{new}}=263\,176\cdot4096
+=1\,077\,968\,896\text{ bytes}}.
+$$
+
+Equivalently:
+
+$$
+\boxed{1028.03125\text{ MiB}
+=1\text{ GiB}+4.03125\text{ MiB}}.
+$$
+
+The double-indirect traversal works as follows:
+
+1. The i-node points to the double-indirect block.
+2. One of its 512 addresses selects a single-indirect block.
+3. One of that block’s 512 addresses selects a data block.
+
+Therefore, it reaches $512\cdot512$ data blocks. Both pointer-block levels contain metadata.
+
+---
+
+### Exercise 3 — Pathname traversal and links
+
+#### 3.1 — Partially cached lookup (4 points)
+
+The target is:
+
+```text
+/courses/ibn/notes/day6.pdf
+```
+
+| Component sought | Directory searched | Directory-block reads | Child i-node reads | Subtotal |
+|---|---|---:|---:|---:|
+| `courses` | `/` | 1: root contents uncached | 0: `courses` i-node cached | 1 |
+| `ibn` | `/courses` | 1: contents uncached | 1: `ibn` i-node uncached | 2 |
+| `notes` | `/courses/ibn` | 0: contents cached | 1: `notes` i-node uncached | 1 |
+| `day6.pdf` | `/courses/ibn/notes` | 1: contents uncached | 1: PDF i-node uncached | 2 |
+| **Total** | | **3** | **3** | **6** |
+
+Hence:
+
+$$
+\boxed{6\text{ disk operations}}.
+$$
+
+The cached contents of `/courses/ibn` contain directory entries. Its i-node is a **separate metadata object**. Under the stated traversal model, that i-node must still be loaded; its already-cached directory block then requires no read.
+
+Notice that the `ibn` i-node read occurs in the row where `ibn` is found in `/courses`.
+
+#### 3.2 — Cold lookup except for the root i-node (1 point)
+
+There are four named components:
+
+$$
+\texttt{courses},\quad\texttt{ibn},\quad\texttt{notes},\quad\texttt{day6.pdf}.
+$$
+
+Each requires one uncached parent-directory block read and one uncached child i-node read:
+
+$$
+\boxed{4\cdot(1+1)=8\text{ disk operations}}.
+$$
+
+The root i-node requires no read, and the PDF’s contents are not requested.
+
+#### 3.3 — Reading the first byte (1 point)
+
+After part 1, the PDF’s i-node is cached, but its first data block is not.
+
+Because that block is directly addressed, reading it requires:
+
+$$
+\boxed{1\text{ additional disk operation}}.
+$$
+
+The cumulative total for lookup plus the first-byte read is:
+
+$$
+\boxed{6+1=7\text{ operations}}.
+$$
+
+No indirect-block read is needed.
+
+#### 3.4 — Looking up the sibling file (2 points)
+
+The next target is:
+
+```text
+/courses/ibn/notes/day5.pdf
+```
+
+The previous lookup has cached:
+
+- all four directory blocks along this path;
+- all intermediate directory i-nodes.
+
+Therefore, finding the `day5.pdf` entry requires no further disk reads. Its own i-node remains uncached and must be loaded:
+
+$$
+\boxed{1\text{ additional disk operation: reading the day5.pdf i-node}}.
+$$
+
+No PDF data block is requested.
+
+#### 3.5 — Deleting a name: hard link versus symbolic link (2 points)
+
+**`copy.pdf` remains valid.**
+
+Its directory entry points to the same i-node as `day6.pdf`. Deleting `day6.pdf` removes one name and reduces the hard-link count by one. The remaining `copy.pdf` entry still identifies the file, so its i-node and contents remain available.
+
+**`shortcut.pdf` becomes a dangling symbolic link.**
+
+It still stores:
+
+```text
+/courses/ibn/notes/day6.pdf
+```
+
+That pathname no longer resolves because the `day6.pdf` directory entry has been removed. The symbolic link does not automatically switch to `copy.pdf`.
+
+| Remaining name | Can access the PDF? | Reason |
+|---|---|---|
+| `copy.pdf` | **Yes** | Identifies the same i-node directly |
+| `shortcut.pdf` | **No** | Its stored target pathname no longer exists |
+
+For self-grading, distinguish an incorrect method from a single arithmetic error carried through later calculations—a **Folgefehler**. Give credit for subsequent reasoning that correctly uses the earlier result.
