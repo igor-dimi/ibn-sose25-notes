@@ -2,16 +2,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
 
 <meta charset="utf-8">
-<meta name="generator" content="quarto-1.9.37">
+<meta name="generator" content="quarto-1.7.31">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
 
 <title>9&nbsp; Network stack – Operating Systems and Networks SoSe 25 Notes</title>
 <style>
-/* Default styles provided by pandoc.
-** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
-*/
 code{white-space: pre-wrap;}
 span.smallcaps{font-variant: small-caps;}
 div.columns{display: flex; gap: min(4vw, 1.5em);}
@@ -41,10 +38,10 @@ ul.task-list li input[type="checkbox"] {
 <script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
 <script src="../../site_libs/quarto-html/anchor.min.js"></script>
 <link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
-<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-e1a5c8363afafaef2c763b6775fbf3ca.css" rel="stylesheet" id="quarto-text-highlighting-styles">
 <script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
 <link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
-<link href="../../site_libs/bootstrap/bootstrap-8dddca75a0c745965e348927a205e40e.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<link href="../../site_libs/bootstrap/bootstrap-b330ada5220959fbd7d7e7c55953a312.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
 <script id="quarto-search-options" type="application/json">{
   "location": "sidebar",
   "copy-button": false,
@@ -74,7 +71,7 @@ ul.task-list li input[type="checkbox"] {
 }</script>
 
   <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
-  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
 
 <script type="text/javascript">
 const typesetMath = (el) => {
@@ -87,7 +84,7 @@ const typesetMath = (el) => {
     var macros = [];
     for (var i = 0; i < mathElements.length; i++) {
       var texText = mathElements[i].firstChild;
-      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+      if (mathElements[i].tagName == "SPAN") {
         window.katex.render(texText.data, mathElements[i], {
           displayMode: mathElements[i].classList.contains('display'),
           throwOnError: false,
@@ -201,7 +198,7 @@ window.Quarto = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../../exam/notes/deadlocks_and_scheduling.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Day 5 — Deadlocks and CPU scheduling</span></span></a>
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Deadlocks and CPU scheduling</span></span></a>
   </div>
 </li>
           <li class="sidebar-item">
@@ -219,7 +216,7 @@ window.Quarto = {
           <li class="sidebar-item">
   <div class="sidebar-item-container"> 
   <a href="../../exam/notes/subnetting_forwarding_routing.html" class="sidebar-item-text sidebar-link">
- <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Combined Day 8/9 — Subnetting, forwarding and routing algorithms</span></span></a>
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Subnetting, forwarding and routing algorithms</span></span></a>
   </div>
 </li>
       </ul>
@@ -265,6 +262,12 @@ window.Quarto = {
   <li><a href="#exercise-1-a-udp-message-through-two-routers" id="toc-exercise-1-a-udp-message-through-two-routers" class="nav-link" data-scroll-target="#exercise-1-a-udp-message-through-two-routers">Exercise 1 — A UDP message through two routers</a></li>
   <li><a href="#exercise-2-one-server-port-several-tcp-connections" id="toc-exercise-2-one-server-port-several-tcp-connections" class="nav-link" data-scroll-target="#exercise-2-one-server-port-several-tcp-connections">Exercise 2 — One server port, several TCP connections</a></li>
   <li><a href="#exercise-3-fragmenting-one-udp-datagram" id="toc-exercise-3-fragmenting-one-udp-datagram" class="nav-link" data-scroll-target="#exercise-3-fragmenting-one-udp-datagram">Exercise 3 — Fragmenting one UDP datagram</a></li>
+  </ul></li>
+  <li><a href="#solutions" id="toc-solutions" class="nav-link" data-scroll-target="#solutions">Solutions</a>
+  <ul class="collapse">
+  <li><a href="#exercise-1-a-udp-message-through-two-routers-1" id="toc-exercise-1-a-udp-message-through-two-routers-1" class="nav-link" data-scroll-target="#exercise-1-a-udp-message-through-two-routers-1">Exercise 1 — A UDP message through two routers</a></li>
+  <li><a href="#exercise-2-one-server-port-several-tcp-connections-1" id="toc-exercise-2-one-server-port-several-tcp-connections-1" class="nav-link" data-scroll-target="#exercise-2-one-server-port-several-tcp-connections-1">Exercise 2 — One server port, several TCP connections</a></li>
+  <li><a href="#exercise-3-fragmenting-one-udp-datagram-1" id="toc-exercise-3-fragmenting-one-udp-datagram-1" class="nav-link" data-scroll-target="#exercise-3-fragmenting-one-udp-datagram-1">Exercise 3 — Fragmenting one UDP datagram</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -1108,8 +1111,635 @@ F=8\lfloor602/8\rfloor=600.
 <li>The fragment with MF = 0 arrives first. Can the destination immediately deliver the application’s complete message? Justify.</li>
 <li>Instead, the original datagram has DF = 1. What should R do when forwarding onto the same 1023-byte-MTU link?</li>
 </ol>
+</section>
+</section>
+<section id="solutions" class="level2">
+<h2 class="anchored" data-anchor-id="solutions">Solutions</h2>
+<section id="exercise-1-a-udp-message-through-two-routers-1" class="level3">
+<h3 class="anchored" data-anchor-id="exercise-1-a-udp-message-through-two-routers-1">Exercise 1 — A UDP message through two routers</h3>
+<section id="a-encapsulation-and-sizes" class="level4">
+<h4 class="anchored" data-anchor-id="a-encapsulation-and-sizes">1(a) — Encapsulation and sizes</h4>
+<p>The complete frame leaving A has this structure, from beginning to end:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+<col style="width: 20%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Ethernet header</th>
+<th>IPv4 header</th>
+<th>UDP header</th>
+<th>Application message <span class="math inline">\(N\)</span></th>
+<th>Ethernet FCS</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Link layer</td>
+<td>Network layer</td>
+<td>Transport layer</td>
+<td>Application layer</td>
+<td>Link-layer trailer</td>
+</tr>
+<tr class="even">
+<td>14 bytes</td>
+<td>20 bytes</td>
+<td>8 bytes</td>
+<td>32 bytes</td>
+<td>4 bytes</td>
+</tr>
+</tbody>
+</table>
+<p>Each lower layer encapsulates the <strong>complete higher-layer PDU</strong>, including its header.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Layer</th>
+<th>PDU</th>
+<th style="text-align: right;">Length</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Application</td>
+<td>Message <span class="math inline">\(N\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(32\)</span> bytes</td>
+</tr>
+<tr class="even">
+<td>Transport</td>
+<td>UDP datagram</td>
+<td style="text-align: right;"><span class="math inline">\(8+32=\boxed{40}\)</span> bytes</td>
+</tr>
+<tr class="odd">
+<td>Network</td>
+<td>IP datagram</td>
+<td style="text-align: right;"><span class="math inline">\(20+40=\boxed{60}\)</span> bytes</td>
+</tr>
+<tr class="even">
+<td>Link</td>
+<td>Ethernet frame</td>
+<td style="text-align: right;"><span class="math inline">\(14+60+4=\boxed{78}\)</span> bytes</td>
+</tr>
+</tbody>
+</table>
+<p>The <strong>IP Total Length is 60 bytes</strong>. It excludes the Ethernet header and FCS.</p>
+</section>
+<section id="b-addresses-and-endpoints" class="level4">
+<h4 class="anchored" data-anchor-id="b-addresses-and-endpoints">1(b) — Addresses and endpoints</h4>
+<p>These end-to-end fields have the <strong>same values on all three links</strong>:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Field</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>UDP source port</td>
+<td><strong>53000</strong></td>
+</tr>
+<tr class="even">
+<td>UDP destination port</td>
+<td><strong>9000</strong></td>
+</tr>
+<tr class="odd">
+<td>IP source address</td>
+<td><strong>192.0.2.10</strong>, host A</td>
+</tr>
+<tr class="even">
+<td>IP destination address</td>
+<td><strong>203.0.113.40</strong>, host B</td>
+</tr>
+</tbody>
+</table>
+<p>The Ethernet addresses depend on the current link:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Link</th>
+<th>Source MAC</th>
+<th>Destination MAC</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>A → R1</td>
+<td><span class="math inline">\(M_A\)</span></td>
+<td><span class="math inline">\(M_{R1,in}\)</span></td>
+</tr>
+<tr class="even">
+<td>R1 → R2</td>
+<td><span class="math inline">\(M_{R1,out}\)</span></td>
+<td><span class="math inline">\(M_{R2,in}\)</span></td>
+</tr>
+<tr class="odd">
+<td>R2 → B</td>
+<td><span class="math inline">\(M_{R2,out}\)</span></td>
+<td><span class="math inline">\(M_B\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>The communication endpoints are:</p>
+<ul>
+<li><strong>Transport:</strong> A’s client socket ↔︎ B’s server socket, selected using IP addresses and UDP ports.</li>
+<li><strong>Network:</strong> A’s addressed interface ↔︎ B’s addressed interface, identified by IP addresses.</li>
+<li><strong>Link:</strong> the sending interface ↔︎ the next-hop receiving interface on the current Ethernet network.</li>
+</ul>
+<p>Thus, the first frame goes to <strong>R1’s MAC</strong>, while the enclosed IP datagram goes to <strong>B’s IP</strong>.</p>
+</section>
+<section id="c-processing-at-r1" class="level4">
+<h4 class="anchored" data-anchor-id="c-processing-at-r1">1(c) — Processing at R1</h4>
+<p>R1 accepts the frame because its <strong>destination MAC is <span class="math inline">\(M_{R1,in}\)</span></strong>. The frame is addressed to R1 as the next hop; its enclosed IP datagram is addressed to B as the ultimate destination.</p>
+<p>R1 performs these steps:</p>
+<ol type="1">
+<li>Checks the incoming Ethernet frame and removes its Ethernet header and FCS.</li>
+<li>Examines destination IP <strong>203.0.113.40</strong> and selects the outgoing interface toward R2.</li>
+<li>Decrements TTL from <strong>64 to 63</strong> and updates the IPv4 header checksum.</li>
+<li>Creates a new Ethernet frame containing the forwarded IP datagram:
+<ul>
+<li>source MAC: <span class="math inline">\(M_{R1,out}\)</span>;</li>
+<li>destination MAC: <span class="math inline">\(M_{R2,in}\)</span>;</li>
+<li>newly calculated Ethernet FCS.</li>
+</ul></li>
+</ol>
+<p>The changes are:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Information</th>
+<th>Result at R1</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Ethernet wrapping</td>
+<td>Removed and replaced</td>
+</tr>
+<tr class="even">
+<td>Source/destination MAC</td>
+<td>Changed for the next link</td>
+</tr>
+<tr class="odd">
+<td>Source/destination IP</td>
+<td>Remain A’s and B’s</td>
+</tr>
+<tr class="even">
+<td>UDP ports</td>
+<td>Remain 53000 → 9000</td>
+</tr>
+<tr class="odd">
+<td>Application message</td>
+<td>Unchanged</td>
+</tr>
+<tr class="even">
+<td>TTL</td>
+<td>64 → 63</td>
+</tr>
+<tr class="odd">
+<td>IPv4 header checksum</td>
+<td>Updated because the IP header changed</td>
+</tr>
+</tbody>
+</table>
+<p>The TTL values on the links are:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Link</th>
+<th style="text-align: right;">TTL</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>A → R1</td>
+<td style="text-align: right;"><strong>64</strong></td>
+</tr>
+<tr class="even">
+<td>R1 → R2</td>
+<td style="text-align: right;"><strong>63</strong></td>
+</tr>
+<tr class="odd">
+<td>R2 → B</td>
+<td style="text-align: right;"><strong>62</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>R1 does not deliver the message to a local socket on port 9000.</strong> The IP destination is B, so R1 forwards the datagram. B performs the eventual UDP socket delivery.</p>
+</section>
+<section id="d-local-alternative-and-arp" class="level4">
+<h4 class="anchored" data-anchor-id="d-local-alternative-and-arp">1(d) — Local alternative and ARP</h4>
+<p>For delivery to C:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Destination field</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>IP destination</td>
+<td><strong>192.0.2.20</strong></td>
+</tr>
+<tr class="even">
+<td>Ethernet destination MAC</td>
+<td><strong><span class="math inline">\(M_C\)</span></strong></td>
+</tr>
+<tr class="odd">
+<td>UDP destination port</td>
+<td><strong>9000</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Because C is local, A sends directly to C’s MAC.</p>
+<p>If the necessary ARP mapping is missing:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Communication</th>
+<th>IP address A asks about using ARP</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>A → remote B</td>
+<td><strong>192.0.2.1</strong>, R1’s local gateway interface</td>
+</tr>
+<tr class="even">
+<td>A → local C</td>
+<td><strong>192.0.2.20</strong>, C itself</td>
+</tr>
+</tbody>
+</table>
+<p>For B, A resolves the <strong>gateway’s MAC</strong>, not B’s remote MAC.</p>
+</section>
+<section id="e-reply-reasoning" class="level4">
+<h4 class="anchored" data-anchor-id="e-reply-reasoning">1(e) — Reply reasoning</h4>
+<p>B’s reply has these end-to-end addresses:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Field</th>
+<th>Reply value</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Source IP</td>
+<td><strong>203.0.113.40</strong>, B</td>
+</tr>
+<tr class="even">
+<td>Destination IP</td>
+<td><strong>192.0.2.10</strong>, A</td>
+</tr>
+<tr class="odd">
+<td>UDP source port</td>
+<td><strong>9000</strong></td>
+</tr>
+<tr class="even">
+<td>UDP destination port</td>
+<td><strong>53000</strong></td>
+</tr>
+</tbody>
+</table>
+<p>The source MAC observed by B on the incoming frame is <strong><span class="math inline">\(M_{R2,out}\)</span></strong>. It identifies R2’s interface on B’s LAN, not A.</p>
+<p>B therefore cannot treat that MAC as A’s address across the Internet. B addresses the reply’s IP datagram to A and sends its first Ethernet frame to its gateway, R2.</p>
+<p>In this scenario, that gateway MAC happens to be the same MAC B observed as the incoming frame’s source—but it is used <strong>as the local next-hop address</strong>.</p>
+</section>
+</section>
+<section id="exercise-2-one-server-port-several-tcp-connections-1" class="level3">
+<h3 class="anchored" data-anchor-id="exercise-2-one-server-port-several-tcp-connections-1">Exercise 2 — One server port, several TCP connections</h3>
+<section id="a-connection-identification" class="level4">
+<h4 class="anchored" data-anchor-id="a-connection-identification">2(a) — Connection identification</h4>
+<p>Using the order</p>
+<p><span class="math display">\[
+(\text{source IP},\text{source port},
+\text{destination IP},\text{destination port}),
+\]</span></p>
+<p>the connection identifiers are:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Connection</th>
+<th>Four-tuple</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>K1</td>
+<td><span class="math inline">\((192.0.2.10,\ 51000,\ 203.0.113.40,\ 8080)\)</span></td>
+</tr>
+<tr class="even">
+<td>K2</td>
+<td><span class="math inline">\((198.51.100.20,\ 51000,\ 203.0.113.40,\ 8080)\)</span></td>
+</tr>
+<tr class="odd">
+<td>K3</td>
+<td><span class="math inline">\((192.0.2.10,\ 51001,\ 203.0.113.40,\ 8080)\)</span></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>K1 versus K2:</strong> distinguished by the <strong>source IP address</strong>.</li>
+<li><strong>K1 versus K3:</strong> distinguished by the <strong>source port</strong>.</li>
+</ul>
+</section>
+<section id="b-demultiplexing" class="level4">
+<h4 class="anchored" data-anchor-id="b-demultiplexing">2(b) — Demultiplexing</h4>
+<p>The student’s claim is <strong>incorrect</strong>.</p>
+<p>For an established TCP connection, the operating system uses the <strong>complete four-tuple</strong>, not the destination port alone. All three connections can therefore share server port 8080 while using distinct connection sockets.</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Socket</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><strong>Listening socket</strong></td>
+<td>Waits for and accepts new TCP connections</td>
+</tr>
+<tr class="even">
+<td><strong>Established connection socket</strong></td>
+<td>Carries data belonging to one particular established connection</td>
+</tr>
+</tbody>
+</table>
+<p>Accepting a connection does <strong>not</strong> require assigning a different server port: the remote IP and port distinguish connections sharing the same local endpoint.</p>
+</section>
+<section id="c-another-transport-protocol" class="level4">
+<h4 class="anchored" data-anchor-id="c-another-transport-protocol">2(c) — Another transport protocol</h4>
+<p>The receiving stack processes the frame as follows:</p>
+<ol type="1">
+<li><strong>Ethernet:</strong> the EtherType indicates IPv4, so the frame’s payload is passed to IPv4.</li>
+<li><strong>IPv4:</strong> destination IP <strong>203.0.113.40</strong> identifies S. <strong>Protocol = 17</strong> selects <strong>UDP</strong>.</li>
+<li><strong>UDP:</strong> destination port <strong>8080</strong>, together with the destination IP, selects the receiving UDP service/socket.</li>
+</ol>
+<p>The datagram is <strong>not delivered to K1–K3</strong>. Those are TCP connections. TCP and UDP have separate port namespaces, so TCP port 8080 and UDP port 8080 can coexist.</p>
+</section>
+<section id="d-port-versus-pid" class="level4">
+<h4 class="anchored" data-anchor-id="d-port-versus-pid">2(d) — Port versus PID</h4>
+<p><strong>No.</strong> Port 51000 is a transport-layer identifier; a PID identifies an operating-system process.</p>
+<p>Their numbers are assigned independently. A process can use multiple sockets and ports, and its PID cannot generally be inferred from a packet’s port number.</p>
+</section>
+</section>
+<section id="exercise-3-fragmenting-one-udp-datagram-1" class="level3">
+<h3 class="anchored" data-anchor-id="exercise-3-fragmenting-one-udp-datagram-1">Exercise 3 — Fragmenting one UDP datagram</h3>
+<section id="a-original-lengths" class="level4">
+<h4 class="anchored" data-anchor-id="a-original-lengths">3(a) — Original lengths</h4>
+<p>Application data:</p>
+<p><span class="math display">\[
+3995\text{ bytes}.
+\]</span></p>
+<p>Adding the UDP header gives:</p>
+<p><span class="math display">\[
+\text{UDP datagram length}
+=3995+8
+=\boxed{4003\text{ bytes}}.
+\]</span></p>
+<p>The complete UDP datagram becomes the IP payload:</p>
+<p><span class="math display">\[
+\text{IP payload length}
+=\boxed{4003\text{ bytes}}.
+\]</span></p>
+<p>Adding the IP header gives:</p>
+<p><span class="math display">\[
+\text{IP Total Length}
+=4003+20
+=\boxed{4023\text{ bytes}}.
+\]</span></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Quantity</th>
+<th style="text-align: right;">Length</th>
+<th>Includes UDP header?</th>
+<th>Includes IP header?</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Application data</td>
+<td style="text-align: right;">3995</td>
+<td>No</td>
+<td>No</td>
+</tr>
+<tr class="even">
+<td>UDP datagram / IP payload</td>
+<td style="text-align: right;">4003</td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr class="odd">
+<td>Complete IP datagram</td>
+<td style="text-align: right;">4023</td>
+<td>Yes</td>
+<td>Yes</td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="b-fragment-capacity" class="level4">
+<h4 class="anchored" data-anchor-id="b-fragment-capacity">3(b) — Fragment capacity</h4>
+<p>The MTU includes the IP header, so the maximum fragment payload capacity is:</p>
+<p><span class="math display">\[
+C=1023-20=\boxed{1003\text{ bytes}}.
+\]</span></p>
+<p>A non-final payload must be divisible by eight:</p>
+<p><span class="math display">\[
+F=8\left\lfloor\frac{1003}{8}\right\rfloor
+=8\cdot125
+=\boxed{1000\text{ bytes}}.
+\]</span></p>
+<p>The capacities differ because <strong>1003 is not divisible by eight</strong>.</p>
+<p>A 1003-byte first payload would make the next fragment start at byte 1003, requiring offset <span class="math inline">\(1003/8=125.375\)</span>, which cannot be represented in the integer Fragment Offset field.</p>
+<p>The <strong>final fragment can carry 1003 bytes</strong>, because no later fragment needs to start after it.</p>
+</section>
+<section id="c-complete-fragmentation-table" class="level4">
+<h4 class="anchored" data-anchor-id="c-complete-fragmentation-table">3(c) — Complete fragmentation table</h4>
+<p>Initially, there are <strong>4003 payload bytes</strong>.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Step</th>
+<th style="text-align: right;">Payload emitted</th>
+<th style="text-align: right;">Payload remaining</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>First non-final fragment</td>
+<td style="text-align: right;">1000</td>
+<td style="text-align: right;">3003</td>
+</tr>
+<tr class="even">
+<td>Second non-final fragment</td>
+<td style="text-align: right;">1000</td>
+<td style="text-align: right;">2003</td>
+</tr>
+<tr class="odd">
+<td>Third non-final fragment</td>
+<td style="text-align: right;">1000</td>
+<td style="text-align: right;">1003</td>
+</tr>
+<tr class="even">
+<td>Final fragment</td>
+<td style="text-align: right;">1003</td>
+<td style="text-align: right;">0</td>
+</tr>
+</tbody>
+</table>
+<p>The remaining 1003 bytes fit exactly within the final fragment’s capacity. Therefore:</p>
+<p><span class="math display">\[
+\boxed{\text{4 fragments}}
+\]</span></p>
+<p>Their fields are:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 10%">
+<col style="width: 10%">
+<col style="width: 13%">
+<col style="width: 13%">
+<col style="width: 13%">
+<col style="width: 13%">
+<col style="width: 13%">
+<col style="width: 13%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Fragment</th>
+<th>Original IP payload byte range</th>
+<th style="text-align: right;">Payload bytes</th>
+<th style="text-align: right;">Total Length</th>
+<th style="text-align: right;">ID</th>
+<th style="text-align: right;">DF</th>
+<th style="text-align: right;">MF</th>
+<th style="text-align: right;">Fragment Offset field</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>0–999</td>
+<td style="text-align: right;">1000</td>
+<td style="text-align: right;">1020</td>
+<td style="text-align: right;">1207</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>1000–1999</td>
+<td style="text-align: right;">1000</td>
+<td style="text-align: right;">1020</td>
+<td style="text-align: right;">1207</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">125</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>2000–2999</td>
+<td style="text-align: right;">1000</td>
+<td style="text-align: right;">1020</td>
+<td style="text-align: right;">1207</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">250</td>
+</tr>
+<tr class="even">
+<td>4</td>
+<td>3000–4002</td>
+<td style="text-align: right;">1003</td>
+<td style="text-align: right;">1023</td>
+<td style="text-align: right;">1207</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">375</td>
+</tr>
+</tbody>
+</table>
+<p>The offsets are derived from the starting byte positions:</p>
+<p><span class="math display">\[
+0/8=0,\qquad
+1000/8=125,\qquad
+2000/8=250,\qquad
+3000/8=375.
+\]</span></p>
+<p>Checks:</p>
+<p><span class="math display">\[
+1000+1000+1000+1003=\boxed{4003}
+\]</span></p>
+<p>and every Total Length is at most 1023 bytes.</p>
+<p>All non-final payloads are multiples of eight:</p>
+<p><span class="math display">\[
+1000=125\cdot8.
+\]</span></p>
+<p><strong>The final payload being larger than 1000 is intentional.</strong> Only non-final payloads require alignment.</p>
+<p>A split into <span class="math inline">\(1000+1000+1000+1000+3\)</span> would also satisfy IPv4 alignment, but would use an unnecessary fifth fragment and would not follow the exercise’s instruction to use the entire remainder once it fits.</p>
+</section>
+<section id="d-header-overhead" class="level4">
+<h4 class="anchored" data-anchor-id="d-header-overhead">3(d) — Header overhead</h4>
+<p>The sum of the fragments’ IP Total Lengths is:</p>
+<p><span class="math display">\[
+3\cdot1020+1023
+=\boxed{4083\text{ bytes}}.
+\]</span></p>
+<p>Equivalently:</p>
+<p><span class="math display">\[
+4003\text{ payload bytes}
++4\cdot20\text{ header bytes}
+=4083.
+\]</span></p>
+<p>The original datagram had one 20-byte IP header; the fragmented transmission has four:</p>
+<p><span class="math display">\[
+(4-1)\cdot20
+=\boxed{60\text{ additional IP-header bytes}}.
+\]</span></p>
+<p>Check:</p>
+<p><span class="math display">\[
+4083-4023=60.
+\]</span></p>
+</section>
+<section id="e-transport-and-reassembly" class="level4">
+<h4 class="anchored" data-anchor-id="e-transport-and-reassembly">3(e) — Transport and reassembly</h4>
+<p><strong>Fragments do not receive fresh UDP headers.</strong></p>
+<p>The original UDP header occupies bytes <strong>0–7 of the original IP payload</strong>, so it appears only in <strong>fragment 1</strong>.</p>
+<p>That fragment contains:</p>
+<ul>
+<li>8 bytes of UDP header;</li>
+<li>992 bytes of application data.</li>
+</ul>
+<p>The remaining fragments contain subsequent application data. Each fragment receives its own <strong>IP header</strong>.</p>
+<p>Reassembly takes place at the <strong>destination host’s IP layer</strong>. After successful reassembly, UDP receives the original <strong>4003-byte UDP datagram</strong>:</p>
+<p><span class="math display">\[
+8\text{ header bytes}+3995\text{ application bytes}.
+\]</span></p>
+<p>UDP then delivers the <strong>3995 application bytes</strong> to the receiving application.</p>
+</section>
+<section id="f-two-independent-variants" class="level4">
+<h4 class="anchored" data-anchor-id="f-two-independent-variants">3(f) — Two independent variants</h4>
+<p><strong>3(f)(1) — The fragment with MF = 0 arrives first</strong></p>
+<p>The destination <strong>cannot yet deliver the complete message</strong>.</p>
+<p>MF = 0 identifies the fragment containing the end of the original payload. It does not indicate that all preceding fragments have arrived.</p>
+<p>Here, fragment 4 supplies bytes 3000–4002, but bytes 0–2999 are still missing. IP must wait for complete reassembly before delivering the UDP datagram upward.</p>
+<p><strong>3(f)(2) — The original datagram has DF = 1</strong></p>
+<p>The original IP datagram is <strong>4023 bytes</strong>, exceeding the outgoing MTU of <strong>1023 bytes</strong>.</p>
+<p>Because DF = 1 prohibits fragmentation, R must <strong>drop the datagram</strong> and normally send an <strong>ICMP “fragmentation needed”</strong> error to the original sender.</p>
 
 
+</section>
 </section>
 </section>
 
@@ -1165,14 +1795,13 @@ F=8\lfloor602/8\rfloor=600.
       e.clearSelection();
     }
     const getTextToCopy = function(trigger) {
-      const outerScaffold = trigger.parentElement.cloneNode(true);
-      const codeEl = outerScaffold.querySelector('code');
-      for (const childEl of codeEl.children) {
-        if (isCodeAnnotation(childEl)) {
-          childEl.remove();
+        const codeEl = trigger.previousElementSibling.cloneNode(true);
+        for (const childEl of codeEl.children) {
+          if (isCodeAnnotation(childEl)) {
+            childEl.remove();
+          }
         }
-      }
-      return codeEl.innerText;
+        return codeEl.innerText;
     }
     const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
       text: getTextToCopy
@@ -1521,8 +2150,8 @@ F=8\lfloor602/8\rfloor=600.
       </a>          
   </div>
   <div class="nav-page nav-page-next">
-      <a href="../../exam/notes/subnetting_forwarding_routing.html" class="pagination-link" aria-label="Combined Day 8/9 — Subnetting, forwarding and routing algorithms">
-        <span class="nav-page-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Combined Day 8/9 — Subnetting, forwarding and routing algorithms</span></span> <i class="bi bi-arrow-right-short"></i>
+      <a href="../../exam/notes/subnetting_forwarding_routing.html" class="pagination-link" aria-label="Subnetting, forwarding and routing algorithms">
+        <span class="nav-page-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Subnetting, forwarding and routing algorithms</span></span> <i class="bi bi-arrow-right-short"></i>
       </a>
   </div>
 </nav>
