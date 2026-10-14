@@ -582,3 +582,360 @@ Explain:
 
 1. The fragment with MF = 0 arrives first. Can the destination immediately deliver the application’s complete message? Justify.
 2. Instead, the original datagram has DF = 1. What should R do when forwarding onto the same 1023-byte-MTU link?
+
+## Solutions 
+
+### Exercise 1 — A UDP message through two routers
+
+#### 1(a) — Encapsulation and sizes
+
+The complete frame leaving A has this structure, from beginning to end:
+
+| Ethernet header | IPv4 header | UDP header | Application message $N$ | Ethernet FCS |
+|---|---|---|---|---|
+| Link layer | Network layer | Transport layer | Application layer | Link-layer trailer |
+| 14 bytes | 20 bytes | 8 bytes | 32 bytes | 4 bytes |
+
+Each lower layer encapsulates the **complete higher-layer PDU**, including its header.
+
+| Layer | PDU | Length |
+|---|---|---:|
+| Application | Message $N$ | $32$ bytes |
+| Transport | UDP datagram | $8+32=\boxed{40}$ bytes |
+| Network | IP datagram | $20+40=\boxed{60}$ bytes |
+| Link | Ethernet frame | $14+60+4=\boxed{78}$ bytes |
+
+The **IP Total Length is 60 bytes**. It excludes the Ethernet header and FCS.
+
+#### 1(b) — Addresses and endpoints
+
+These end-to-end fields have the **same values on all three links**:
+
+| Field | Value |
+|---|---|
+| UDP source port | **53000** |
+| UDP destination port | **9000** |
+| IP source address | **192.0.2.10**, host A |
+| IP destination address | **203.0.113.40**, host B |
+
+The Ethernet addresses depend on the current link:
+
+| Link | Source MAC | Destination MAC |
+|---|---|---|
+| A → R1 | $M_A$ | $M_{R1,in}$ |
+| R1 → R2 | $M_{R1,out}$ | $M_{R2,in}$ |
+| R2 → B | $M_{R2,out}$ | $M_B$ |
+
+The communication endpoints are:
+
+- **Transport:** A’s client socket ↔ B’s server socket, selected using IP addresses and UDP ports.
+- **Network:** A’s addressed interface ↔ B’s addressed interface, identified by IP addresses.
+- **Link:** the sending interface ↔ the next-hop receiving interface on the current Ethernet network.
+
+Thus, the first frame goes to **R1’s MAC**, while the enclosed IP datagram goes to **B’s IP**.
+
+#### 1(c) — Processing at R1
+
+R1 accepts the frame because its **destination MAC is $M_{R1,in}$**. The frame is addressed to R1 as the next hop; its enclosed IP datagram is addressed to B as the ultimate destination.
+
+R1 performs these steps:
+
+1. Checks the incoming Ethernet frame and removes its Ethernet header and FCS.
+2. Examines destination IP **203.0.113.40** and selects the outgoing interface toward R2.
+3. Decrements TTL from **64 to 63** and updates the IPv4 header checksum.
+4. Creates a new Ethernet frame containing the forwarded IP datagram:
+   - source MAC: $M_{R1,out}$;
+   - destination MAC: $M_{R2,in}$;
+   - newly calculated Ethernet FCS.
+
+The changes are:
+
+| Information | Result at R1 |
+|---|---|
+| Ethernet wrapping | Removed and replaced |
+| Source/destination MAC | Changed for the next link |
+| Source/destination IP | Remain A’s and B’s |
+| UDP ports | Remain 53000 → 9000 |
+| Application message | Unchanged |
+| TTL | 64 → 63 |
+| IPv4 header checksum | Updated because the IP header changed |
+
+The TTL values on the links are:
+
+| Link | TTL |
+|---|---:|
+| A → R1 | **64** |
+| R1 → R2 | **63** |
+| R2 → B | **62** |
+
+**R1 does not deliver the message to a local socket on port 9000.** The IP destination is B, so R1 forwards the datagram. B performs the eventual UDP socket delivery.
+
+#### 1(d) — Local alternative and ARP
+
+For delivery to C:
+
+| Destination field | Value |
+|---|---|
+| IP destination | **192.0.2.20** |
+| Ethernet destination MAC | **$M_C$** |
+| UDP destination port | **9000** |
+
+Because C is local, A sends directly to C’s MAC.
+
+If the necessary ARP mapping is missing:
+
+| Communication | IP address A asks about using ARP |
+|---|---|
+| A → remote B | **192.0.2.1**, R1’s local gateway interface |
+| A → local C | **192.0.2.20**, C itself |
+
+For B, A resolves the **gateway’s MAC**, not B’s remote MAC.
+
+#### 1(e) — Reply reasoning
+
+B’s reply has these end-to-end addresses:
+
+| Field | Reply value |
+|---|---|
+| Source IP | **203.0.113.40**, B |
+| Destination IP | **192.0.2.10**, A |
+| UDP source port | **9000** |
+| UDP destination port | **53000** |
+
+The source MAC observed by B on the incoming frame is **$M_{R2,out}$**. It identifies R2’s interface on B’s LAN, not A.
+
+B therefore cannot treat that MAC as A’s address across the Internet. B addresses the reply’s IP datagram to A and sends its first Ethernet frame to its gateway, R2.
+
+In this scenario, that gateway MAC happens to be the same MAC B observed as the incoming frame’s source—but it is used **as the local next-hop address**.
+
+### Exercise 2 — One server port, several TCP connections
+
+#### 2(a) — Connection identification
+
+Using the order
+
+$$
+(\text{source IP},\text{source port},
+\text{destination IP},\text{destination port}),
+$$
+
+the connection identifiers are:
+
+| Connection | Four-tuple |
+|---|---|
+| K1 | $(192.0.2.10,\ 51000,\ 203.0.113.40,\ 8080)$ |
+| K2 | $(198.51.100.20,\ 51000,\ 203.0.113.40,\ 8080)$ |
+| K3 | $(192.0.2.10,\ 51001,\ 203.0.113.40,\ 8080)$ |
+
+- **K1 versus K2:** distinguished by the **source IP address**.
+- **K1 versus K3:** distinguished by the **source port**.
+
+#### 2(b) — Demultiplexing
+
+The student’s claim is **incorrect**.
+
+For an established TCP connection, the operating system uses the **complete four-tuple**, not the destination port alone. All three connections can therefore share server port 8080 while using distinct connection sockets.
+
+| Socket | Role |
+|---|---|
+| **Listening socket** | Waits for and accepts new TCP connections |
+| **Established connection socket** | Carries data belonging to one particular established connection |
+
+Accepting a connection does **not** require assigning a different server port: the remote IP and port distinguish connections sharing the same local endpoint.
+
+#### 2(c) — Another transport protocol
+
+The receiving stack processes the frame as follows:
+
+1. **Ethernet:** the EtherType indicates IPv4, so the frame’s payload is passed to IPv4.
+2. **IPv4:** destination IP **203.0.113.40** identifies S. **Protocol = 17** selects **UDP**.
+3. **UDP:** destination port **8080**, together with the destination IP, selects the receiving UDP service/socket.
+
+The datagram is **not delivered to K1–K3**. Those are TCP connections. TCP and UDP have separate port namespaces, so TCP port 8080 and UDP port 8080 can coexist.
+
+#### 2(d) — Port versus PID
+
+**No.** Port 51000 is a transport-layer identifier; a PID identifies an operating-system process.
+
+Their numbers are assigned independently. A process can use multiple sockets and ports, and its PID cannot generally be inferred from a packet’s port number.
+
+### Exercise 3 — Fragmenting one UDP datagram
+
+#### 3(a) — Original lengths
+
+Application data:
+
+$$
+3995\text{ bytes}.
+$$
+
+Adding the UDP header gives:
+
+$$
+\text{UDP datagram length}
+=3995+8
+=\boxed{4003\text{ bytes}}.
+$$
+
+The complete UDP datagram becomes the IP payload:
+
+$$
+\text{IP payload length}
+=\boxed{4003\text{ bytes}}.
+$$
+
+Adding the IP header gives:
+
+$$
+\text{IP Total Length}
+=4003+20
+=\boxed{4023\text{ bytes}}.
+$$
+
+| Quantity | Length | Includes UDP header? | Includes IP header? |
+|---|---:|---|---|
+| Application data | 3995 | No | No |
+| UDP datagram / IP payload | 4003 | Yes | No |
+| Complete IP datagram | 4023 | Yes | Yes |
+
+#### 3(b) — Fragment capacity
+
+The MTU includes the IP header, so the maximum fragment payload capacity is:
+
+$$
+C=1023-20=\boxed{1003\text{ bytes}}.
+$$
+
+A non-final payload must be divisible by eight:
+
+$$
+F=8\left\lfloor\frac{1003}{8}\right\rfloor
+=8\cdot125
+=\boxed{1000\text{ bytes}}.
+$$
+
+The capacities differ because **1003 is not divisible by eight**.
+
+A 1003-byte first payload would make the next fragment start at byte 1003, requiring offset $1003/8=125.375$, which cannot be represented in the integer Fragment Offset field.
+
+The **final fragment can carry 1003 bytes**, because no later fragment needs to start after it.
+
+#### 3(c) — Complete fragmentation table
+
+Initially, there are **4003 payload bytes**.
+
+| Step | Payload emitted | Payload remaining |
+|---|---:|---:|
+| First non-final fragment | 1000 | 3003 |
+| Second non-final fragment | 1000 | 2003 |
+| Third non-final fragment | 1000 | 1003 |
+| Final fragment | 1003 | 0 |
+
+The remaining 1003 bytes fit exactly within the final fragment’s capacity. Therefore:
+
+$$
+\boxed{\text{4 fragments}}
+$$
+
+Their fields are:
+
+| Fragment | Original IP payload byte range | Payload bytes | Total Length | ID | DF | MF | Fragment Offset field |
+|---|---|---:|---:|---:|---:|---:|---:|
+| 1 | 0–999 | 1000 | 1020 | 1207 | 0 | 1 | 0 |
+| 2 | 1000–1999 | 1000 | 1020 | 1207 | 0 | 1 | 125 |
+| 3 | 2000–2999 | 1000 | 1020 | 1207 | 0 | 1 | 250 |
+| 4 | 3000–4002 | 1003 | 1023 | 1207 | 0 | 0 | 375 |
+
+The offsets are derived from the starting byte positions:
+
+$$
+0/8=0,\qquad
+1000/8=125,\qquad
+2000/8=250,\qquad
+3000/8=375.
+$$
+
+Checks:
+
+$$
+1000+1000+1000+1003=\boxed{4003}
+$$
+
+and every Total Length is at most 1023 bytes.
+
+All non-final payloads are multiples of eight:
+
+$$
+1000=125\cdot8.
+$$
+
+**The final payload being larger than 1000 is intentional.** Only non-final payloads require alignment.
+
+A split into $1000+1000+1000+1000+3$ would also satisfy IPv4 alignment, but would use an unnecessary fifth fragment and would not follow the exercise’s instruction to use the entire remainder once it fits.
+
+#### 3(d) — Header overhead
+
+The sum of the fragments’ IP Total Lengths is:
+
+$$
+3\cdot1020+1023
+=\boxed{4083\text{ bytes}}.
+$$
+
+Equivalently:
+
+$$
+4003\text{ payload bytes}
++4\cdot20\text{ header bytes}
+=4083.
+$$
+
+The original datagram had one 20-byte IP header; the fragmented transmission has four:
+
+$$
+(4-1)\cdot20
+=\boxed{60\text{ additional IP-header bytes}}.
+$$
+
+Check:
+
+$$
+4083-4023=60.
+$$
+
+#### 3(e) — Transport and reassembly
+
+**Fragments do not receive fresh UDP headers.**
+
+The original UDP header occupies bytes **0–7 of the original IP payload**, so it appears only in **fragment 1**.
+
+That fragment contains:
+
+- 8 bytes of UDP header;
+- 992 bytes of application data.
+
+The remaining fragments contain subsequent application data. Each fragment receives its own **IP header**.
+
+Reassembly takes place at the **destination host’s IP layer**. After successful reassembly, UDP receives the original **4003-byte UDP datagram**:
+
+$$
+8\text{ header bytes}+3995\text{ application bytes}.
+$$
+
+UDP then delivers the **3995 application bytes** to the receiving application.
+
+#### 3(f) — Two independent variants
+
+**3(f)(1) — The fragment with MF = 0 arrives first**
+
+The destination **cannot yet deliver the complete message**.
+
+MF = 0 identifies the fragment containing the end of the original payload. It does not indicate that all preceding fragments have arrived.
+
+Here, fragment 4 supplies bytes 3000–4002, but bytes 0–2999 are still missing. IP must wait for complete reassembly before delivering the UDP datagram upward.
+
+**3(f)(2) — The original datagram has DF = 1**
+
+The original IP datagram is **4023 bytes**, exceeding the outgoing MTU of **1023 bytes**.
+
+Because DF = 1 prohibits fragmentation, R must **drop the datagram** and normally send an **ICMP “fragmentation needed”** error to the original sender.

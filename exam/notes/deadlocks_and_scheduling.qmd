@@ -1,4 +1,4 @@
-# Day 5 — Deadlocks and CPU scheduling
+# Deadlocks and CPU scheduling
 
 The main skills today are:
 

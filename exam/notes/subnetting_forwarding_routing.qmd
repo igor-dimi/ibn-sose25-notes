@@ -1,4 +1,4 @@
-# Combined Day 8/9 — Subnetting, forwarding and routing algorithms
+# Subnetting, forwarding and routing algorithms
 
 Allow approximately **60–90 minutes for the theory and worked examples**, followed by **90–110 minutes for the three exercises**. Solutions are omitted.
 
@@ -53,7 +53,7 @@ $$
 
 contains $8+8+6=22$ leading ones because:
 
-```text
+```default
 252 = 11111100
 ```
 
@@ -131,7 +131,7 @@ Address arithmetic treats the address as one 32-bit integer, carrying between oc
 
 Only the last octet matters:
 
-```text
+```default
 Address:  10010101   (149)
 Mask:     11100000   (224)
 AND:      10000000   (128)
@@ -277,7 +277,7 @@ A3 also permits **large prefix minus smaller prefix**, with all addresses usable
 
 For example:
 
-```text
+```default
 10.30.6.0/25 - 10.30.6.124/30
 ```
 
@@ -329,14 +329,14 @@ For example, `192.0.2.64`–`192.0.2.127` contains 64 addresses and starts at a 
 
 Its last octets are:
 
-```text
+```default
 64:   01000000
 127:  01111111
 ```
 
 They share two leading bits, giving $24+2=26$ prefix bits:
 
-```text
+```default
 192.0.2.64/26
 ```
 
@@ -348,14 +348,14 @@ Two equal-size prefixes can merge into a prefix one bit shorter when they are th
 
 For example:
 
-```text
+```default
 192.0.2.64/27
 192.0.2.96/27
 ```
 
 merge into:
 
-```text
+```default
 192.0.2.64/26
 ```
 
@@ -404,7 +404,7 @@ Adding a narrower exception does **not** shrink the broader prefix’s represent
 
 For example, routing establishes that the cheapest path to the router serving `10.50.4.0/24` begins through neighbor $a$. The source installs:
 
-```text
+```default
 10.50.4.0/24 → next hop a
 ```
 
@@ -677,7 +677,7 @@ The set contains **50 practice points**, weighted toward allocation/forwarding a
 
 A company has the inclusive address range:
 
-```text
+```default
 172.19.80.0 through 172.19.87.255
 ```
 
@@ -708,7 +708,7 @@ Derive:
 
 Using your mask from 1.2, analyze:
 
-```text
+```default
 172.19.83.173
 ```
 
@@ -727,7 +727,7 @@ Explain which bits distinguish these subnets within the original parent block.
 
 Which addresses belong to the same subnet as `172.19.83.173` under that mask?
 
-```text
+```default
 172.19.83.190
 172.19.83.193
 172.19.82.173
@@ -747,7 +747,7 @@ Three routers form a triangle:
 
 All addresses must come from:
 
-```text
+```default
 10.42.12.0/23
 ```
 
@@ -790,7 +790,7 @@ Calculate how many parent-block addresses remain unallocated, counting complete 
 
 A colleague proposes that LAN B should start at:
 
-```text
+```default
 10.42.12.160/26
 ```
 
@@ -832,7 +832,7 @@ This is a forwarding-policy range: it does not create a new physical subnet or c
 
 For each destination, list **all matching prefixes**, then give the selected prefix, interface and next hop where applicable:
 
-```text
+```default
 10.42.12.20
 10.42.12.150
 10.42.12.210
@@ -859,7 +859,7 @@ Use:
 - alphabetical selection when tentative distances tie;
 - the existing predecessor when a candidate cost equals the current cost.
 
-```mermaid
+```{mermaid}
 flowchart TD
     u((u)) ---|4| a((a))
     u ---|2| b((b))
@@ -933,7 +933,7 @@ Show the predecessor-chain procedure explicitly for destination $e$.
 
 Which entry, next hop and interface are selected for:
 
-```text
+```default
 10.60.5.17
 ```
 
