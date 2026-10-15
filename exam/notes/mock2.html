@@ -1,0 +1,1299 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.9.37">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>12&nbsp; Mock Exam 2 – Operating Systems and Networks SoSe 25 Notes</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../../">
+<link href="../../exam/notes/mock1.html" rel="prev">
+<script src="../../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../../site_libs/quarto-html/popper.min.js"></script>
+<script src="../../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../../site_libs/quarto-html/quarto-syntax-highlighting-7f8f88aac4f3542376d5c11b86a4c14d.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../../site_libs/bootstrap/bootstrap-8dddca75a0c745965e348927a205e40e.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../exam/notes/assignment_overview.html">Exam Notes</a></li><li class="breadcrumb-item"><a href="../../exam/notes/mock2.html"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Mock Exam 2</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../../">Operating Systems and Networks SoSe 25 Notes</a> 
+        <div class="sidebar-tools-main">
+    <a href="../../Operating-Systems-and-Networks-SoSe-25-Notes.pdf" title="Download PDF" class="quarto-navigation-tool px-1" aria-label="Download PDF"><i class="bi bi-file-pdf"></i></a>
+  <a href="" class="quarto-reader-toggle quarto-navigation-tool px-1" onclick="window.quartoToggleReader(); return false;" title="Toggle reader mode">
+  <div class="quarto-reader-toggle-btn">
+  <i class="bi"></i>
+  </div>
+</a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Preface</span></a>
+  </div>
+</li>
+        <li class="sidebar-item sidebar-item-section">
+      <div class="sidebar-item-container"> 
+            <a class="sidebar-item-text sidebar-link text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true">
+ <span class="menu-text">Exam Notes</span></a>
+          <a class="sidebar-item-toggle text-start" data-bs-toggle="collapse" data-bs-target="#quarto-sidebar-section-1" role="navigation" aria-expanded="true" aria-label="Toggle section">
+            <i class="bi bi-chevron-right ms-2"></i>
+          </a> 
+      </div>
+      <ul id="quarto-sidebar-section-1" class="collapse list-unstyled sidebar-section depth1 show">  
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../exam/notes/assignment_overview.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Assignment Sheets Overview</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../exam/notes/plan.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Plan</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../exam/notes/processes_and_fork.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Processes and <code>fork()</code></span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../exam/notes/synchronization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Race conditions, semaphores and synchronization</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../exam/notes/paging_1.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Paging fundamentals</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../exam/notes/paging_2.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Advanced paging and virtual memory</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../exam/notes/deadlocks_and_scheduling.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Deadlocks and CPU scheduling</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../exam/notes/filesystems.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">File systems</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../exam/notes/network_stack.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Network stack</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../exam/notes/subnetting_forwarding_routing.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Subnetting, forwarding and routing algorithms</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../exam/notes/mock1.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Mock Exam 1</span></span></a>
+  </div>
+</li>
+          <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../../exam/notes/mock2.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Mock Exam 2</span></span></a>
+  </div>
+</li>
+      </ul>
+  </li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active" data-toc-expanded="-1">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#aufgabe-1" id="toc-aufgabe-1" class="nav-link active" data-scroll-target="#aufgabe-1">Aufgabe 1</a>
+  <ul class="collapse">
+  <li><a href="#a-3-points" id="toc-a-3-points" class="nav-link" data-scroll-target="#a-3-points">a) — 3 points</a></li>
+  <li><a href="#b-4-points" id="toc-b-4-points" class="nav-link" data-scroll-target="#b-4-points">b) — 4 points</a></li>
+  <li><a href="#c-5-points" id="toc-c-5-points" class="nav-link" data-scroll-target="#c-5-points">c) — 5 points</a></li>
+  </ul></li>
+  <li><a href="#aufgabe-2" id="toc-aufgabe-2" class="nav-link" data-scroll-target="#aufgabe-2">Aufgabe 2</a>
+  <ul class="collapse">
+  <li><a href="#a-3-points-1" id="toc-a-3-points-1" class="nav-link" data-scroll-target="#a-3-points-1">a) — 3 points</a></li>
+  <li><a href="#b-3-points" id="toc-b-3-points" class="nav-link" data-scroll-target="#b-3-points">b) — 3 points</a></li>
+  <li><a href="#c-4-points" id="toc-c-4-points" class="nav-link" data-scroll-target="#c-4-points">c) — 4 points</a></li>
+  <li><a href="#d-4-points" id="toc-d-4-points" class="nav-link" data-scroll-target="#d-4-points">d) — 4 points</a></li>
+  <li><a href="#e-4-points" id="toc-e-4-points" class="nav-link" data-scroll-target="#e-4-points">e) — 4 points</a></li>
+  </ul></li>
+  <li><a href="#aufgabe-3" id="toc-aufgabe-3" class="nav-link" data-scroll-target="#aufgabe-3">Aufgabe 3</a>
+  <ul class="collapse">
+  <li><a href="#a-6-points" id="toc-a-6-points" class="nav-link" data-scroll-target="#a-6-points">a) — 6 points</a></li>
+  <li><a href="#b-4-points-1" id="toc-b-4-points-1" class="nav-link" data-scroll-target="#b-4-points-1">b) — 4 points</a></li>
+  <li><a href="#c-2-points" id="toc-c-2-points" class="nav-link" data-scroll-target="#c-2-points">c) — 2 points</a></li>
+  </ul></li>
+  <li><a href="#aufgabe-4" id="toc-aufgabe-4" class="nav-link" data-scroll-target="#aufgabe-4">Aufgabe 4</a>
+  <ul class="collapse">
+  <li><a href="#a-4-points" id="toc-a-4-points" class="nav-link" data-scroll-target="#a-4-points">a) — 4 points</a></li>
+  <li><a href="#b-3-points-1" id="toc-b-3-points-1" class="nav-link" data-scroll-target="#b-3-points-1">b) — 3 points</a></li>
+  <li><a href="#c-3-points" id="toc-c-3-points" class="nav-link" data-scroll-target="#c-3-points">c) — 3 points</a></li>
+  </ul></li>
+  <li><a href="#aufgabe-5" id="toc-aufgabe-5" class="nav-link" data-scroll-target="#aufgabe-5">Aufgabe 5</a>
+  <ul class="collapse">
+  <li><a href="#a-3-points-2" id="toc-a-3-points-2" class="nav-link" data-scroll-target="#a-3-points-2">a) — 3 points</a></li>
+  <li><a href="#b-5-points" id="toc-b-5-points" class="nav-link" data-scroll-target="#b-5-points">b) — 5 points</a></li>
+  <li><a href="#c-6-points" id="toc-c-6-points" class="nav-link" data-scroll-target="#c-6-points">c) — 6 points</a></li>
+  <li><a href="#d-2-points" id="toc-d-2-points" class="nav-link" data-scroll-target="#d-2-points">d) — 2 points</a></li>
+  </ul></li>
+  <li><a href="#aufgabe-6" id="toc-aufgabe-6" class="nav-link" data-scroll-target="#aufgabe-6">Aufgabe 6</a>
+  <ul class="collapse">
+  <li><a href="#a-4-points-1" id="toc-a-4-points-1" class="nav-link" data-scroll-target="#a-4-points-1">a) — 4 points</a></li>
+  <li><a href="#b-2-points" id="toc-b-2-points" class="nav-link" data-scroll-target="#b-2-points">b) — 2 points</a></li>
+  <li><a href="#c-1-point" id="toc-c-1-point" class="nav-link" data-scroll-target="#c-1-point">c) — 1 point</a></li>
+  <li><a href="#d-1-point" id="toc-d-1-point" class="nav-link" data-scroll-target="#d-1-point">d) — 1 point</a></li>
+  </ul></li>
+  <li><a href="#aufgabe-7" id="toc-aufgabe-7" class="nav-link" data-scroll-target="#aufgabe-7">Aufgabe 7</a>
+  <ul class="collapse">
+  <li><a href="#a-2-points" id="toc-a-2-points" class="nav-link" data-scroll-target="#a-2-points">a) — 2 points</a></li>
+  <li><a href="#b-2-points-1" id="toc-b-2-points-1" class="nav-link" data-scroll-target="#b-2-points-1">b) — 2 points</a></li>
+  <li><a href="#c-2-points-1" id="toc-c-2-points-1" class="nav-link" data-scroll-target="#c-2-points-1">c) — 2 points</a></li>
+  <li><a href="#d-2-points-1" id="toc-d-2-points-1" class="nav-link" data-scroll-target="#d-2-points-1">d) — 2 points</a></li>
+  </ul></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default"><nav class="quarto-page-breadcrumbs quarto-title-breadcrumbs d-none d-lg-block" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../../exam/notes/assignment_overview.html">Exam Notes</a></li><li class="breadcrumb-item"><a href="../../exam/notes/mock2.html"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Mock Exam 2</span></a></li></ol></nav>
+<div class="quarto-title">
+<h1 class="title"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Mock Exam 2</span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p><strong>Suggested working time:</strong> approximately 90 minutes<br>
+<strong>Total points:</strong> 84<br>
+<strong>Number of tasks:</strong> 7<br>
+<strong>Conditions:</strong> Closed book; a basic calculator is permitted.</p>
+<p>Show your reasoning and intermediate calculations unless a question explicitly requests only a result. Give units for numerical answers. Use <span class="math inline">\(1\,\mathrm{KiB}=2^{10}\)</span> bytes and <span class="math inline">\(1\,\mathrm{MiB}=2^{20}\)</span> bytes. All indices and byte offsets start at zero.</p>
+<section id="aufgabe-1" class="level2">
+<h2 class="anchored" data-anchor-id="aufgabe-1">Aufgabe 1</h2>
+<p><strong>12 points</strong></p>
+<p>Threads A and B each produce one result. Neither may enter its <code>combine</code> operation until <strong>both</strong> results have been produced. The production operations access separate storage; both <code>combine</code> operations only read the completed results.</p>
+<p>A programmer proposes:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb1"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>shared Semaphore done = 0</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>Thread A:                    Thread B:</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a>    produce_A()                  produce_B()</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    signal(done)                 signal(done)</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    wait(done)                   wait(done)</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    combine_A()                  combine_B()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<section id="a-3-points" class="level3">
+<h3 class="anchored" data-anchor-id="a-3-points">a) — 3 points</h3>
+<p>Give an execution that violates the required ordering. Show the relevant semaphore operations and explain precisely which requirement fails.</p>
+</section>
+<section id="b-4-points" class="level3">
+<h3 class="anchored" data-anchor-id="b-4-points">b) — 4 points</h3>
+<p>Replace the synchronization with a correct semaphore-based construction.</p>
+<p>Give all initial values and both threads’ pseudocode. The production operations must remain able to execute concurrently; neither thread may busy-wait.</p>
+</section>
+<section id="c-5-points" class="level3">
+<h3 class="anchored" data-anchor-id="c-5-points">c) — 5 points</h3>
+<p>Consider this independent initialization mechanism for three worker threads:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb2"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>shared bool ready = false</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a>shared Mutex m = unlocked</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>shared Condition changed</span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>Worker:</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    lock(m)</span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a>    if not ready:</span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a>        cond_wait(changed, m)</span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a>    unlock(m)</span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a>    use_configuration()</span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a>Initializer:</span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a>    build_configuration()</span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a>    lock(m)</span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a>    ready = true</span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    cond_signal(changed)</span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a>    unlock(m)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>All workers must eventually proceed once initialization finishes, regardless of when they start. Spurious wakeups are possible. The configuration remains unchanged after publication.</p>
+<p>Correct the synchronization and explain the necessary changes. Also state what <code>cond_wait(changed, m)</code> does with the mutex when waiting and before returning.</p>
+</section>
+</section>
+<section id="aufgabe-2" class="level2">
+<h2 class="anchored" data-anchor-id="aufgabe-2">Aufgabe 2</h2>
+<p><strong>18 points</strong></p>
+<p>A byte-addressed machine uses:</p>
+<ul>
+<li>24-bit virtual addresses;</li>
+<li>20-bit physical addresses;</li>
+<li>1 KiB pages;</li>
+<li>two-level page tables;</li>
+<li>an equal split of the virtual-page number between the two levels;</li>
+<li>eight-byte entries at both levels.</li>
+</ul>
+<p>Each table is allocated in full and occupies exactly its entry storage, with no extra metadata. Non-leaf entries contain physical table-base addresses; leaf entries contain frame numbers and flags.</p>
+<section id="a-3-points-1" class="level3">
+<h3 class="anchored" data-anchor-id="a-3-points-1">a) — 3 points</h3>
+<p>Give the virtual-address field widths and the number of entries and bytes in one table at each level.</p>
+</section>
+<section id="b-3-points" class="level3">
+<h3 class="anchored" data-anchor-id="b-3-points">b) — 3 points</h3>
+<p>A process has exactly these allocated virtual pages:</p>
+<p><span class="math display">\[
+0,\quad 127,\quad 128,\quad 130,\quad 1023.
+\]</span></p>
+<p>Only necessary second-level tables are allocated; one root table always exists.</p>
+<p>Determine the number of allocated tables at each level and their total memory consumption. Compare this with a full single-level table using eight-byte entries.</p>
+</section>
+<section id="c-4-points" class="level3">
+<h3 class="anchored" data-anchor-id="c-4-points">c) — 4 points</h3>
+<p>For one read, the virtual address has:</p>
+<ul>
+<li>root index <span class="math inline">\(1\)</span>;</li>
+<li>second-level index <span class="math inline">\(2\)</span>;</li>
+<li>byte offset <span class="math inline">\(29\)</span>.</li>
+</ul>
+<p>The root table starts at physical address <code>0x1000</code>. Its selected entry points to a table at physical address <code>0x3000</code>. The selected leaf entry maps to frame <code>0x2A</code>. All relevant entries are present and permit the read.</p>
+<p>Calculate:</p>
+<ul>
+<li>the virtual byte address;</li>
+<li>the physical address of the selected root entry;</li>
+<li>the physical address of the selected leaf entry;</li>
+<li>the physical address of the requested data.</li>
+</ul>
+<p>Use hexadecimal or decimal consistently.</p>
+</section>
+<section id="d-4-points" class="level3">
+<h3 class="anchored" data-anchor-id="d-4-points">d) — 4 points</h3>
+<p>The system uses a sequential TLB lookup model:</p>
+<ul>
+<li>TLB lookup: <span class="math inline">\(6\,\mathrm{ns}\)</span>;</li>
+<li>each RAM access: <span class="math inline">\(50\,\mathrm{ns}\)</span>;</li>
+<li>TLB hit ratio: <span class="math inline">\(0.96\)</span>.</li>
+</ul>
+<p>All data pages and page-table pages are resident. Ignore other caches, overlap and TLB-update costs. A TLB miss requires a complete two-level walk; no additional TLB lookup is charged afterward.</p>
+<p>Calculate the hit time, miss time and expected time for one data read.</p>
+<p>Does a TLB miss necessarily imply a page fault? Explain briefly.</p>
+</section>
+<section id="e-4-points" class="level3">
+<h3 class="anchored" data-anchor-id="e-4-points">e) — 4 points</h3>
+<p>An independent replacement snapshot has three occupied frames:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: right;">Frame</th>
+<th>Page</th>
+<th style="text-align: right;">Reference bit <span class="math inline">\(R\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">0</td>
+<td>A</td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">1</td>
+<td>B</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">2</td>
+<td>C</td>
+<td style="text-align: right;">1</td>
+</tr>
+</tbody>
+</table>
+<p>The Clock hand points to frame 0. The actual last-access order, from oldest to newest, is <strong>C, A, B</strong>. All pages are clean.</p>
+<p>Process the reference sequence:</p>
+<p><span class="math display">\[
+D,\quad B,\quad E.
+\]</span></p>
+<p>Use these Clock conventions:</p>
+<ul>
+<li>a hit sets the page’s reference bit to 1 and leaves the hand unchanged;</li>
+<li>replacement scans cyclically, clearing and passing entries with <span class="math inline">\(R=1\)</span>;</li>
+<li>the first entry with <span class="math inline">\(R=0\)</span> is replaced;</li>
+<li>a loaded page receives <span class="math inline">\(R=1\)</span>, and the hand advances to the following frame.</li>
+</ul>
+<p>After each reference, record the frame contents, reference bits, hand position and victim, if any.</p>
+<p>Separately, state which page exact LRU would evict for the <strong>first</strong> reference, starting from the original snapshot.</p>
+</section>
+</section>
+<section id="aufgabe-3" class="level2">
+<h2 class="anchored" data-anchor-id="aufgabe-3">Aufgabe 3</h2>
+<p><strong>12 points</strong></p>
+<p>Four processes run on one CPU. Each has one CPU burst, performs no I/O and terminates when that burst finishes.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Process</th>
+<th style="text-align: right;">Arrival time (ms)</th>
+<th style="text-align: right;">CPU burst (ms)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(P_1\)</span></td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">5</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(P_2\)</span></td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(P_3\)</span></td>
+<td style="text-align: right;">3</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(P_4\)</span></td>
+<td style="text-align: right;">6</td>
+<td style="text-align: right;">1</td>
+</tr>
+</tbody>
+</table>
+<p>Context-switch overhead is zero. The CPU never remains idle when a process is ready.</p>
+<p>Use:</p>
+<ul>
+<li><strong>non-preemptive SJF</strong>, with earlier arrival and then lower process index breaking ties;</li>
+<li><strong>Round Robin</strong>, with quantum <span class="math inline">\(q=3\,\mathrm{ms}\)</span>.</li>
+</ul>
+<p>For Round Robin, arrivals join the queue immediately. Arrivals exactly at quantum expiry are enqueued before an unfinished running process is re-enqueued. Completed processes leave the system.</p>
+<section id="a-6-points" class="level3">
+<h3 class="anchored" data-anchor-id="a-6-points">a) — 6 points</h3>
+<p>Draw the complete Gantt diagram for each scheduling policy. Mark every dispatch interval and its start and end times.</p>
+</section>
+<section id="b-4-points-1" class="level3">
+<h3 class="anchored" data-anchor-id="b-4-points-1">b) — 4 points</h3>
+<p>For each policy, determine every process’s turnaround time and waiting time, and calculate the average waiting time.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Process</th>
+<th>SJF turnaround</th>
+<th>SJF waiting</th>
+<th>RR turnaround</th>
+<th>RR waiting</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(P_1\)</span></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(P_2\)</span></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(P_3\)</span></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(P_4\)</span></td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="c-2-points" class="level3">
+<h3 class="anchored" data-anchor-id="c-2-points">c) — 2 points</h3>
+<p>Now consider a system in which new processes can continue arriving indefinitely.</p>
+<p>Which of these two policies can indefinitely postpone a ready process under suitable arrivals? Explain the mechanism, and contrast it with the other policy under a finite ready queue and finite CPU bursts.</p>
+</section>
+</section>
+<section id="aufgabe-4" class="level2">
+<h2 class="anchored" data-anchor-id="aufgabe-4">Aufgabe 4</h2>
+<p><strong>10 points</strong></p>
+<p>An i-node filesystem contains:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb3"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>/srv/archive/report.bin</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>/srv/latest.bin</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p><code>latest.bin</code> is a hard link to <code>report.bin</code>; both names identify the same regular-file i-node.</p>
+<p>Assume:</p>
+<ul>
+<li>each directory occupies one directly addressed block;</li>
+<li>an uncached i-node read costs one disk operation;</li>
+<li>an uncached directory, indirect or file-data block read costs one disk operation;</li>
+<li>reading one object does not implicitly read other objects;</li>
+<li>every object read remains cached;</li>
+<li>there is no separate pathname cache, prefetching or symbolic link;</li>
+<li>initially, only the root directory’s i-node is cached.</li>
+</ul>
+<p>The regular file uses 2048-byte blocks, four direct pointers and one single-indirect pointer. Block addresses occupy four bytes. Direct pointers address the first four logical file blocks. The file is 9 KiB long and has no holes.</p>
+<p>Parts a), b) and c) occur consecutively.</p>
+<section id="a-4-points" class="level3">
+<h3 class="anchored" data-anchor-id="a-4-points">a) — 4 points</h3>
+<p>Resolve <code>/srv/archive/report.bin</code> and load its i-node, without reading any file data.</p>
+<p>List the disk reads in order and give their total number.</p>
+</section>
+<section id="b-3-points-1" class="level3">
+<h3 class="anchored" data-anchor-id="b-3-points-1">b) — 3 points</h3>
+<p>Next, resolve <code>/srv/latest.bin</code> and read its first data byte.</p>
+<p>Give the number and identity of the additional disk reads.</p>
+<p>If the directory entry <code>latest.bin</code> is subsequently removed, does that removal by itself make the file’s data unavailable through <code>report.bin</code>? Explain. Ignore disk writes for this question.</p>
+</section>
+<section id="c-3-points" class="level3">
+<h3 class="anchored" data-anchor-id="c-3-points">c) — 3 points</h3>
+<p>Now read the byte at file offset <strong>8251</strong> through <code>report.bin</code>.</p>
+<p>Determine:</p>
+<ul>
+<li>its logical file-block number and within-block offset;</li>
+<li>the i-node pointer and, if applicable, indirect-block entry used;</li>
+<li>the additional disk reads required under the cache state resulting from a) and b).</li>
+</ul>
+</section>
+</section>
+<section id="aufgabe-5" class="level2">
+<h2 class="anchored" data-anchor-id="aufgabe-5">Aufgabe 5</h2>
+<p><strong>16 points</strong></p>
+<p>A router has the following forwarding entries. Interface symbols identify outgoing interfaces.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Destination prefix</th>
+<th>Interface</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>10.88.32.0/20</td>
+<td><span class="math inline">\(I_0\)</span></td>
+</tr>
+<tr class="even">
+<td>10.88.40.0/22</td>
+<td><span class="math inline">\(I_1\)</span></td>
+</tr>
+<tr class="odd">
+<td>10.88.42.128/25</td>
+<td><span class="math inline">\(I_2\)</span></td>
+</tr>
+<tr class="even">
+<td>0.0.0.0/0</td>
+<td><span class="math inline">\(W\)</span></td>
+</tr>
+</tbody>
+</table>
+<section id="a-3-points-2" class="level3">
+<h3 class="anchored" data-anchor-id="a-3-points-2">a) — 3 points</h3>
+<p>For <strong>10.88.32.0/20</strong>, give its dotted-decimal mask, complete inclusive address range and total number of addresses.</p>
+</section>
+<section id="b-5-points" class="level3">
+<h3 class="anchored" data-anchor-id="b-5-points">b) — 5 points</h3>
+<p>For each destination below, list <strong>all matching entries</strong>, then state the selected prefix and outgoing interface.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Destination</th>
+<th>All matching prefixes</th>
+<th>Selected prefix</th>
+<th>Interface</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>10.88.39.250</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td>10.88.41.9</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>10.88.42.200</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="even">
+<td>10.88.43.200</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr class="odd">
+<td>10.88.48.1</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="c-6-points" class="level3">
+<h3 class="anchored" data-anchor-id="c-6-points">c) — 6 points</h3>
+<p>Independently of the forwarding table above, router <span class="math inline">\(u\)</span> performs distance-vector routing. Its only neighbors are <span class="math inline">\(a,b,c\)</span>.</p>
+<p>Their current advertisements and the local link costs are:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Neighbor <span class="math inline">\(v\)</span></th>
+<th style="text-align: right;"><span class="math inline">\(c(u,v)\)</span></th>
+<th style="text-align: right;"><span class="math inline">\(d_v(x)\)</span></th>
+<th style="text-align: right;"><span class="math inline">\(d_v(y)\)</span></th>
+<th style="text-align: right;"><span class="math inline">\(d_v(z)\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(a\)</span></td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">9</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(b\)</span></td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">4</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(c\)</span></td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">3</td>
+</tr>
+</tbody>
+</table>
+<p>Write the Bellman–Ford update equation, defining its quantities. Calculate <span class="math inline">\(u\)</span>’s distance and selected next hop for each of <span class="math inline">\(x,y,z\)</span>, showing the candidate costs.</p>
+<p>Then <span class="math inline">\(c\)</span> changes its advertised distance to <span class="math inline">\(z\)</span> from 3 to <strong>12</strong>. All other advertisements and link costs remain unchanged.</p>
+<p>Recompute <span class="math inline">\(u\)</span>’s distance and next hop to <span class="math inline">\(z\)</span>. This is one local update using the listed advertisements; do not simulate subsequent exchanges.</p>
+</section>
+<section id="d-2-points" class="level3">
+<h3 class="anchored" data-anchor-id="d-2-points">d) — 2 points</h3>
+<p>Compare the information a router requires to execute Dijkstra’s algorithm with the information it uses for the distance-vector update in c).</p>
+</section>
+</section>
+<section id="aufgabe-6" class="level2">
+<h2 class="anchored" data-anchor-id="aufgabe-6">Aufgabe 6</h2>
+<p><strong>8 points</strong></p>
+<p>A router receives one unfragmented IPv4 datagram containing a UDP datagram.</p>
+<p>The IPv4 datagram has:</p>
+<ul>
+<li>Total Length: <strong>2500 bytes</strong>;</li>
+<li>header length: <strong>20 bytes</strong>, with no options;</li>
+<li>Identification: <strong>731</strong>;</li>
+<li>DF = 0;</li>
+<li>MF = 0;</li>
+<li>Fragment Offset = 0.</li>
+</ul>
+<p>The outgoing link has an IP MTU of <strong>918 bytes</strong>. Every resulting fragment has a 20-byte IPv4 header. The router uses the largest permitted payload for each non-final fragment. No later router fragments these packets again.</p>
+<section id="a-4-points-1" class="level3">
+<h3 class="anchored" data-anchor-id="a-4-points-1">a) — 4 points</h3>
+<p>Determine the fragments and complete a table with one row per fragment:</p>
+<table class="caption-top" style="width:100%;">
+<colgroup>
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
+<col style="width: 14%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Fragment</th>
+<th>Original IP-payload byte range</th>
+<th>Payload length</th>
+<th>Total Length</th>
+<th>Fragment Offset field</th>
+<th>MF</th>
+<th>Identification</th>
+</tr>
+</thead>
+<tbody>
+</tbody>
+</table>
+<p>Byte ranges are inclusive and begin at byte zero of the original IP payload. Give Fragment Offset as the actual value stored in the header field.</p>
+</section>
+<section id="b-2-points" class="level3">
+<h3 class="anchored" data-anchor-id="b-2-points">b) — 2 points</h3>
+<p>Only the first and final fragments have reached the destination; all intervening fragments are still missing.</p>
+<p>Can the destination deliver the complete UDP datagram to the receiving application? Explain what the final fragment’s MF value establishes and what it does not establish.</p>
+</section>
+<section id="c-1-point" class="level3">
+<h3 class="anchored" data-anchor-id="c-1-point">c) — 1 point</h3>
+<p>Which resulting fragment or fragments contain the original UDP header? Does fragmentation create additional UDP headers?</p>
+</section>
+<section id="d-1-point" class="level3">
+<h3 class="anchored" data-anchor-id="d-1-point">d) — 1 point</h3>
+<p>How many additional IP-header bytes are transmitted because of this fragmentation, compared with forwarding the original datagram intact?</p>
+</section>
+</section>
+<section id="aufgabe-7" class="level2">
+<h2 class="anchored" data-anchor-id="aufgabe-7">Aufgabe 7</h2>
+<p><strong>8 points</strong></p>
+<p>A process executes:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb4"><pre class="sourceCode c code-with-copy"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="dt">int</span> value <span class="op">=</span> <span class="dv">4</span><span class="op">;</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>pid_t child <span class="op">=</span> fork<span class="op">();</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> <span class="op">(</span>child <span class="op">==</span> <span class="dv">0</span><span class="op">)</span> <span class="op">{</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>    value <span class="op">=</span> <span class="dv">9</span><span class="op">;</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>    emit<span class="op">(</span><span class="st">"child"</span><span class="op">,</span> value<span class="op">);</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>    exit<span class="op">(</span><span class="dv">0</span><span class="op">);</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a>waitpid<span class="op">(</span>child<span class="op">);</span></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>emit<span class="op">(</span><span class="st">"parent"</span><span class="op">,</span> value<span class="op">);</span></span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Assume:</p>
+<ul>
+<li><code>fork()</code> succeeds;</li>
+<li><code>value</code> is ordinary process-local memory;</li>
+<li><code>waitpid(child)</code> waits for that child’s termination and returns immediately if the child has already terminated;</li>
+<li><code>emit</code> produces one complete output record without buffering effects;</li>
+<li>no signals interrupt the operations.</li>
+</ul>
+<section id="a-2-points" class="level3">
+<h3 class="anchored" data-anchor-id="a-2-points">a) — 2 points</h3>
+<p>What does <code>child</code> contain in each process, and which process reaches <code>waitpid</code>?</p>
+</section>
+<section id="b-2-points-1" class="level3">
+<h3 class="anchored" data-anchor-id="b-2-points-1">b) — 2 points</h3>
+<p>Give the output records and their required ordering. Justify the value in the parent’s record.</p>
+</section>
+<section id="c-2-points-1" class="level3">
+<h3 class="anchored" data-anchor-id="c-2-points-1">c) — 2 points</h3>
+<p>Suppose the parent reaches <code>waitpid</code> before the child terminates.</p>
+<p>Give the parent’s state transition when it waits and its state transition when the child’s termination makes it eligible to continue. Does the termination guarantee that the parent immediately executes its next instruction?</p>
+</section>
+<section id="d-2-points-1" class="level3">
+<h3 class="anchored" data-anchor-id="d-2-points-1">d) — 2 points</h3>
+<p>Consider a replacement using two threads in one process:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb5"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>shared int value = 4</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>Worker:</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    value = 9</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    terminate</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>Main:</span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    start Worker</span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    join Worker</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    emit("main", value)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Assume <code>join</code> returns only after the worker terminates and makes its writes visible.</p>
+<p>What value does Main output, and why does the memory behavior differ from the <code>fork()</code> program?</p>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../../exam/notes/mock1.html" class="pagination-link" aria-label="Mock Exam 1">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Mock Exam 1</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>
