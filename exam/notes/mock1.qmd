@@ -1,0 +1,996 @@
+# Mock Exam 1
+
+**Suggested working time:** approximately 90 minutes  
+**Total points:** 84  
+**Number of tasks:** 7  
+**Conditions:** Closed book; a basic calculator is permitted.
+
+Show your reasoning and intermediate calculations unless a question explicitly requests only a result. Give units for numerical answers. Use $1\,\mathrm{KiB}=2^{10}$ bytes, $1\,\mathrm{MiB}=2^{20}$ bytes and $1\,\mathrm{kB}=1000$ bytes. All indices and byte offsets start at zero.
+
+## Aufgabe 1
+
+**10 points**
+
+One process executes the following C-like code. Every `fork()` succeeds. Variables are ordinary process-local variables; no shared memory is used. `emit(x)` outputs the current value of `x` exactly once, without buffering effects.
+
+```c
+int x = 1;
+
+for (int i = 0; i < 2; i++) {
+    pid_t r = fork();                 // F
+    if (r == 0) {
+        x = x + i + 1;
+        break;
+    }
+    x = x + 10;
+}
+
+if (x < 10) {
+    fork();                          // G
+}
+
+emit(x);
+```
+
+### a) — 5 points
+
+Draw the complete process tree, labeling every creation edge with the call site and, for call F, the loop iteration.
+
+State:
+
+- the total number of processes created, **including the original process**;
+- the meaning of the return value of call F in its parent and child;
+- which processes execute call G.
+
+### b) — 2 points
+
+Give the value output by each process and the total number of output operations. Is the order of these outputs uniquely determined?
+
+### c) — 3 points
+
+Name the five states of the basic process-state model.
+
+Give the state transition associated with each event:
+
+1. A running process requests a blocking disk read.
+2. That disk read completes.
+3. A running process exhausts its CPU quantum.
+
+## Aufgabe 2
+
+**18 points**
+
+A byte-addressed system has:
+
+- 18-bit virtual addresses;
+- $128\,\mathrm{KiB}$ of physical memory;
+- 512-byte pages and frames;
+- four-byte entries in a full, single-level normal page table;
+- eight-byte entries in a basic inverted page table, excluding any auxiliary structures.
+
+The following snapshot describes two processes. These are their only allocated virtual pages. All allocated pages permit reading.
+
+| PID | Virtual page | State |
+|---|---:|---|
+| 17 | 0 | Resident in frame 9 |
+| 17 | 3 | Resident in frame 2 |
+| 17 | 7 | Allocated, but not resident |
+| 28 | 1 | Resident in frame 6 |
+| 28 | 4 | Resident in frame 2 |
+
+The mappings remain unchanged during the questions below.
+
+### a) — 4 points
+
+Determine:
+
+- the number of virtual-page bits and offset bits;
+- the number of physical frames;
+- the memory required by one full normal page table;
+- the memory required by the system-wide basic inverted page table.
+
+### b) — 4 points
+
+Construct the relevant normal page-table entries for both processes. Include the virtual-page index, whether the page is allocated, its present bit and its frame number where applicable.
+
+Explain how the entry for PID 17’s page 7 differs from an entry for an unallocated page.
+
+### c) — 4 points
+
+Complete the following table. If an access cannot immediately produce a physical data address, state the reason instead.
+
+| PID | Virtual byte address | Virtual page | Offset | Physical byte address or event |
+|---|---:|---|---|---|
+| 17 | 1605 | | | |
+| 28 | 2117 | | | |
+| 17 | 3588 | | | |
+
+### d) — 3 points
+
+A basic inverted-table entry stores exactly one pair `(PID, virtual page)` for its frame.
+
+Explain the difficulty this format encounters in the given snapshot and describe one possible extension.
+
+For physical byte address **1100**, give every corresponding `(PID, virtual byte address)` pair established by the snapshot.
+
+### e) — 3 points
+
+Independently of the snapshot, a process allocates a page-aligned region containing exactly **7.5 kB** of data.
+
+Determine the number of required pages, allocated space in bytes and unused space in the final page.
+
+## Aufgabe 3
+
+**10 points**
+
+Two threads execute `reserve()` once each. Initially, `available = 1`. The variable `available` is shared; `r` is private to each thread.
+
+Each numbered instruction is atomic, but the complete operation is not. Instructions execute in program order within each thread. There are no compiler reorderings.
+
+```default
+reserve():
+    1: r = available
+    2: if r <= 0: return FAILURE
+    3: r = r - 1
+    4: available = r
+    5: return SUCCESS
+```
+
+A successful call promises one reservation. No other thread changes `available`.
+
+### a) — 4 points
+
+Give a numbered interleaving in which the reservation requirement is violated.
+
+Show the private register values and the shared value after the relevant instructions. State the returned results and explain the violation.
+
+### b) — 4 points
+
+Repair `reserve()` using a semaphore. Give its initial value and complete pseudocode, including both return paths.
+
+Briefly state the semantics required of `wait` and `signal`.
+
+### c) — 2 points
+
+A proposed alternative protects only instruction 4:
+
+```default
+wait(m)
+available = r
+signal(m)
+```
+
+All other instructions remain outside this critical section, and `m` is initialized to 1.
+
+Does this repair the operation? Justify your answer.
+
+## Aufgabe 4
+
+**16 points**
+
+An undirected router network contains exactly the following links:
+
+| Link | Cost |
+|---|---:|
+| $s-a$ | 2 |
+| $s-b$ | 4 |
+| $a-b$ | 5 |
+| $a-c$ | 6 |
+| $b-c$ | 1 |
+| $b-d$ | 7 |
+| $c-d$ | 2 |
+
+Router $s$ has interface $I_a$ toward $a$ and interface $I_b$ toward $b$.
+
+Three destination LANs must receive addresses from **10.73.24.0/24**:
+
+| LAN | Attached router | Required usable interface addresses |
+|---|---|---:|
+| A | $a$ | 50 |
+| C | $c$ | 100 |
+| D | $d$ | 20 |
+
+Requirements include the LAN-side router interface. Network and broadcast addresses are unavailable to hosts. Allocate the smallest sufficient CIDR block for each LAN, processing the largest block first and always choosing the lowest aligned unused block. Router-to-router links already have addresses outside this allocation.
+
+### a) — 5 points
+
+Allocate all three LANs. For each, give:
+
+- network address and prefix;
+- dotted-decimal subnet mask;
+- usable address range;
+- broadcast address.
+
+### b) — 6 points
+
+Run Dijkstra’s algorithm from $s$ to completion.
+
+Select alphabetically when tentative distances tie. Retain the existing predecessor when a new candidate has equal cost. Each row should show the state after the selected node’s neighbors have been processed; keep finalized values visible.
+
+| Phase | $N'$ | $D(a),p(a)$ | $D(b),p(b)$ | $D(c),p(c)$ | $D(d),p(d)$ |
+|---|---|---|---|---|---|
+| Initialization | | | | | |
+| Step 1 | | | | | |
+| Step 2 | | | | | |
+| Step 3 | | | | | |
+| Step 4 | | | | | |
+
+### c) — 4 points
+
+Construct $s$’s forwarding entries for LANs A, C and D.
+
+For each entry, give the destination prefix, next-hop router, outgoing interface and path cost to the attached router. Ignore additional cost within a destination LAN.
+
+Show the predecessor chain used to determine the next hop toward LAN D.
+
+### d) — 1 point
+
+Which destination prefix, next hop and outgoing interface does $s$ select for **10.73.24.210**?
+
+## Aufgabe 5
+
+**10 points**
+
+A simplified FAT filesystem uses 1024-byte clusters. All indices shown below are valid data-cluster indices. `FREE` and `EOC` are markers.
+
+| Cluster $k$ | FAT[$k$] |
+|---:|---|
+| 0 | FREE |
+| 1 | 7 |
+| 2 | 5 |
+| 3 | FREE |
+| 4 | EOC |
+| 5 | EOC |
+| 6 | FREE |
+| 7 | 4 |
+| 8 | FREE |
+
+Its directory contains:
+
+| File | First cluster | Length |
+|---|---:|---:|
+| `alpha` | 1 | 2500 bytes |
+| `beta` | 2 | 1700 bytes |
+
+There is no preallocation.
+
+### a) — 3 points
+
+For each file, give its ordered cluster chain, allocated data space and unused final-cluster space.
+
+### b) — 3 points
+
+First, `alpha` is deleted and all its clusters are freed. Then a new file `gamma`, of length **3400 bytes**, is created.
+
+New clusters are selected in increasing order of their indices.
+
+Give:
+
+- `gamma`’s first cluster and complete cluster chain;
+- every FAT entry whose **final value differs from the original table**, together with its final value.
+
+### c) — 4 points
+
+An independent i-node filesystem uses:
+
+- 2048-byte blocks;
+- four-byte block addresses;
+- six direct pointers and one single-indirect pointer per i-node.
+
+An indirect block contains only block addresses. Assume sufficient disk space and no other file-size limit.
+
+Calculate the maximum number of addressable file-data blocks and maximum file length in bytes and KiB. Distinguish file-data capacity from the storage occupied by the indirect block.
+
+## Aufgabe 6
+
+**12 points**
+
+A system has three interchangeable instances of resource type $X$ and two of type $Y$.
+
+Instances are exclusive and cannot be forcibly reclaimed. Processes retain their allocations while waiting. Once a process receives its complete outstanding request, it can finish without further requests and releases all resources it holds.
+
+| Process | Currently holds | Requests additionally |
+|---|---|---|
+| $P_1$ | One $X$ | One $Y$ |
+| $P_2$ | One $X$, one $Y$ | One $X$ |
+| $P_3$ | One $Y$ | Two $X$ |
+
+Use resource columns $(X,Y)$ and process rows $(P_1,P_2,P_3)$. Here $R$ contains **current additional requests**, not maximum total claims.
+
+### a) — 3 points
+
+Draw the resource-allocation graph, including individual resource instances and outstanding requests.
+
+Identify a directed cycle, if one exists. State what its presence or absence permits you to conclude before executing the Banker procedure.
+
+### b) — 3 points
+
+Give the course’s $E$, $A$, $C$ and $R$.
+
+### c) — 4 points
+
+Execute the course’s Banker procedure by hand. Whenever several unmarked processes are eligible, choose the lowest process index.
+
+Use a table with the following columns:
+
+| Step | Selected process | Request | $A$ before | $A$ after | Marked processes |
+|---|---|---|---|---|---|
+
+State whether the given situation contains a deadlock and support your conclusion with the completed reduction or remaining unmarked processes.
+
+### d) — 2 points
+
+Name the four Coffman conditions.
+
+## Aufgabe 7
+
+**8 points**
+
+Host H and server S communicate through one router R. Both links use Ethernet.
+
+| Device/interface | IPv4 address | MAC address |
+|---|---|---|
+| H | 192.0.2.130/26 | $M_H$ |
+| R, H-side interface | 192.0.2.129/26 | $M_{RL}$ |
+| R, S-side interface | 203.0.113.1/24 | $M_{RW}$ |
+| S | 203.0.113.9/24 | $M_S$ |
+
+H uses R as its default gateway. H has sent a UDP request from port **49180** to S’s port **7001**. S now sends a reply to that client endpoint.
+
+Assume no NAT, tunneling or fragmentation. Required neighbor-address mappings are already known.
+
+### a) — 2 points
+
+Sketch the reply frame transmitted on the R-to-H link, showing the order of the Ethernet, IPv4 and UDP headers and application payload. Label the layer associated with each header. Omit the Ethernet trailer.
+
+### b) — 4 points
+
+Complete the address information for the reply on both links:
+
+| Field | S → R | R → H |
+|---|---|---|
+| Source MAC | | |
+| Destination MAC | | |
+| Source IP | | |
+| Destination IP | | |
+| Source UDP port | | |
+| Destination UDP port | | |
+
+State what kinds of endpoints MAC addresses, IP addresses and transport ports identify in this communication.
+
+### c) — 2 points
+
+Independently, H sends a UDP message to **192.0.2.190**, whose MAC address is $M_T$.
+
+Determine whether H sends the frame directly to that host or to its gateway. Justify using the subnet mask, and give the frame’s destination MAC and packet’s destination IP.
+
+---
+
+## Solutions 
+
+The numbering below matches the exam. **Total: 84 points.**
+
+### Aufgabe 1 — 10 points
+
+#### a) — 5 points
+
+Label the processes as follows:
+
+| Process | Created by | Creation site |
+|---|---|---|
+| $P_0$ | Original process | — |
+| $P_1$ | $P_0$ | F, iteration $i=0$ |
+| $P_2$ | $P_0$ | F, iteration $i=1$ |
+| $P_3$ | $P_1$ | G |
+
+The process tree is:
+
+```{mermaid}
+flowchart TD
+    P0["P₀: original process"] -->|"F, i = 0"| P1["P₁"]
+    P0 -->|"F, i = 1"| P2["P₂"]
+    P1 -->|"G"| P3["P₃"]
+```
+
+**Four processes exist in total, including the original process.** Three new processes are created.
+
+At every successful call F:
+
+- the parent receives the positive PID of the newly created child;
+- the child receives $0$.
+
+The loop executes as follows:
+
+| Process | Execution |
+|---|---|
+| $P_0$ | At $i=0$, takes the parent branch and changes $x$ from 1 to 11. At $i=1$, again takes the parent branch and changes $x$ from 11 to 21. |
+| $P_1$ | Inherits $x=1,\ i=0$, changes $x$ to 2 and leaves the loop through `break`. |
+| $P_2$ | Inherits $x=11,\ i=1$, changes $x$ to 13 and leaves the loop through `break`. |
+
+Only $P_1$ reaches G with $x<10$. It creates $P_3$, which inherits $x=2$.
+
+#### b) — 2 points
+
+| Process | Output |
+|---|---:|
+| $P_0$ | 21 |
+| $P_1$ | 2 |
+| $P_2$ | 13 |
+| $P_3$ | 2 |
+
+There are **four output operations**.
+
+Their order is **not uniquely determined**: there is no synchronization imposing an order on the `emit` calls.
+
+#### c) — 3 points
+
+The five states are:
+
+- New
+- Ready
+- Running
+- Blocked / Waiting
+- Terminated
+
+| Event | Transition |
+|---|---|
+| Running process requests a blocking disk read | Running → Blocked |
+| Disk read completes | Blocked → Ready |
+| Running process exhausts its quantum | Running → Ready |
+
+I/O completion makes the process eligible to run; it does not itself dispatch the process.
+
+### Aufgabe 2 — 18 points
+
+#### a) — 4 points
+
+The page size is:
+
+$$
+512=2^9\text{ bytes}.
+$$
+
+Therefore:
+
+$$
+\boxed{\text{Offset: }9\text{ bits}},\qquad
+\boxed{\text{Virtual-page number: }18-9=9\text{ bits}}.
+$$
+
+The number of physical frames is:
+
+$$
+\frac{128\cdot1024}{512}=256=2^8.
+$$
+
+A full normal page table has one entry per virtual page:
+
+$$
+2^9\cdot4=2048\text{ bytes}
+=\boxed{2\text{ KiB per process}}.
+$$
+
+The inverted page table has one entry per physical frame:
+
+$$
+256\cdot8=2048\text{ bytes}
+=\boxed{2\text{ KiB system-wide}}.
+$$
+
+This excludes auxiliary structures, as specified.
+
+#### b) — 4 points
+
+| PID | Virtual page | Allocated? | Present bit | Frame |
+|---|---:|---|---:|---:|
+| 17 | 0 | Yes | 1 | 9 |
+| 17 | 3 | Yes | 1 | 2 |
+| 17 | 7 | Yes | 0 | — |
+| 28 | 1 | Yes | 1 | 6 |
+| 28 | 4 | Yes | 1 | 2 |
+
+All other virtual pages are unallocated under the stated snapshot.
+
+**PID 17’s page 7 belongs to its allocated address space but is currently absent from RAM.** Accessing it can trigger loading by the operating system.
+
+An unallocated page does not belong to an allocated region. Accessing it is an invalid access under the given model.
+
+Both may have a present bit of zero, so **the present bit alone does not distinguish them**. The distinction requires other page-table information or operating-system metadata.
+
+#### c) — 4 points
+
+Use:
+
+$$
+p=\left\lfloor\frac{V}{512}\right\rfloor,\qquad
+d=V\bmod512,\qquad
+A=f\cdot512+d.
+$$
+
+| PID | Virtual address | Virtual page | Offset | Physical address or event |
+|---|---:|---:|---:|---|
+| 17 | 1605 | 3 | 69 | $2\cdot512+69=\boxed{1093}$ |
+| 28 | 2117 | 4 | 69 | $2\cdot512+69=\boxed{1093}$ |
+| 17 | 3588 | 7 | 4 | **Page fault:** allocated page is not resident |
+
+For the final access, no physical data address can be determined from the snapshot. The frame chosen when loading the page is unspecified.
+
+#### d) — 3 points
+
+Frame 2 is shared by:
+
+$$
+(\mathrm{PID}=17,\ p=3)
+\quad\text{and}\quad
+(\mathrm{PID}=28,\ p=4).
+$$
+
+An inverted entry containing only one `(PID, virtual page)` pair cannot represent both mappings simultaneously.
+
+One possible extension is an **alias list associated with the frame**, recording every `(PID, virtual page)` mapping to it.
+
+For physical address 1100:
+
+$$
+1100=2\cdot512+76.
+$$
+
+Thus the corresponding virtual addresses are:
+
+| PID | Virtual page | Virtual byte address |
+|---|---:|---:|
+| 17 | 3 | $3\cdot512+76=\boxed{1612}$ |
+| 28 | 4 | $4\cdot512+76=\boxed{2124}$ |
+
+#### e) — 3 points
+
+Here, kB is decimal:
+
+$$
+7.5\text{ kB}=7500\text{ bytes}.
+$$
+
+Required pages:
+
+$$
+\left\lceil\frac{7500}{512}\right\rceil
+=\boxed{15}.
+$$
+
+Allocated space:
+
+$$
+15\cdot512=\boxed{7680\text{ bytes}}.
+$$
+
+Unused final-page space:
+
+$$
+7680-7500=\boxed{180\text{ bytes}}.
+$$
+
+### Aufgabe 3 — 10 points
+
+#### a) — 4 points
+
+One violating interleaving is:
+
+| Step | Thread and instruction | $r_A$ | $r_B$ | `available` | Result |
+|---:|---|---:|---:|---:|---|
+| 1 | A: instruction 1 | 1 | — | 1 | |
+| 2 | B: instruction 1 | 1 | 1 | 1 | |
+| 3 | A: instruction 2 | 1 | 1 | 1 | Continues |
+| 4 | B: instruction 2 | 1 | 1 | 1 | Continues |
+| 5 | A: instruction 3 | 0 | 1 | 1 | |
+| 6 | B: instruction 3 | 0 | 0 | 1 | |
+| 7 | A: instruction 4 | 0 | 0 | 0 | |
+| 8 | B: instruction 4 | 0 | 0 | 0 | |
+| 9 | A: instruction 5 | 0 | 0 | 0 | SUCCESS |
+| 10 | B: instruction 5 | 0 | 0 | 0 | SUCCESS |
+
+**Both calls succeed despite there being only one available reservation.**
+
+The final value of `available` is zero, but that value hides the fact that two reservations were promised.
+
+#### b) — 4 points
+
+Use one shared semaphore initialized to 1:
+
+```default
+shared Semaphore m = 1
+
+reserve() -> Result:
+    wait(m)
+
+    int r = available
+
+    if r <= 0:
+        signal(m)
+        return FAILURE
+
+    r = r - 1
+    available = r
+
+    signal(m)
+    return SUCCESS
+```
+
+The entire **read–check–update** operation is protected.
+
+Required semaphore semantics:
+
+- `wait(m)` atomically acquires a permit if one is available; otherwise the caller blocks until it can acquire one.
+- `signal(m)` releases a permit, allowing a waiting thread to proceed if one exists.
+
+Both return paths release the semaphore.
+
+#### c) — 2 points
+
+**No.** Protecting only the store does not protect the earlier read and decision.
+
+Both threads can read `available = 1`, pass the check and privately calculate $r=0$. They then acquire the semaphore one after another, each store zero, and both return success.
+
+Serializing the writes does not make the complete reservation operation atomic.
+
+### Aufgabe 4 — 16 points
+
+#### a) — 5 points
+
+The allocation order is C, A, D.
+
+| LAN | Required usable addresses | Network/prefix | Mask | Usable range | Broadcast |
+|---|---:|---|---|---|---|
+| C | 100 | **10.73.24.0/25** | 255.255.255.128 | 10.73.24.1–10.73.24.126 | 10.73.24.127 |
+| A | 50 | **10.73.24.128/26** | 255.255.255.192 | 10.73.24.129–10.73.24.190 | 10.73.24.191 |
+| D | 20 | **10.73.24.192/27** | 255.255.255.224 | 10.73.24.193–10.73.24.222 | 10.73.24.223 |
+
+The usable capacities are respectively:
+
+$$
+2^7-2=126,\qquad
+2^6-2=62,\qquad
+2^5-2=30.
+$$
+
+Each block is aligned and does not overlap the others.
+
+#### b) — 6 points
+
+Each destination cell contains **distance, predecessor**.
+
+| Phase | $N'$ | $D(a),p(a)$ | $D(b),p(b)$ | $D(c),p(c)$ | $D(d),p(d)$ |
+|---|---|---|---|---|---|
+| Initialization | $\{s\}$ | $2,s$ | $4,s$ | $\infty,-$ | $\infty,-$ |
+| Step 1: select $a$ | $\{s,a\}$ | $2,s$ | $4,s$ | $8,a$ | $\infty,-$ |
+| Step 2: select $b$ | $\{s,a,b\}$ | $2,s$ | $4,s$ | $5,b$ | $11,b$ |
+| Step 3: select $c$ | $\{s,a,b,c\}$ | $2,s$ | $4,s$ | $5,b$ | $7,c$ |
+| Step 4: select $d$ | $\{s,a,b,c,d\}$ | $2,s$ | $4,s$ | $5,b$ | $7,c$ |
+
+The improvements are:
+
+$$
+D(c):\quad \infty\rightarrow 2+6=8
+\rightarrow4+1=5,
+$$
+
+$$
+D(d):\quad \infty\rightarrow4+7=11
+\rightarrow5+2=7.
+$$
+
+Final shortest paths:
+
+| Destination | Path | Cost |
+|---|---|---:|
+| $a$ | $s\to a$ | 2 |
+| $b$ | $s\to b$ | 4 |
+| $c$ | $s\to b\to c$ | 5 |
+| $d$ | $s\to b\to c\to d$ | 7 |
+
+#### c) — 4 points
+
+| LAN | Destination prefix | Next hop | Outgoing interface | Cost to attached router |
+|---|---|---|---|---:|
+| A | 10.73.24.128/26 | $a$ | $I_a$ | 2 |
+| C | 10.73.24.0/25 | $b$ | $I_b$ | 5 |
+| D | 10.73.24.192/27 | $b$ | $I_b$ | 7 |
+
+For LAN D, follow the predecessor chain backward:
+
+$$
+d\rightarrow p(d)=c
+\rightarrow p(c)=b
+\rightarrow p(b)=s.
+$$
+
+Reversing it gives:
+
+$$
+s\rightarrow b\rightarrow c\rightarrow d.
+$$
+
+Therefore, the next hop is **$b$**. The predecessor of the destination, $c$, is not the next hop from $s$.
+
+#### d) — 1 point
+
+Address **10.73.24.210** belongs to **10.73.24.192/27**.
+
+The selected next hop is **$b$** through **$I_b$**.
+
+### Aufgabe 5 — 10 points
+
+#### a) — 3 points
+
+| File | Cluster chain | Allocated data space | Unused final-cluster space |
+|---|---|---:|---:|
+| `alpha` | $1\to7\to4\to\mathrm{EOC}$ | $3\cdot1024=\boxed{3072}$ bytes | $3072-2500=\boxed{572}$ bytes |
+| `beta` | $2\to5\to\mathrm{EOC}$ | $2\cdot1024=\boxed{2048}$ bytes | $2048-1700=\boxed{348}$ bytes |
+
+`EOC` is the marker stored in the final cluster’s FAT entry; it is not an additional cluster.
+
+#### b) — 3 points
+
+Deleting `alpha` frees clusters 1, 7 and 4.
+
+The free clusters are then:
+
+$$
+0,\ 1,\ 3,\ 4,\ 6,\ 7,\ 8.
+$$
+
+`gamma` requires:
+
+$$
+\left\lceil\frac{3400}{1024}\right\rceil=4
+$$
+
+clusters. The allocation rule selects:
+
+$$
+0,\ 1,\ 3,\ 4.
+$$
+
+Thus:
+
+$$
+\boxed{\text{First cluster}=0},
+$$
+
+$$
+\boxed{0\to1\to3\to4\to\mathrm{EOC}}.
+$$
+
+The entries whose **final values differ from the original table** are:
+
+| Entry | Original value | Final value |
+|---|---|---|
+| FAT[0] | FREE | 1 |
+| FAT[1] | 7 | 3 |
+| FAT[3] | FREE | 4 |
+| FAT[7] | 4 | FREE |
+
+**FAT[4] is not included:** it is temporarily freed, but its final value is `EOC`, exactly as in the original table.
+
+#### c) — 4 points
+
+One indirect block holds:
+
+$$
+\frac{2048}{4}=512
+$$
+
+block addresses.
+
+The total number of addressable file-data blocks is:
+
+$$
+6+512=\boxed{518}.
+$$
+
+Maximum file length:
+
+$$
+518\cdot2048
+=\boxed{1\,060\,864\text{ bytes}}
+=\boxed{1036\text{ KiB}}.
+$$
+
+The indirect block holds pointers, not file contents. Its 2048 bytes therefore **do not contribute to the maximum file length**.
+
+At maximum file length, storage for data plus the indirect block, excluding the i-node, is:
+
+$$
+(518+1)\cdot2048
+=1\,062\,912\text{ bytes}
+=1038\text{ KiB}.
+$$
+
+### Aufgabe 6 — 12 points
+
+#### a) — 3 points
+
+Label the instances $X_1,X_2,X_3$ and $Y_1,Y_2$.
+
+One valid assignment of instance labels is:
+
+| Allocation edge | Meaning |
+|---|---|
+| $X_1\to P_1$ | $P_1$ holds one $X$ |
+| $X_2\to P_2$ | $P_2$ holds one $X$ |
+| $Y_1\to P_2$ | $P_2$ holds one $Y$ |
+| $Y_2\to P_3$ | $P_3$ holds one $Y$ |
+
+$X_3$ is free.
+
+The request edges are:
+
+| Request edge | Number of instances requested |
+|---|---:|
+| $P_1\to Y$ | 1 |
+| $P_2\to X$ | 1 |
+| $P_3\to X$ | 2 |
+
+Requests target a resource **type**, since instances of that type are interchangeable. The graph can be represented compactly as:
+
+```{mermaid}
+flowchart TD
+    X["X: three instances; X₃ free"] -->|"X₁ allocated"| P1["P₁"]
+    X -->|"X₂ allocated"| P2["P₂"]
+    Y["Y: two instances"] -->|"Y₁ allocated"| P2
+    Y -->|"Y₂ allocated"| P3["P₃"]
+    P1 -->|"requests 1"| Y
+    P2 -->|"requests 1"| X
+    P3 -->|"requests 2"| X
+```
+
+A directed cycle is:
+
+$$
+P_1\rightarrow Y\rightarrow P_2\rightarrow X\rightarrow P_1.
+$$
+
+Because there are multiple instances per resource type, **this cycle does not by itself establish a deadlock**.
+
+#### b) — 3 points
+
+With columns $(X,Y)$:
+
+$$
+\boxed{E=(3,2)}.
+$$
+
+The allocation matrix is:
+
+$$
+\boxed{
+C=
+\begin{pmatrix}
+1&0\\
+1&1\\
+0&1
+\end{pmatrix}
+}.
+$$
+
+The current additional-request matrix is:
+
+$$
+\boxed{
+R=
+\begin{pmatrix}
+0&1\\
+1&0\\
+2&0
+\end{pmatrix}
+}.
+$$
+
+The total allocation is:
+
+$$
+\sum_i C_i=(2,2).
+$$
+
+Therefore:
+
+$$
+\boxed{A=E-\sum_i C_i=(3,2)-(2,2)=(1,0)}.
+$$
+
+#### c) — 4 points
+
+Initially, only $P_2$’s complete request can be satisfied.
+
+| Step | Selected process | Request | $A$ before | $A$ after | Marked processes |
+|---:|---|---|---|---|---|
+| 1 | $P_2$ | $(1,0)$ | $(1,0)$ | $(2,1)$ | $\{P_2\}$ |
+| 2 | $P_1$ | $(0,1)$ | $(2,1)$ | $(3,1)$ | $\{P_1,P_2\}$ |
+| 3 | $P_3$ | $(2,0)$ | $(3,1)$ | $(3,2)$ | $\{P_1,P_2,P_3\}$ |
+
+After $P_2$ is marked, both remaining processes are eligible. The lowest-index rule selects $P_1$.
+
+The update after each selected process is:
+
+$$
+A_{\text{after}}=A_{\text{before}}+C_i.
+$$
+
+The requested resources are temporarily acquired and then returned; the net increase is the process’s original allocation.
+
+All processes can be marked, with completion sequence:
+
+$$
+\boxed{P_2,\ P_1,\ P_3}.
+$$
+
+Therefore, **there is no deadlock in the given situation under the stated assumptions**.
+
+#### d) — 2 points
+
+The four Coffman conditions are:
+
+1. **Mutual exclusion:** a resource instance cannot be shared simultaneously.
+2. **Hold and wait:** a process retains resources while requesting others.
+3. **No preemption:** allocated resources cannot be forcibly taken away.
+4. **Circular wait:** processes form a cycle of resource dependencies.
+
+### Aufgabe 7 — 8 points
+
+#### a) — 2 points
+
+The reply frame on the R-to-H link contains, in transmission order:
+
+| Position | Content | Layer |
+|---:|---|---|
+| 1 | Ethernet header | Link / Sicherungsschicht |
+| 2 | IPv4 header | Network / Netzwerkschicht |
+| 3 | UDP header | Transport / Transportschicht |
+| 4 | Reply payload | Application / Anwendungsschicht |
+
+The UDP datagram is encapsulated inside the IP packet, which is encapsulated inside the Ethernet frame.
+
+#### b) — 4 points
+
+| Field | S → R | R → H |
+|---|---|---|
+| Source MAC | $M_S$ | $M_{RL}$ |
+| Destination MAC | $M_{RW}$ | $M_H$ |
+| Source IP | 203.0.113.9 | 203.0.113.9 |
+| Destination IP | 192.0.2.130 | 192.0.2.130 |
+| Source UDP port | 7001 | 7001 |
+| Destination UDP port | 49180 | 49180 |
+
+The address types identify different endpoints:
+
+- **MAC addresses:** interfaces participating in delivery over the current Ethernet link.
+- **IP addresses:** the source and destination IP endpoints across the routed network.
+- **Transport ports:** transport endpoints associated with communicating applications; a port is interpreted together with its host address and transport protocol.
+
+The router replaces the Ethernet encapsulation for the next link. With no NAT, the source/destination IP addresses and UDP ports remain unchanged.
+
+#### c) — 2 points
+
+H’s `/26` mask is:
+
+$$
+255.255.255.192.
+$$
+
+For the final octet:
+
+$$
+130\mathbin{\&}192=128,
+\qquad
+190\mathbin{\&}192=128.
+$$
+
+Both addresses therefore belong to:
+
+$$
+192.0.2.128/26.
+$$
+
+H sends the frame **directly to the destination host**, without using the gateway.
+
+- **Destination MAC:** $\boxed{M_T}$
+- **Destination IP:** $\boxed{192.0.2.190}$

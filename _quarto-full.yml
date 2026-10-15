@@ -13,3 +13,5 @@ book:
       - exam/notes/filesystems.qmd
       - exam/notes/network_stack.qmd
       - exam/notes/subnetting_forwarding_routing.qmd
+      - exam/notes/mock1.qmd
+      - exam/notes/mock2.qmd

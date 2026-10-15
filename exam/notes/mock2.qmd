@@ -1,0 +1,405 @@
+# Mock Exam 2
+
+**Suggested working time:** approximately 90 minutes  
+**Total points:** 84  
+**Number of tasks:** 7  
+**Conditions:** Closed book; a basic calculator is permitted.
+
+Show your reasoning and intermediate calculations unless a question explicitly requests only a result. Give units for numerical answers. Use $1\,\mathrm{KiB}=2^{10}$ bytes and $1\,\mathrm{MiB}=2^{20}$ bytes. All indices and byte offsets start at zero.
+
+## Aufgabe 1
+
+**12 points**
+
+Threads A and B each produce one result. Neither may enter its `combine` operation until **both** results have been produced. The production operations access separate storage; both `combine` operations only read the completed results.
+
+A programmer proposes:
+
+```default
+shared Semaphore done = 0
+
+Thread A:                    Thread B:
+    produce_A()                  produce_B()
+    signal(done)                 signal(done)
+    wait(done)                   wait(done)
+    combine_A()                  combine_B()
+```
+
+### a) — 3 points
+
+Give an execution that violates the required ordering. Show the relevant semaphore operations and explain precisely which requirement fails.
+
+### b) — 4 points
+
+Replace the synchronization with a correct semaphore-based construction.
+
+Give all initial values and both threads’ pseudocode. The production operations must remain able to execute concurrently; neither thread may busy-wait.
+
+### c) — 5 points
+
+Consider this independent initialization mechanism for three worker threads:
+
+```default
+shared bool ready = false
+shared Mutex m = unlocked
+shared Condition changed
+
+Worker:
+    lock(m)
+    if not ready:
+        cond_wait(changed, m)
+    unlock(m)
+    use_configuration()
+
+Initializer:
+    build_configuration()
+    lock(m)
+    ready = true
+    cond_signal(changed)
+    unlock(m)
+```
+
+All workers must eventually proceed once initialization finishes, regardless of when they start. Spurious wakeups are possible. The configuration remains unchanged after publication.
+
+Correct the synchronization and explain the necessary changes. Also state what `cond_wait(changed, m)` does with the mutex when waiting and before returning.
+
+## Aufgabe 2
+
+**18 points**
+
+A byte-addressed machine uses:
+
+- 24-bit virtual addresses;
+- 20-bit physical addresses;
+- 1 KiB pages;
+- two-level page tables;
+- an equal split of the virtual-page number between the two levels;
+- eight-byte entries at both levels.
+
+Each table is allocated in full and occupies exactly its entry storage, with no extra metadata. Non-leaf entries contain physical table-base addresses; leaf entries contain frame numbers and flags.
+
+### a) — 3 points
+
+Give the virtual-address field widths and the number of entries and bytes in one table at each level.
+
+### b) — 3 points
+
+A process has exactly these allocated virtual pages:
+
+$$
+0,\quad 127,\quad 128,\quad 130,\quad 1023.
+$$
+
+Only necessary second-level tables are allocated; one root table always exists.
+
+Determine the number of allocated tables at each level and their total memory consumption. Compare this with a full single-level table using eight-byte entries.
+
+### c) — 4 points
+
+For one read, the virtual address has:
+
+- root index $1$;
+- second-level index $2$;
+- byte offset $29$.
+
+The root table starts at physical address `0x1000`. Its selected entry points to a table at physical address `0x3000`. The selected leaf entry maps to frame `0x2A`. All relevant entries are present and permit the read.
+
+Calculate:
+
+- the virtual byte address;
+- the physical address of the selected root entry;
+- the physical address of the selected leaf entry;
+- the physical address of the requested data.
+
+Use hexadecimal or decimal consistently.
+
+### d) — 4 points
+
+The system uses a sequential TLB lookup model:
+
+- TLB lookup: $6\,\mathrm{ns}$;
+- each RAM access: $50\,\mathrm{ns}$;
+- TLB hit ratio: $0.96$.
+
+All data pages and page-table pages are resident. Ignore other caches, overlap and TLB-update costs. A TLB miss requires a complete two-level walk; no additional TLB lookup is charged afterward.
+
+Calculate the hit time, miss time and expected time for one data read.
+
+Does a TLB miss necessarily imply a page fault? Explain briefly.
+
+### e) — 4 points
+
+An independent replacement snapshot has three occupied frames:
+
+| Frame | Page | Reference bit $R$ |
+|---:|---|---:|
+| 0 | A | 1 |
+| 1 | B | 0 |
+| 2 | C | 1 |
+
+The Clock hand points to frame 0. The actual last-access order, from oldest to newest, is **C, A, B**. All pages are clean.
+
+Process the reference sequence:
+
+$$
+D,\quad B,\quad E.
+$$
+
+Use these Clock conventions:
+
+- a hit sets the page’s reference bit to 1 and leaves the hand unchanged;
+- replacement scans cyclically, clearing and passing entries with $R=1$;
+- the first entry with $R=0$ is replaced;
+- a loaded page receives $R=1$, and the hand advances to the following frame.
+
+After each reference, record the frame contents, reference bits, hand position and victim, if any.
+
+Separately, state which page exact LRU would evict for the **first** reference, starting from the original snapshot.
+
+## Aufgabe 3
+
+**12 points**
+
+Four processes run on one CPU. Each has one CPU burst, performs no I/O and terminates when that burst finishes.
+
+| Process | Arrival time (ms) | CPU burst (ms) |
+|---|---:|---:|
+| $P_1$ | 0 | 5 |
+| $P_2$ | 1 | 3 |
+| $P_3$ | 3 | 2 |
+| $P_4$ | 6 | 1 |
+
+Context-switch overhead is zero. The CPU never remains idle when a process is ready.
+
+Use:
+
+- **non-preemptive SJF**, with earlier arrival and then lower process index breaking ties;
+- **Round Robin**, with quantum $q=3\,\mathrm{ms}$.
+
+For Round Robin, arrivals join the queue immediately. Arrivals exactly at quantum expiry are enqueued before an unfinished running process is re-enqueued. Completed processes leave the system.
+
+### a) — 6 points
+
+Draw the complete Gantt diagram for each scheduling policy. Mark every dispatch interval and its start and end times.
+
+### b) — 4 points
+
+For each policy, determine every process’s turnaround time and waiting time, and calculate the average waiting time.
+
+| Process | SJF turnaround | SJF waiting | RR turnaround | RR waiting |
+|---|---|---|---|---|
+| $P_1$ | | | | |
+| $P_2$ | | | | |
+| $P_3$ | | | | |
+| $P_4$ | | | | |
+
+### c) — 2 points
+
+Now consider a system in which new processes can continue arriving indefinitely.
+
+Which of these two policies can indefinitely postpone a ready process under suitable arrivals? Explain the mechanism, and contrast it with the other policy under a finite ready queue and finite CPU bursts.
+
+## Aufgabe 4
+
+**10 points**
+
+An i-node filesystem contains:
+
+```default
+/srv/archive/report.bin
+/srv/latest.bin
+```
+
+`latest.bin` is a hard link to `report.bin`; both names identify the same regular-file i-node.
+
+Assume:
+
+- each directory occupies one directly addressed block;
+- an uncached i-node read costs one disk operation;
+- an uncached directory, indirect or file-data block read costs one disk operation;
+- reading one object does not implicitly read other objects;
+- every object read remains cached;
+- there is no separate pathname cache, prefetching or symbolic link;
+- initially, only the root directory’s i-node is cached.
+
+The regular file uses 2048-byte blocks, four direct pointers and one single-indirect pointer. Block addresses occupy four bytes. Direct pointers address the first four logical file blocks. The file is 9 KiB long and has no holes.
+
+Parts a), b) and c) occur consecutively.
+
+### a) — 4 points
+
+Resolve `/srv/archive/report.bin` and load its i-node, without reading any file data.
+
+List the disk reads in order and give their total number.
+
+### b) — 3 points
+
+Next, resolve `/srv/latest.bin` and read its first data byte.
+
+Give the number and identity of the additional disk reads.
+
+If the directory entry `latest.bin` is subsequently removed, does that removal by itself make the file’s data unavailable through `report.bin`? Explain. Ignore disk writes for this question.
+
+### c) — 3 points
+
+Now read the byte at file offset **8251** through `report.bin`.
+
+Determine:
+
+- its logical file-block number and within-block offset;
+- the i-node pointer and, if applicable, indirect-block entry used;
+- the additional disk reads required under the cache state resulting from a) and b).
+
+## Aufgabe 5
+
+**16 points**
+
+A router has the following forwarding entries. Interface symbols identify outgoing interfaces.
+
+| Destination prefix | Interface |
+|---|---|
+| 10.88.32.0/20 | $I_0$ |
+| 10.88.40.0/22 | $I_1$ |
+| 10.88.42.128/25 | $I_2$ |
+| 0.0.0.0/0 | $W$ |
+
+### a) — 3 points
+
+For **10.88.32.0/20**, give its dotted-decimal mask, complete inclusive address range and total number of addresses.
+
+### b) — 5 points
+
+For each destination below, list **all matching entries**, then state the selected prefix and outgoing interface.
+
+| Destination | All matching prefixes | Selected prefix | Interface |
+|---|---|---|---|
+| 10.88.39.250 | | | |
+| 10.88.41.9 | | | |
+| 10.88.42.200 | | | |
+| 10.88.43.200 | | | |
+| 10.88.48.1 | | | |
+
+### c) — 6 points
+
+Independently of the forwarding table above, router $u$ performs distance-vector routing. Its only neighbors are $a,b,c$.
+
+Their current advertisements and the local link costs are:
+
+| Neighbor $v$ | $c(u,v)$ | $d_v(x)$ | $d_v(y)$ | $d_v(z)$ |
+|---|---:|---:|---:|---:|
+| $a$ | 2 | 2 | 8 | 9 |
+| $b$ | 5 | 7 | 2 | 4 |
+| $c$ | 1 | 5 | 8 | 3 |
+
+Write the Bellman–Ford update equation, defining its quantities. Calculate $u$’s distance and selected next hop for each of $x,y,z$, showing the candidate costs.
+
+Then $c$ changes its advertised distance to $z$ from 3 to **12**. All other advertisements and link costs remain unchanged.
+
+Recompute $u$’s distance and next hop to $z$. This is one local update using the listed advertisements; do not simulate subsequent exchanges.
+
+### d) — 2 points
+
+Compare the information a router requires to execute Dijkstra’s algorithm with the information it uses for the distance-vector update in c).
+
+## Aufgabe 6
+
+**8 points**
+
+A router receives one unfragmented IPv4 datagram containing a UDP datagram.
+
+The IPv4 datagram has:
+
+- Total Length: **2500 bytes**;
+- header length: **20 bytes**, with no options;
+- Identification: **731**;
+- DF = 0;
+- MF = 0;
+- Fragment Offset = 0.
+
+The outgoing link has an IP MTU of **918 bytes**. Every resulting fragment has a 20-byte IPv4 header. The router uses the largest permitted payload for each non-final fragment. No later router fragments these packets again.
+
+### a) — 4 points
+
+Determine the fragments and complete a table with one row per fragment:
+
+| Fragment | Original IP-payload byte range | Payload length | Total Length | Fragment Offset field | MF | Identification |
+|---|---|---|---|---|---|---|
+
+Byte ranges are inclusive and begin at byte zero of the original IP payload. Give Fragment Offset as the actual value stored in the header field.
+
+### b) — 2 points
+
+Only the first and final fragments have reached the destination; all intervening fragments are still missing.
+
+Can the destination deliver the complete UDP datagram to the receiving application? Explain what the final fragment’s MF value establishes and what it does not establish.
+
+### c) — 1 point
+
+Which resulting fragment or fragments contain the original UDP header? Does fragmentation create additional UDP headers?
+
+### d) — 1 point
+
+How many additional IP-header bytes are transmitted because of this fragmentation, compared with forwarding the original datagram intact?
+
+## Aufgabe 7
+
+**8 points**
+
+A process executes:
+
+```c
+int value = 4;
+pid_t child = fork();
+
+if (child == 0) {
+    value = 9;
+    emit("child", value);
+    exit(0);
+}
+
+waitpid(child);
+emit("parent", value);
+```
+
+Assume:
+
+- `fork()` succeeds;
+- `value` is ordinary process-local memory;
+- `waitpid(child)` waits for that child’s termination and returns immediately if the child has already terminated;
+- `emit` produces one complete output record without buffering effects;
+- no signals interrupt the operations.
+
+### a) — 2 points
+
+What does `child` contain in each process, and which process reaches `waitpid`?
+
+### b) — 2 points
+
+Give the output records and their required ordering. Justify the value in the parent’s record.
+
+### c) — 2 points
+
+Suppose the parent reaches `waitpid` before the child terminates.
+
+Give the parent’s state transition when it waits and its state transition when the child’s termination makes it eligible to continue. Does the termination guarantee that the parent immediately executes its next instruction?
+
+### d) — 2 points
+
+Consider a replacement using two threads in one process:
+
+```default
+shared int value = 4
+
+Worker:
+    value = 9
+    terminate
+
+Main:
+    start Worker
+    join Worker
+    emit("main", value)
+```
+
+Assume `join` returns only after the worker terminates and makes its writes visible.
+
+What value does Main output, and why does the memory behavior differ from the `fork()` program?
