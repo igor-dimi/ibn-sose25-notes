@@ -327,6 +327,16 @@ window.Quarto = {
   <li><a href="#c-2-points-1" id="toc-c-2-points-1" class="nav-link" data-scroll-target="#c-2-points-1">c) — 2 points</a></li>
   <li><a href="#d-2-points-1" id="toc-d-2-points-1" class="nav-link" data-scroll-target="#d-2-points-1">d) — 2 points</a></li>
   </ul></li>
+  <li><a href="#solutions" id="toc-solutions" class="nav-link" data-scroll-target="#solutions">Solutions</a>
+  <ul class="collapse">
+  <li><a href="#aufgabe-1-12-points" id="toc-aufgabe-1-12-points" class="nav-link" data-scroll-target="#aufgabe-1-12-points">Aufgabe 1 — 12 points</a></li>
+  <li><a href="#aufgabe-2-18-points" id="toc-aufgabe-2-18-points" class="nav-link" data-scroll-target="#aufgabe-2-18-points">Aufgabe 2 — 18 points</a></li>
+  <li><a href="#aufgabe-3-12-points" id="toc-aufgabe-3-12-points" class="nav-link" data-scroll-target="#aufgabe-3-12-points">Aufgabe 3 — 12 points</a></li>
+  <li><a href="#aufgabe-4-10-points" id="toc-aufgabe-4-10-points" class="nav-link" data-scroll-target="#aufgabe-4-10-points">Aufgabe 4 — 10 points</a></li>
+  <li><a href="#aufgabe-5-16-points" id="toc-aufgabe-5-16-points" class="nav-link" data-scroll-target="#aufgabe-5-16-points">Aufgabe 5 — 16 points</a></li>
+  <li><a href="#aufgabe-6-8-points" id="toc-aufgabe-6-8-points" class="nav-link" data-scroll-target="#aufgabe-6-8-points">Aufgabe 6 — 8 points</a></li>
+  <li><a href="#aufgabe-7-8-points" id="toc-aufgabe-7-8-points" class="nav-link" data-scroll-target="#aufgabe-7-8-points">Aufgabe 7 — 8 points</a></li>
+  </ul></li>
   </ul>
 </nav>
     </div>
@@ -876,8 +886,965 @@ D,\quad B,\quad E.
 <span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>    emit("main", value)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
 <p>Assume <code>join</code> returns only after the worker terminates and makes its writes visible.</p>
 <p>What value does Main output, and why does the memory behavior differ from the <code>fork()</code> program?</p>
+</section>
+</section>
+<section id="solutions" class="level2">
+<h2 class="anchored" data-anchor-id="solutions">Solutions</h2>
+<p>The numbering matches the exam. <strong>Total: 84 points.</strong></p>
+<section id="aufgabe-1-12-points" class="level3">
+<h3 class="anchored" data-anchor-id="aufgabe-1-12-points">Aufgabe 1 — 12 points</h3>
+<section id="a-3-points-3" class="level4">
+<h4 class="anchored" data-anchor-id="a-3-points-3">a) — 3 points</h4>
+<p>Thread A can consume the permit that it released itself:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: right;">Step</th>
+<th>Operation</th>
+<th style="text-align: right;">Semaphore <code>done</code></th>
+<th>Consequence</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td>A: <code>produce_A()</code></td>
+<td style="text-align: right;">0</td>
+<td>A’s result exists</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td>A: <code>signal(done)</code></td>
+<td style="text-align: right;">1</td>
+<td>One permit becomes available</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td>A: <code>wait(done)</code></td>
+<td style="text-align: right;">0</td>
+<td>A acquires that permit without blocking</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4</td>
+<td>A: <code>combine_A()</code></td>
+<td style="text-align: right;">0</td>
+<td>B has not yet produced its result</td>
+</tr>
+</tbody>
+</table>
+<p>Thus <strong>A enters <code>combine_A()</code> before both results exist</strong>.</p>
+<p>The shared semaphore counts completed productions, but it does not distinguish whose production has finished.</p>
+</section>
+<section id="b-4-points-2" class="level4">
+<h4 class="anchored" data-anchor-id="b-4-points-2">b) — 4 points</h4>
+<p>Use a separate completion semaphore for each result:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>shared Semaphore a_ready = 0</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>shared Semaphore b_ready = 0</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>Thread A:</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    produce_A()</span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    signal(a_ready)</span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>    wait(b_ready)</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>    combine_A()</span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>Thread B:</span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>    produce_B()</span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>    signal(b_ready)</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>    wait(a_ready)</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>    combine_B()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Each thread:</p>
+<ul>
+<li>finishes its own production before announcing completion;</li>
+<li>waits for the other thread’s completion before combining.</li>
+</ul>
+<p>The production operations can execute concurrently. A signal issued before the other thread reaches its <code>wait</code> remains available as a semaphore permit.</p>
+</section>
+<section id="c-5-points-1" class="level4">
+<h4 class="anchored" data-anchor-id="c-5-points-1">c) — 5 points</h4>
+<p>Corrected pseudocode:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb7"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>shared bool ready = false</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>shared Mutex m = unlocked</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>shared Condition changed</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>Worker:</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>    lock(m)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>    while not ready:</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>        cond_wait(changed, m)</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a>    unlock(m)</span>
+<span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a>    use_configuration()</span>
+<span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>Initializer:</span>
+<span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a>    build_configuration()</span>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a>    lock(m)</span>
+<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>    ready = true</span>
+<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>    cond_broadcast(changed)</span>
+<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>    unlock(m)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Two changes are required:</p>
+<ol type="1">
+<li><p><strong>Replace <code>if</code> with <code>while</code>.</strong><br>
+A worker must recheck <code>ready</code> after waking. A spurious wakeup must not allow it to use an unfinished configuration.</p></li>
+<li><p><strong>Replace <code>cond_signal</code> with <code>cond_broadcast</code>.</strong><br>
+All waiting workers must be allowed to proceed. A single signal could leave other workers asleep indefinitely, since there is no later notification.</p></li>
+</ol>
+<p><code>cond_wait(changed, m)</code>:</p>
+<ul>
+<li>atomically releases <code>m</code> and begins waiting on <code>changed</code>;</li>
+<li>reacquires <code>m</code> before returning.</li>
+</ul>
+<p>Consequently, a sleeping worker does not retain the mutex needed by the initializer.</p>
+<p>Workers that start after initialization find <code>ready == true</code> and do not wait. They do not need a stored notification because the shared predicate remains true.</p>
+</section>
+</section>
+<section id="aufgabe-2-18-points" class="level3">
+<h3 class="anchored" data-anchor-id="aufgabe-2-18-points">Aufgabe 2 — 18 points</h3>
+<section id="a-3-points-4" class="level4">
+<h4 class="anchored" data-anchor-id="a-3-points-4">a) — 3 points</h4>
+<p>The page size is:</p>
+<p><span class="math display">\[
+1\text{ KiB}=2^{10}\text{ bytes}.
+\]</span></p>
+<p>Therefore, the offset uses 10 bits. The remaining virtual-address bits are:</p>
+<p><span class="math display">\[
+24-10=14.
+\]</span></p>
+<p>Splitting these equally gives:</p>
+<p><span class="math display">\[
+\boxed{
+\underbrace{\text{root index}}_{7\text{ bits}}
+\quad
+\underbrace{\text{second-level index}}_{7\text{ bits}}
+\quad
+\underbrace{\text{offset}}_{10\text{ bits}}
+}.
+\]</span></p>
+<p>Each table at either level has:</p>
+<p><span class="math display">\[
+2^7=\boxed{128\text{ entries}}.
+\]</span></p>
+<p>With eight-byte entries:</p>
+<p><span class="math display">\[
+128\cdot8=\boxed{1024\text{ bytes}=1\text{ KiB per table}}.
+\]</span></p>
+</section>
+<section id="b-3-points-2" class="level4">
+<h4 class="anchored" data-anchor-id="b-3-points-2">b) — 3 points</h4>
+<p>Decompose each virtual-page number into its two indices:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: right;">Virtual page</th>
+<th style="text-align: right;">Root index</th>
+<th style="text-align: right;">Second-level index</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">127</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">127</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">128</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">130</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">1023</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">127</td>
+</tr>
+</tbody>
+</table>
+<p>Three distinct root entries are used: 0, 1 and 7.</p>
+<p>Thus the hierarchy contains:</p>
+<ul>
+<li><strong>one root table</strong>;</li>
+<li><strong>three second-level tables</strong>.</li>
+</ul>
+<p>Total table memory:</p>
+<p><span class="math display">\[
+(1+3)\cdot1024
+=\boxed{4096\text{ bytes}=4\text{ KiB}}.
+\]</span></p>
+<p>A full single-level table requires:</p>
+<p><span class="math display">\[
+2^{14}\cdot8
+=2^{17}\text{ bytes}
+=\boxed{128\text{ KiB}}.
+\]</span></p>
+<p>The sparse hierarchy therefore uses <span class="math inline">\(1/32\)</span> of the full flat table’s memory.</p>
+</section>
+<section id="c-4-points-1" class="level4">
+<h4 class="anchored" data-anchor-id="c-4-points-1">c) — 4 points</h4>
+<p>The virtual-page number is:</p>
+<p><span class="math display">\[
+p=1\cdot128+2=130.
+\]</span></p>
+<p>The virtual byte address is:</p>
+<p><span class="math display">\[
+V=130\cdot1024+29
+=\boxed{133149}
+=\boxed{\texttt{0x2081D}}.
+\]</span></p>
+<p>The root entry is located at:</p>
+<p><span class="math display">\[
+\texttt{0x1000}+1\cdot8
+=\boxed{\texttt{0x1008}}.
+\]</span></p>
+<p>The leaf entry is located at:</p>
+<p><span class="math display">\[
+\texttt{0x3000}+2\cdot8
+=\boxed{\texttt{0x3010}}.
+\]</span></p>
+<p>Frame <code>0x2A</code> has decimal frame number 42. The physical data address is:</p>
+<p><span class="math display">\[
+A=42\cdot1024+29
+=\boxed{43037}
+=\boxed{\texttt{0xA81D}}.
+\]</span></p>
+</section>
+<section id="d-4-points-1" class="level4">
+<h4 class="anchored" data-anchor-id="d-4-points-1">d) — 4 points</h4>
+<p>A TLB hit requires one TLB lookup and one data-memory access:</p>
+<p><span class="math display">\[
+t_{\text{hit}}=6+50
+=\boxed{56\text{ ns}}.
+\]</span></p>
+<p>A resident-page TLB miss requires:</p>
+<ul>
+<li>one TLB lookup;</li>
+<li>two page-table accesses;</li>
+<li>one final data access.</li>
+</ul>
+<p>Therefore:</p>
+<p><span class="math display">\[
+t_{\text{miss}}=6+3\cdot50
+=\boxed{156\text{ ns}}.
+\]</span></p>
+<p>The expected access time is:</p>
+<p><span class="math display">\[
+\begin{aligned}
+t_{\text{effective}}
+&amp;=0.96\cdot56+0.04\cdot156\\
+&amp;=53.76+6.24\\
+&amp;=\boxed{60\text{ ns}}.
+\end{aligned}
+\]</span></p>
+<p><strong>A TLB miss does not necessarily imply a page fault.</strong> It means the translation is absent from the TLB. A page-table walk may find that the requested page is already resident.</p>
+</section>
+<section id="e-4-points-1" class="level4">
+<h4 class="anchored" data-anchor-id="e-4-points-1">e) — 4 points</h4>
+<p>The initial state is:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Frame 0</th>
+<th>Frame 1</th>
+<th>Frame 2</th>
+<th style="text-align: right;">Hand</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>A, <span class="math inline">\(R=1\)</span></td>
+<td>B, <span class="math inline">\(R=0\)</span></td>
+<td>C, <span class="math inline">\(R=1\)</span></td>
+<td style="text-align: right;">0</td>
+</tr>
+</tbody>
+</table>
+<p>The completed Clock trace is:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 13%">
+<col style="width: 13%">
+<col style="width: 13%">
+<col style="width: 13%">
+<col style="width: 13%">
+<col style="width: 13%">
+<col style="width: 18%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Reference</th>
+<th>Hit/fault</th>
+<th>Victim</th>
+<th>Frame 0</th>
+<th>Frame 1</th>
+<th>Frame 2</th>
+<th style="text-align: right;">Hand afterward</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>D</td>
+<td>Fault</td>
+<td>B</td>
+<td>A, <span class="math inline">\(R=0\)</span></td>
+<td>D, <span class="math inline">\(R=1\)</span></td>
+<td>C, <span class="math inline">\(R=1\)</span></td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="even">
+<td>B</td>
+<td>Fault</td>
+<td>A</td>
+<td>B, <span class="math inline">\(R=1\)</span></td>
+<td>D, <span class="math inline">\(R=1\)</span></td>
+<td>C, <span class="math inline">\(R=0\)</span></td>
+<td style="text-align: right;">1</td>
+</tr>
+<tr class="odd">
+<td>E</td>
+<td>Fault</td>
+<td>C</td>
+<td>B, <span class="math inline">\(R=1\)</span></td>
+<td>D, <span class="math inline">\(R=0\)</span></td>
+<td>E, <span class="math inline">\(R=1\)</span></td>
+<td style="text-align: right;">0</td>
+</tr>
+</tbody>
+</table>
+<p>The scans are:</p>
+<ul>
+<li><strong>D:</strong> clear A’s bit at frame 0; replace B at frame 1.</li>
+<li><strong>B:</strong> clear C’s bit at frame 2; replace A at frame 0.</li>
+<li><strong>E:</strong> clear D’s bit at frame 1; replace C at frame 2.</li>
+</ul>
+<p>Starting from the original snapshot, <strong>exact LRU would evict C for the first reference</strong>, because the stated oldest-to-newest order is C, A, B.</p>
+<p>Clock instead evicts B. Reference bits do not encode an exact ordering of last-access times.</p>
+</section>
+</section>
+<section id="aufgabe-3-12-points" class="level3">
+<h3 class="anchored" data-anchor-id="aufgabe-3-12-points">Aufgabe 3 — 12 points</h3>
+<section id="a-6-points-1" class="level4">
+<h4 class="anchored" data-anchor-id="a-6-points-1">a) — 6 points</h4>
+<p><strong>Non-preemptive SJF</strong></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Interval (ms)</th>
+<th>Running process</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0–5</td>
+<td><span class="math inline">\(P_1\)</span></td>
+</tr>
+<tr class="even">
+<td>5–7</td>
+<td><span class="math inline">\(P_3\)</span></td>
+</tr>
+<tr class="odd">
+<td>7–8</td>
+<td><span class="math inline">\(P_4\)</span></td>
+</tr>
+<tr class="even">
+<td>8–11</td>
+<td><span class="math inline">\(P_2\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>At time 5, <span class="math inline">\(P_2\)</span> and <span class="math inline">\(P_3\)</span> are ready; SJF selects <span class="math inline">\(P_3\)</span>. <span class="math inline">\(P_4\)</span> arrives at time 6 but does not preempt it. At time 7, <span class="math inline">\(P_4\)</span> has the shortest available burst.</p>
+<p><strong>Round Robin, <span class="math inline">\(q=3\text{ ms}\)</span></strong></p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Interval (ms)</th>
+<th>Running process</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>0–3</td>
+<td><span class="math inline">\(P_1\)</span></td>
+</tr>
+<tr class="even">
+<td>3–6</td>
+<td><span class="math inline">\(P_2\)</span></td>
+</tr>
+<tr class="odd">
+<td>6–8</td>
+<td><span class="math inline">\(P_3\)</span></td>
+</tr>
+<tr class="even">
+<td>8–10</td>
+<td><span class="math inline">\(P_1\)</span></td>
+</tr>
+<tr class="odd">
+<td>10–11</td>
+<td><span class="math inline">\(P_4\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>At time 3, the ready queue after re-enqueuing <span class="math inline">\(P_1\)</span> is:</p>
+<p><span class="math display">\[
+[P_2,P_3,P_1].
+\]</span></p>
+<p>At time 6, <span class="math inline">\(P_2\)</span> finishes and <span class="math inline">\(P_4\)</span> arrives. The queue is:</p>
+<p><span class="math display">\[
+[P_3,P_1,P_4].
+\]</span></p>
+</section>
+<section id="b-4-points-3" class="level4">
+<h4 class="anchored" data-anchor-id="b-4-points-3">b) — 4 points</h4>
+<p>For each process:</p>
+<p><span class="math display">\[
+T_i=\text{completion time}-\text{arrival time},
+\]</span></p>
+<p><span class="math display">\[
+W_i=T_i-\text{CPU burst}.
+\]</span></p>
+<p>Completion times:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Process</th>
+<th style="text-align: right;">SJF completion</th>
+<th style="text-align: right;">RR completion</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(P_1\)</span></td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">10</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(P_2\)</span></td>
+<td style="text-align: right;">11</td>
+<td style="text-align: right;">6</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(P_3\)</span></td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">8</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(P_4\)</span></td>
+<td style="text-align: right;">8</td>
+<td style="text-align: right;">11</td>
+</tr>
+</tbody>
+</table>
+<p>All following values are in milliseconds:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Process</th>
+<th style="text-align: right;">SJF turnaround</th>
+<th style="text-align: right;">SJF waiting</th>
+<th style="text-align: right;">RR turnaround</th>
+<th style="text-align: right;">RR waiting</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(P_1\)</span></td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">5</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(P_2\)</span></td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">7</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">2</td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(P_3\)</span></td>
+<td style="text-align: right;">4</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">3</td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(P_4\)</span></td>
+<td style="text-align: right;">2</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">5</td>
+<td style="text-align: right;">4</td>
+</tr>
+</tbody>
+</table>
+<p>Average SJF waiting time:</p>
+<p><span class="math display">\[
+\overline W_{\mathrm{SJF}}
+=\frac{0+7+2+1}{4}
+=\boxed{2.5\text{ ms}}.
+\]</span></p>
+<p>Average RR waiting time:</p>
+<p><span class="math display">\[
+\overline W_{\mathrm{RR}}
+=\frac{5+2+3+4}{4}
+=\boxed{3.5\text{ ms}}.
+\]</span></p>
+</section>
+<section id="c-2-points-2" class="level4">
+<h4 class="anchored" data-anchor-id="c-2-points-2">c) — 2 points</h4>
+<p><strong>SJF can cause starvation.</strong> A long ready process may be repeatedly passed over if shorter processes are available at every scheduling decision.</p>
+<p><strong>Round Robin does not cause this form of starvation under the stated assumptions.</strong> A queued process has finitely many processes ahead of it, and each receives at most one quantum before leaving the CPU. New arrivals join the tail rather than overtaking it. A process with a finite burst therefore eventually finishes.</p>
+</section>
+</section>
+<section id="aufgabe-4-10-points" class="level3">
+<h3 class="anchored" data-anchor-id="aufgabe-4-10-points">Aufgabe 4 — 10 points</h3>
+<section id="a-4-points-2" class="level4">
+<h4 class="anchored" data-anchor-id="a-4-points-2">a) — 4 points</h4>
+<p>Initially, only the root i-node is cached.</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: right;">Read</th>
+<th>Object</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td>Root directory block</td>
+<td>Find <code>srv</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td><code>/srv</code> i-node</td>
+<td>Locate its directory block</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td><code>/srv</code> directory block</td>
+<td>Find <code>archive</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4</td>
+<td><code>/srv/archive</code> i-node</td>
+<td>Locate its directory block</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">5</td>
+<td><code>/srv/archive</code> directory block</td>
+<td>Find <code>report.bin</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">6</td>
+<td><code>report.bin</code> i-node</td>
+<td>Load the target file’s metadata</td>
+</tr>
+</tbody>
+</table>
+<p>Therefore:</p>
+<p><span class="math display">\[
+\boxed{6\text{ disk reads}}.
+\]</span></p>
+<p>No file-data block is read.</p>
+</section>
+<section id="b-3-points-3" class="level4">
+<h4 class="anchored" data-anchor-id="b-3-points-3">b) — 3 points</h4>
+<p>The root and <code>/srv</code> directory information are now cached. The cached <code>/srv</code> directory block contains the entry for <code>latest.bin</code>.</p>
+<p>That entry identifies the same file i-node already loaded in a). Consequently, the only additional read is:</p>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th style="text-align: right;">Additional read</th>
+<th>Object</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">1</td>
+<td>The file’s first data block</td>
+</tr>
+</tbody>
+</table>
+<p>Thus:</p>
+<p><span class="math display">\[
+\boxed{1\text{ additional disk read}}.
+\]</span></p>
+<p>Removing <code>latest.bin</code> <strong>does not make the data unavailable through <code>report.bin</code></strong>. It removes one hard-link directory entry. The other name still refers to the same i-node.</p>
+</section>
+<section id="c-3-points-1" class="level4">
+<h4 class="anchored" data-anchor-id="c-3-points-1">c) — 3 points</h4>
+<p>Decompose byte offset 8251:</p>
+<p><span class="math display">\[
+8251=4\cdot2048+59.
+\]</span></p>
+<p>Therefore:</p>
+<p><span class="math display">\[
+\boxed{\text{Logical file block}=4},
+\qquad
+\boxed{\text{Within-block offset}=59}.
+\]</span></p>
+<p>The four direct pointers cover logical blocks 0–3. Block 4 is therefore addressed through:</p>
+<ul>
+<li>the <strong>single-indirect pointer</strong>;</li>
+<li>entry <strong>0</strong> of the indirect block.</li>
+</ul>
+<p>The file i-node is cached, but neither the indirect block nor data block 4 has been read.</p>
+<p>Required additional reads:</p>
+<ol type="1">
+<li>Read the single-indirect block.</li>
+<li>Read the data block identified by entry 0.</li>
+</ol>
+<p>Hence:</p>
+<p><span class="math display">\[
+\boxed{2\text{ additional disk reads}}.
+\]</span></p>
+</section>
+</section>
+<section id="aufgabe-5-16-points" class="level3">
+<h3 class="anchored" data-anchor-id="aufgabe-5-16-points">Aufgabe 5 — 16 points</h3>
+<section id="a-3-points-5" class="level4">
+<h4 class="anchored" data-anchor-id="a-3-points-5">a) — 3 points</h4>
+<p>For <strong>10.88.32.0/20</strong>, the mask is:</p>
+<p><span class="math display">\[
+\boxed{255.255.240.0}.
+\]</span></p>
+<p>The complete inclusive range is:</p>
+<p><span class="math display">\[
+\boxed{10.88.32.0\text{ through }10.88.47.255}.
+\]</span></p>
+<p>The number of addresses is:</p>
+<p><span class="math display">\[
+2^{32-20}=2^{12}
+=\boxed{4096}.
+\]</span></p>
+<p>This is the total address count, not the usable-host count.</p>
+</section>
+<section id="b-5-points-1" class="level4">
+<h4 class="anchored" data-anchor-id="b-5-points-1">b) — 5 points</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Destination</th>
+<th>All matching prefixes</th>
+<th>Selected prefix</th>
+<th>Interface</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>10.88.39.250</td>
+<td>10.88.32.0/20; 0.0.0.0/0</td>
+<td><strong>10.88.32.0/20</strong></td>
+<td><span class="math inline">\(I_0\)</span></td>
+</tr>
+<tr class="even">
+<td>10.88.41.9</td>
+<td>10.88.40.0/22; 10.88.32.0/20; 0.0.0.0/0</td>
+<td><strong>10.88.40.0/22</strong></td>
+<td><span class="math inline">\(I_1\)</span></td>
+</tr>
+<tr class="odd">
+<td>10.88.42.200</td>
+<td>10.88.42.128/25; 10.88.40.0/22; 10.88.32.0/20; 0.0.0.0/0</td>
+<td><strong>10.88.42.128/25</strong></td>
+<td><span class="math inline">\(I_2\)</span></td>
+</tr>
+<tr class="even">
+<td>10.88.43.200</td>
+<td>10.88.40.0/22; 10.88.32.0/20; 0.0.0.0/0</td>
+<td><strong>10.88.40.0/22</strong></td>
+<td><span class="math inline">\(I_1\)</span></td>
+</tr>
+<tr class="odd">
+<td>10.88.48.1</td>
+<td>0.0.0.0/0</td>
+<td><strong>0.0.0.0/0</strong></td>
+<td><span class="math inline">\(W\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>The selected entry is always the matching prefix with the greatest prefix length.</p>
+</section>
+<section id="c-6-points-1" class="level4">
+<h4 class="anchored" data-anchor-id="c-6-points-1">c) — 6 points</h4>
+<p>The Bellman–Ford update is:</p>
+<p><span class="math display">\[
+\boxed{
+d_u(t)=\min_{v\in N(u)}
+\left[c(u,v)+d_v(t)\right]
+}.
+\]</span></p>
+<p>Here:</p>
+<ul>
+<li><span class="math inline">\(N(u)\)</span> is the set of <span class="math inline">\(u\)</span>’s neighbors;</li>
+<li><span class="math inline">\(c(u,v)\)</span> is the direct link cost from <span class="math inline">\(u\)</span> to neighbor <span class="math inline">\(v\)</span>;</li>
+<li><span class="math inline">\(d_v(t)\)</span> is <span class="math inline">\(v\)</span>’s advertised distance to destination <span class="math inline">\(t\)</span>;</li>
+<li><span class="math inline">\(d_u(t)\)</span> is <span class="math inline">\(u\)</span>’s resulting distance estimate.</li>
+</ul>
+<p>Candidate costs:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 13%">
+<col style="width: 18%">
+<col style="width: 18%">
+<col style="width: 18%">
+<col style="width: 18%">
+<col style="width: 13%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Destination</th>
+<th style="text-align: right;">Via <span class="math inline">\(a\)</span></th>
+<th style="text-align: right;">Via <span class="math inline">\(b\)</span></th>
+<th style="text-align: right;">Via <span class="math inline">\(c\)</span></th>
+<th style="text-align: right;">Selected distance</th>
+<th>Next hop</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><span class="math inline">\(x\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(2+2=4\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(5+7=12\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(1+5=6\)</span></td>
+<td style="text-align: right;"><strong>4</strong></td>
+<td><span class="math inline">\(a\)</span></td>
+</tr>
+<tr class="even">
+<td><span class="math inline">\(y\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(2+8=10\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(5+2=7\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(1+8=9\)</span></td>
+<td style="text-align: right;"><strong>7</strong></td>
+<td><span class="math inline">\(b\)</span></td>
+</tr>
+<tr class="odd">
+<td><span class="math inline">\(z\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(2+9=11\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(5+4=9\)</span></td>
+<td style="text-align: right;"><span class="math inline">\(1+3=4\)</span></td>
+<td style="text-align: right;"><strong>4</strong></td>
+<td><span class="math inline">\(c\)</span></td>
+</tr>
+</tbody>
+</table>
+<p>After <span class="math inline">\(c\)</span> changes its advertisement for <span class="math inline">\(z\)</span> to 12:</p>
+<p><span class="math display">\[
+\begin{aligned}
+\text{via }a &amp;: 2+9=11,\\
+\text{via }b &amp;: 5+4=9,\\
+\text{via }c &amp;: 1+12=13.
+\end{aligned}
+\]</span></p>
+<p>Therefore:</p>
+<p><span class="math display">\[
+\boxed{d_u(z)=9,\qquad\text{next hop}=b}.
+\]</span></p>
+<p>The old distance of 4 is no longer supported by the current advertisements and must not be retained as an additional candidate.</p>
+</section>
+<section id="d-2-points-2" class="level4">
+<h4 class="anchored" data-anchor-id="d-2-points-2">d) — 2 points</h4>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Algorithm</th>
+<th>Information used by the router</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Dijkstra</td>
+<td>A network topology graph with the relevant link costs</td>
+</tr>
+<tr class="even">
+<td>Distance vector</td>
+<td>Its direct-neighbor link costs and the distance vectors advertised by those neighbors</td>
+</tr>
+</tbody>
+</table>
+<p>Dijkstra calculates paths from a topology map. A distance-vector update selects among neighbors using their advertised distances, without requiring a complete topology map.</p>
+</section>
+</section>
+<section id="aufgabe-6-8-points" class="level3">
+<h3 class="anchored" data-anchor-id="aufgabe-6-8-points">Aufgabe 6 — 8 points</h3>
+<section id="a-4-points-3" class="level4">
+<h4 class="anchored" data-anchor-id="a-4-points-3">a) — 4 points</h4>
+<p>The original IP payload has length:</p>
+<p><span class="math display">\[
+2500-20=\boxed{2480\text{ bytes}}.
+\]</span></p>
+<p>The outgoing MTU allows at most:</p>
+<p><span class="math display">\[
+918-20=898
+\]</span></p>
+<p>payload bytes per fragment.</p>
+<p>A non-final fragment’s payload must be a multiple of eight bytes, giving:</p>
+<p><span class="math display">\[
+8\left\lfloor\frac{898}{8}\right\rfloor
+=\boxed{896\text{ bytes}}.
+\]</span></p>
+<p>After two such payloads, the remainder is:</p>
+<p><span class="math display">\[
+2480-2\cdot896=\boxed{688\text{ bytes}}.
+\]</span></p>
+<p>The fragments are:</p>
+<table class="caption-top table">
+<colgroup>
+<col style="width: 11%">
+<col style="width: 11%">
+<col style="width: 15%">
+<col style="width: 15%">
+<col style="width: 15%">
+<col style="width: 15%">
+<col style="width: 15%">
+</colgroup>
+<thead>
+<tr class="header">
+<th>Fragment</th>
+<th>Original IP-payload byte range</th>
+<th style="text-align: right;">Payload length</th>
+<th style="text-align: right;">Total Length</th>
+<th style="text-align: right;">Fragment Offset field</th>
+<th style="text-align: right;">MF</th>
+<th style="text-align: right;">Identification</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>1</td>
+<td>0–895</td>
+<td style="text-align: right;">896</td>
+<td style="text-align: right;">916</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">731</td>
+</tr>
+<tr class="even">
+<td>2</td>
+<td>896–1791</td>
+<td style="text-align: right;">896</td>
+<td style="text-align: right;">916</td>
+<td style="text-align: right;">112</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">731</td>
+</tr>
+<tr class="odd">
+<td>3</td>
+<td>1792–2479</td>
+<td style="text-align: right;">688</td>
+<td style="text-align: right;">708</td>
+<td style="text-align: right;">224</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">731</td>
+</tr>
+</tbody>
+</table>
+<p>The offset-field calculations are:</p>
+<p><span class="math display">\[
+0/8=0,\qquad896/8=112,\qquad1792/8=224.
+\]</span></p>
+<p>All Total Length values are at most 918 bytes, and the payload lengths sum to 2480 bytes.</p>
+</section>
+<section id="b-2-points-2" class="level4">
+<h4 class="anchored" data-anchor-id="b-2-points-2">b) — 2 points</h4>
+<p><strong>No.</strong> The second fragment’s payload bytes, 896–1791, are still missing.</p>
+<p>The final fragment’s <strong>MF = 0</strong> establishes that this fragment reaches the end of the original datagram’s payload. Combined with its offset and length, it identifies the original payload’s total extent.</p>
+<p>It <strong>does not establish that all earlier fragments have arrived</strong>. Reassembly still requires the missing bytes.</p>
+</section>
+<section id="c-1-point-1" class="level4">
+<h4 class="anchored" data-anchor-id="c-1-point-1">c) — 1 point</h4>
+<p>Only <strong>fragment 1</strong> contains the original UDP header, which is at the beginning of the original IP payload.</p>
+<p>IPv4 fragmentation creates new <strong>IP headers</strong>, not additional UDP headers.</p>
+</section>
+<section id="d-1-point-1" class="level4">
+<h4 class="anchored" data-anchor-id="d-1-point-1">d) — 1 point</h4>
+<p>The three fragments carry:</p>
+<p><span class="math display">\[
+3\cdot20=60
+\]</span></p>
+<p>IP-header bytes altogether.</p>
+<p>The original datagram had one 20-byte IP header, so the additional overhead is:</p>
+<p><span class="math display">\[
+60-20=\boxed{40\text{ bytes}}.
+\]</span></p>
+</section>
+</section>
+<section id="aufgabe-7-8-points" class="level3">
+<h3 class="anchored" data-anchor-id="aufgabe-7-8-points">Aufgabe 7 — 8 points</h3>
+<section id="a-2-points-1" class="level4">
+<h4 class="anchored" data-anchor-id="a-2-points-1">a) — 2 points</h4>
+<table class="caption-top table">
+<thead>
+<tr class="header">
+<th>Process</th>
+<th>Value of <code>child</code></th>
+<th>Reaches <code>waitpid</code>?</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Parent</td>
+<td>Positive PID of the newly created child</td>
+<td>Yes</td>
+</tr>
+<tr class="even">
+<td>Child</td>
+<td>0</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<p>The child executes <code>exit(0)</code> inside the <code>if</code> block, so it does not fall through to <code>waitpid</code>.</p>
+</section>
+<section id="b-2-points-3" class="level4">
+<h4 class="anchored" data-anchor-id="b-2-points-3">b) — 2 points</h4>
+<p>The output records are, in this required order:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb8"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>child 9</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>parent 4</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The child outputs its record before terminating. The parent’s <code>waitpid</code> returns only after that termination, so its output follows the child’s output.</p>
+<p>The parent still has <code>value = 4</code> because the child changes its own process-local copy. The child’s assignment does not modify the parent’s variable.</p>
+</section>
+<section id="c-2-points-3" class="level4">
+<h4 class="anchored" data-anchor-id="c-2-points-3">c) — 2 points</h4>
+<p>When the parent waits for the still-running child:</p>
+<p><span class="math display">\[
+\boxed{\text{Running}\rightarrow\text{Blocked}}.
+\]</span></p>
+<p>When the child terminates and the parent becomes eligible to continue:</p>
+<p><span class="math display">\[
+\boxed{\text{Blocked}\rightarrow\text{Ready}}.
+\]</span></p>
+<p>The parent does <strong>not</strong> necessarily execute immediately. It must subsequently be dispatched:</p>
+<p><span class="math display">\[
+\text{Ready}\rightarrow\text{Running}.
+\]</span></p>
+</section>
+<section id="d-2-points-3" class="level4">
+<h4 class="anchored" data-anchor-id="d-2-points-3">d) — 2 points</h4>
+<p>Main outputs:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb9"><pre class="sourceCode default code-with-copy"><code class="sourceCode default"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>main 9</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Both threads access the same shared variable in one process address space.</p>
+<p>The worker writes 9 before terminating, and <code>join</code> ensures that Main waits for termination and observes that write. In the <code>fork()</code> version, the parent and child instead have separate process-local copies of <code>value</code>.</p>
 
 
+</section>
 </section>
 </section>
 
