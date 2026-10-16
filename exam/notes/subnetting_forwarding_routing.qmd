@@ -979,3 +979,483 @@ The 2016 exam’s Questions 5.1–5.3 directly test Dijkstra-table execution, pr
 Sheet 10 supplies the allocation conventions, prefix/range calculations, longest-prefix matching, full Dijkstra execution and Bellman–Ford connection used here. 10-ueb10-ibn-SS2025.pdf Its supplied solutions cover A2–A4 and end after A4. The A3(b) tables omit explicit own-LAN entries and inconsistently follow the figure’s router labels; the exercises above therefore derive entries from their explicitly stated topology. 14-Operating-Systems-and-Networs-SoSe-25-Solutions.pdf
 
 The IBN summary supplies the network/host terminology, Dijkstra symbols and Bellman–Ford relation. 01-ibn-zusammenfassung.pdf
+
+
+The solutions below follow the **original exercise and sub-problem numbering**.
+
+## Solutions
+
+### Exercise 1 — Subnetting fundamentals
+
+#### 1.1 — Parent block
+
+The range `172.19.80.0`–`172.19.87.255` contains eight complete `/24`-sized blocks:
+
+$$
+(87-80+1)\cdot256=2048=2^{11}.
+$$
+
+Therefore, there are **11 host bits** and:
+
+$$
+p=32-11=21.
+$$
+
+The start is correctly aligned: 80 is a multiple of the third-octet increment 8.
+
+| Quantity | Answer |
+|---|---|
+| Total addresses | **2048** |
+| Parent prefix | **`172.19.80.0/21`** |
+| Subnet mask | **`255.255.248.0`** |
+| Nontrivial mask octet | `248 = 11111000` |
+| Host bits | **11** |
+
+#### 1.2 — Equal-size subdivision
+
+We need the smallest $h$ satisfying:
+
+$$
+2^h-2\ge62.
+$$
+
+Five host bits provide only 30 usable addresses; six provide exactly 62:
+
+$$
+2^6-2=62.
+$$
+
+Thus:
+
+$$
+p=32-6=26.
+$$
+
+| Quantity | Answer |
+|---|---|
+| Minimum host bits | **6** |
+| Subnet prefix | **`/26`** |
+| Subnet mask | **`255.255.255.192`** |
+| Last mask octet | `11000000` |
+| Total addresses per subnet | **64** |
+| Usable addresses per subnet | **62** |
+| Number of subnets | **$2048/64=32$** |
+
+Equivalently:
+
+$$
+2^{26-21}=32.
+$$
+
+Within each `/24`, the `/26` blocks start at last-octet values **0, 64, 128 and 192**. There are eight such `/24` ranges, hence $8\cdot4=32$ subnets.
+
+#### 1.3 — Address decomposition
+
+For `172.19.83.173/26`, mask the last octet:
+
+```default
+Address:  10101101  = 173
+Mask:     11000000  = 192
+AND:      10000000  = 128
+Host:     00101101  = 45
+```
+
+The six host bits are **`101101`**, whose value is 45.
+
+| Quantity | Answer |
+|---|---|
+| Network address | **`172.19.83.128`** |
+| Subnet | **`172.19.83.128/26`** |
+| Numerical host ID | **$173-128=45$** |
+| Broadcast address | **`172.19.83.191`** |
+| Usable range | **`172.19.83.129`–`172.19.83.190`** |
+
+Moving from the parent `/21` to `/26` uses **five additional subnet bits**:
+
+- the lowest three bits of the third octet;
+- the highest two bits of the fourth octet.
+
+For this address:
+
+```default
+Third octet:   83 = 01010 | 011
+Fourth octet: 173 = 10 | 101101
+```
+
+Thus:
+
+- parent prefix includes `172.19` followed by `01010`;
+- additional subnet-ID bits: **`01110`**;
+- host bits: **`101101`**.
+
+#### 1.4 — Same-subnet decisions
+
+The reference subnet is `172.19.83.128/26`.
+
+| Address | Network after `/26` masking | Same subnet? |
+|---|---|---|
+| `172.19.83.190` | `172.19.83.128` | **Yes** |
+| `172.19.83.193` | `172.19.83.192` | **No** |
+| `172.19.82.173` | `172.19.82.128` | **No** |
+
+All three are within the original parent `/21`, but only the first belongs to the same smaller `/26`.
+
+### Exercise 2 — Subnet allocation, forwarding and longest-prefix matching
+
+#### 2.1 — Allocation table
+
+The parent `10.42.12.0/23` contains **512 addresses**, ending at `10.42.13.255`.
+
+First determine the required block sizes:
+
+| Subnet | Required usable | Host bits | Prefix | Total addresses | Usable capacity |
+|---|---:|---:|---|---:|---:|
+| A | 100 | 7 | `/25` | 128 | 126 |
+| B | 50 | 6 | `/26` | 64 | 62 |
+| C | 25 | 5 | `/27` | 32 | 30 |
+| D | 25 | 5 | `/27` | 32 | 30 |
+| Each router link | 2 | 2 | `/30` | 4 | 2 |
+
+Applying largest-first allocation with the lowest aligned free starts gives:
+
+| Subnet | Network/prefix | Mask | Usable range | Broadcast |
+|---|---|---|---|---|
+| A | `10.42.12.0/25` | `255.255.255.128` | `10.42.12.1`–`10.42.12.126` | `10.42.12.127` |
+| B | `10.42.12.128/26` | `255.255.255.192` | `10.42.12.129`–`10.42.12.190` | `10.42.12.191` |
+| C | `10.42.12.192/27` | `255.255.255.224` | `10.42.12.193`–`10.42.12.222` | `10.42.12.223` |
+| D | `10.42.12.224/27` | `255.255.255.224` | `10.42.12.225`–`10.42.12.254` | `10.42.12.255` |
+| $R_0-R_1$ | `10.42.13.0/30` | `255.255.255.252` | `10.42.13.1`–`10.42.13.2` | `10.42.13.3` |
+| $R_0-R_2$ | `10.42.13.4/30` | `255.255.255.252` | `10.42.13.5`–`10.42.13.6` | `10.42.13.7` |
+| $R_1-R_2$ | `10.42.13.8/30` | `255.255.255.252` | `10.42.13.9`–`10.42.13.10` | `10.42.13.11` |
+
+The address before each slash is the **network address**.
+
+Router interface assignments:
+
+| Link | Lower-index router | Higher-index router |
+|---|---|---|
+| $R_0-R_1$ | $R_0$: `10.42.13.1` | $R_1$: `10.42.13.2` |
+| $R_0-R_2$ | $R_0$: `10.42.13.5` | $R_2$: `10.42.13.6` |
+| $R_1-R_2$ | $R_1$: `10.42.13.9` | $R_2$: `10.42.13.10` |
+
+Total allocated:
+
+$$
+128+64+32+32+3\cdot4=268.
+$$
+
+Therefore:
+
+$$
+\boxed{\text{Unallocated addresses}=512-268=244}.
+$$
+
+These are `10.42.13.12`–`10.42.13.255`.
+
+Unused host capacity **inside** an allocated LAN is already allocated to that LAN; it does not count as unallocated parent-block space.
+
+#### 2.2 — Alignment check
+
+**`10.42.12.160/26` is not a canonical `/26` network address.**
+
+A `/26` has increment 64. The value 160 belongs to the block 128–191:
+
+```default
+160:  10100000
+Mask: 11000000
+AND:  10000000 = 128
+```
+
+It therefore denotes:
+
+$$
+\boxed{10.42.12.128/26}.
+$$
+
+It describes LAN B’s block, rather than a block beginning at `.160`.
+
+#### 2.3 — Base forwarding table and aggregation
+
+Define $R_0$’s outgoing interfaces:
+
+- $I_A$: toward LAN A;
+- $I_{01}$: toward $R_1$;
+- $I_{02}$: toward $R_2$.
+
+The base forwarding table is:
+
+| Destination | Prefix | Next hop | Interface |
+|---|---|---|---|
+| LAN A | `10.42.12.0/25` | Direct | $I_A$ |
+| LAN B | `10.42.12.128/26` | `10.42.13.2` ($R_1$) | $I_{01}$ |
+| LAN C | `10.42.12.192/27` | `10.42.13.6` ($R_2$) | $I_{02}$ |
+| LAN D | `10.42.12.224/27` | `10.42.13.6` ($R_2$) | $I_{02}$ |
+| Link $R_0-R_1$ | `10.42.13.0/30` | Direct | $I_{01}$ |
+| Link $R_0-R_2$ | `10.42.13.4/30` | Direct | $I_{02}$ |
+| Link $R_1-R_2$ | `10.42.13.8/30` | `10.42.13.2` ($R_1$) | $I_{01}$ |
+
+For remote entries, the next-hop IP must be on a link directly connected to $R_0$. Thus the next hop through $R_1$ is **`10.42.13.2`**, rather than its address on the remote $R_1-R_2$ link.
+
+**Aggregation of C and D**
+
+Their last-octet patterns are:
+
+```default
+C: 192–223 = 110xxxxx
+D: 224–255 = 111xxxxx
+Together:    11xxxxxx
+```
+
+The aggregate fixes two last-octet bits, giving:
+
+$$
+24+2=26\text{ prefix bits}.
+$$
+
+Replace both rows with:
+
+| Prefix | Next hop | Interface |
+|---|---|---|
+| **`10.42.12.192/26`** | `10.42.13.6` ($R_2$) | $I_{02}$ |
+
+This aggregate contains exactly `.192`–`.255`, and both original entries use the same next hop. The aggregated table has **six entries**.
+
+#### 2.4 — Overlapping entries and lookup
+
+LAN D occupies `.224`–`.255`. Its lowest 16 total addresses are `.224`–`.239`:
+
+```default
+224 = 11100000
+239 = 11101111
+      1110xxxx
+```
+
+Therefore, the exception is:
+
+$$
+\boxed{10.42.12.224/28\ \rightarrow\ R_1}.
+$$
+
+It uses next hop `10.42.13.2` and interface $I_{01}$.
+
+**Do not subtract two addresses here:** this is a forwarding-policy range, not a new physical subnet.
+
+The final table follows. Labels in the first column are used in the lookup results.
+
+| Label | Prefix | Next hop | Interface |
+|---|---|---|---|
+| L01 | `10.42.13.0/30` | Direct | $I_{01}$ |
+| L02 | `10.42.13.4/30` | Direct | $I_{02}$ |
+| L12 | `10.42.13.8/30` | `10.42.13.2` | $I_{01}$ |
+| E | `10.42.12.224/28` | `10.42.13.2` | $I_{01}$ |
+| B | `10.42.12.128/26` | `10.42.13.2` | $I_{01}$ |
+| CD | `10.42.12.192/26` | `10.42.13.6` | $I_{02}$ |
+| A | `10.42.12.0/25` | Direct | $I_A$ |
+| P | `10.42.12.0/23` | `10.42.13.2` | $I_{01}$ |
+| Default | `0.0.0.0/0` | Not specified | WAN |
+
+Every matching prefix is listed below, from longest to shortest:
+
+| Destination | All matching entries | Selected prefix | Interface | Next hop |
+|---|---|---|---|---|
+| `10.42.12.20` | A, P, Default | `10.42.12.0/25` | $I_A$ | Direct |
+| `10.42.12.150` | B, P, Default | `10.42.12.128/26` | $I_{01}$ | `10.42.13.2` |
+| `10.42.12.210` | CD, P, Default | `10.42.12.192/26` | $I_{02}$ | `10.42.13.6` |
+| `10.42.12.230` | E, CD, P, Default | `10.42.12.224/28` | $I_{01}$ | `10.42.13.2` |
+| `10.42.12.246` | CD, P, Default | `10.42.12.192/26` | $I_{02}$ | `10.42.13.6` |
+| `10.42.13.2` | L01, P, Default | `10.42.13.0/30` | $I_{01}$ | Direct |
+| `10.42.13.6` | L02, P, Default | `10.42.13.4/30` | $I_{02}$ | Direct |
+| `10.42.13.10` | L12, P, Default | `10.42.13.8/30` | $I_{01}$ | `10.42.13.2` |
+| `10.42.13.100` | P, Default | `10.42.12.0/23` | $I_{01}$ | `10.42.13.2` |
+| `10.42.14.1` | Default | `0.0.0.0/0` | WAN | Not specified |
+
+For the directly connected link destinations, “Direct” means sending directly to the destination interface on that link, without an intervening router.
+
+`10.42.13.100` is unallocated, but still matches the parent route. A matching forwarding entry does not establish that a destination host exists.
+
+**Effect on the aggregate:** the CD aggregate still represents:
+
+$$
+2^{32-26}=64\text{ addresses}.
+$$
+
+The exception overrides 16, so the aggregate is now the **selected entry for 48 addresses**. Its represented range remains unchanged.
+
+### Exercise 3 — Routing algorithms
+
+#### 3.1 — Complete Dijkstra table
+
+The finalization order is:
+
+$$
+\boxed{u,\ b,\ a,\ c,\ d,\ e}.
+$$
+
+Each destination cell contains $(D(v),p(v))$. Finalized values remain visible.
+
+| Phase | $N'$ | $D(a),p(a)$ | $D(b),p(b)$ | $D(c),p(c)$ | $D(d),p(d)$ | $D(e),p(e)$ |
+|---|---|---|---|---|---|---|
+| Initialization | $\{u\}$ | $4,u$ | $2,u$ | $9,u$ | $\infty,-$ | $\infty,-$ |
+| 1: add $b$ | $\{u,b\}$ | $4,u$ | $2,u$ | $8,b$ | $10,b$ | $\infty,-$ |
+| 2: add $a$ | $\{u,b,a\}$ | $4,u$ | $2,u$ | $6,a$ | $10,b$ | $\infty,-$ |
+| 3: add $c$ | $\{u,b,a,c\}$ | $4,u$ | $2,u$ | $6,a$ | $8,c$ | $13,c$ |
+| 4: add $d$ | $\{u,b,a,c,d\}$ | $4,u$ | $2,u$ | $6,a$ | $8,c$ | $9,d$ |
+| 5: add $e$ | $\{u,b,a,c,d,e\}$ | $4,u$ | $2,u$ | $6,a$ | $8,c$ | $9,d$ |
+
+The relaxations are:
+
+**Step 1 — Add $b$, cost 2**
+
+- Toward $a$: $2+2=4$, equal to its current cost. Retain $p(a)=u$.
+- Toward $c$: $2+6=8<9$. Update to $(8,b)$.
+- Toward $d$: $2+8=10$. Update to $(10,b)$.
+
+**Step 2 — Add $a$, cost 4**
+
+- Toward $c$: $4+2=6<8$. Update to $(6,a)$.
+- Toward $d$: $4+7=11>10$. No change.
+
+**Step 3 — Add $c$, cost 6**
+
+- Toward $d$: $6+2=8<10$. Update to $(8,c)$.
+- Toward $e$: $6+7=13$. Update to $(13,c)$.
+
+**Step 4 — Add $d$, cost 8**
+
+- Toward $e$: $8+1=9<13$. Update to $(9,d)$.
+
+**Step 5 — Add $e$, cost 9**
+
+No unfinalized nodes remain.
+
+#### 3.2 — Tree and complete paths
+
+The predecessor-tree edges, directed away from $u$, are:
+
+$$
+\boxed{(u,a),\ (u,b),\ (a,c),\ (c,d),\ (d,e)}.
+$$
+
+| Destination | Complete shortest path | Cost |
+|---|---|---|
+| $c$ | $u\rightarrow a\rightarrow c$ | $4+2=\boxed{6}$ |
+| $d$ | $u\rightarrow a\rightarrow c\rightarrow d$ | $4+2+2=\boxed{8}$ |
+| $e$ | $u\rightarrow a\rightarrow c\rightarrow d\rightarrow e$ | $4+2+2+1=\boxed{9}$ |
+
+#### 3.3 — Convert to forwarding information
+
+| Destination prefix | Serving router | Path cost | Next hop | Interface |
+|---|---|---:|---|---|
+| `10.60.0.0/24` | $a$ | 4 | $a$ | $I_a$ |
+| `10.60.1.0/24` | $b$ | 2 | $b$ | $I_b$ |
+| `10.60.2.0/24` | $c$ | 6 | $a$ | $I_a$ |
+| `10.60.4.0/23` | $d$ | 8 | $a$ | $I_a$ |
+| `10.60.6.0/24` | $e$ | 9 | $a$ | $I_a$ |
+
+For destination $e$, follow predecessor pointers backward:
+
+$$
+e\xrightarrow{p}d\xrightarrow{p}c\xrightarrow{p}a\xrightarrow{p}u.
+$$
+
+Since $p(a)=u$, stop at $a$. It is the first router after the source.
+
+Therefore:
+
+$$
+\boxed{p(e)=d,\qquad \text{next hop toward }e=a}.
+$$
+
+They are **different routers**.
+
+For destination `10.60.5.17`, the matching entry is:
+
+```default
+10.60.4.0/23
+```
+
+Its range extends through `10.60.5.255`. Thus:
+
+- **next hop:** $a$;
+- **outgoing interface:** $I_a$.
+
+Although $u$ has a direct link to $c$, that link costs 9. The path $u\rightarrow a\rightarrow c$ costs 6, so traffic toward $c$ also uses $I_a$.
+
+#### 3.4 — Equal-cost alternative
+
+The two equal-cost paths to $a$ are:
+
+$$
+u\rightarrow a:\quad4,
+$$
+
+$$
+u\rightarrow b\rightarrow a:\quad2+2=4.
+$$
+
+Initialization sets $p(a)=u$. When $b$ is processed, the candidate is equal, so the exercise’s rule retains:
+
+$$
+\boxed{p(a)=u}.
+$$
+
+A different valid convention could choose $p(a)=b$, producing another shortest-path tree with the same costs. It could also change next hops toward $a$ and its descendants.
+
+That alternative is mathematically valid, although it does not follow this exercise’s explicit retain-on-equality rule.
+
+#### 3.5 — Independent distance-vector snapshot
+
+Router $d$’s link costs are:
+
+$$
+c(d,a)=7,\quad c(d,b)=8,\quad c(d,c)=2,\quad c(d,e)=1.
+$$
+
+The update equation is:
+
+$$
+d_d(z)=
+\min_{v\in\{a,b,c,e\}}
+\{c(d,v)+d_v(z)\}.
+$$
+
+**Initial advertisements**
+
+| Neighbor | Local link cost | Advertised cost to $z$ | Candidate sum |
+|---|---:|---:|---:|
+| $a$ | 7 | 3 | 10 |
+| $b$ | 8 | 1 | 9 |
+| $c$ | 2 | 5 | 7 |
+| $e$ | 1 | 4 | 5 |
+
+Thus:
+
+$$
+\boxed{d_d(z)=5,\qquad\text{next hop}=e}.
+$$
+
+Although $b$ advertises the smallest distance, reaching $b$ costs 8. Its total candidate is 9, compared with only $1+4=5$ through $e$.
+
+**After $e$’s advertisement changes to 11**
+
+Its candidate becomes:
+
+$$
+c(d,e)+d_e(z)=1+11=12.
+$$
+
+Recompute:
+
+$$
+d_d(z)=\min\{10,9,7,12\}.
+$$
+
+Therefore:
+
+$$
+\boxed{d_d(z)=7,\qquad\text{next hop}=c}.
+$$
+
+**Retaining the old minimum 5 is invalid.** That value depended on $e$’s previous advertisement and is no longer supported by the current information. The estimate must increase from 5 to 7.
+
+Dijkstra uses the **complete weighted topology** and a finalized set. This distance-vector update uses **local link costs and neighbors’ advertised distances**, here for destination $z$.

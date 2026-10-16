@@ -403,3 +403,659 @@ Main:
 Assume `join` returns only after the worker terminates and makes its writes visible.
 
 What value does Main output, and why does the memory behavior differ from the `fork()` program?
+
+
+## Solutions
+
+The numbering matches the exam. **Total: 84 points.**
+
+### Aufgabe 1 — 12 points
+
+#### a) — 3 points
+
+Thread A can consume the permit that it released itself:
+
+| Step | Operation | Semaphore `done` | Consequence |
+|---:|---|---:|---|
+| 1 | A: `produce_A()` | 0 | A’s result exists |
+| 2 | A: `signal(done)` | 1 | One permit becomes available |
+| 3 | A: `wait(done)` | 0 | A acquires that permit without blocking |
+| 4 | A: `combine_A()` | 0 | B has not yet produced its result |
+
+Thus **A enters `combine_A()` before both results exist**.
+
+The shared semaphore counts completed productions, but it does not distinguish whose production has finished.
+
+#### b) — 4 points
+
+Use a separate completion semaphore for each result:
+
+```default
+shared Semaphore a_ready = 0
+shared Semaphore b_ready = 0
+
+Thread A:
+    produce_A()
+    signal(a_ready)
+    wait(b_ready)
+    combine_A()
+
+Thread B:
+    produce_B()
+    signal(b_ready)
+    wait(a_ready)
+    combine_B()
+```
+
+Each thread:
+
+- finishes its own production before announcing completion;
+- waits for the other thread’s completion before combining.
+
+The production operations can execute concurrently. A signal issued before the other thread reaches its `wait` remains available as a semaphore permit.
+
+#### c) — 5 points
+
+Corrected pseudocode:
+
+```default
+shared bool ready = false
+shared Mutex m = unlocked
+shared Condition changed
+
+Worker:
+    lock(m)
+
+    while not ready:
+        cond_wait(changed, m)
+
+    unlock(m)
+    use_configuration()
+
+Initializer:
+    build_configuration()
+
+    lock(m)
+    ready = true
+    cond_broadcast(changed)
+    unlock(m)
+```
+
+Two changes are required:
+
+1. **Replace `if` with `while`.**  
+   A worker must recheck `ready` after waking. A spurious wakeup must not allow it to use an unfinished configuration.
+
+2. **Replace `cond_signal` with `cond_broadcast`.**  
+   All waiting workers must be allowed to proceed. A single signal could leave other workers asleep indefinitely, since there is no later notification.
+
+`cond_wait(changed, m)`:
+
+- atomically releases `m` and begins waiting on `changed`;
+- reacquires `m` before returning.
+
+Consequently, a sleeping worker does not retain the mutex needed by the initializer.
+
+Workers that start after initialization find `ready == true` and do not wait. They do not need a stored notification because the shared predicate remains true.
+
+### Aufgabe 2 — 18 points
+
+#### a) — 3 points
+
+The page size is:
+
+$$
+1\text{ KiB}=2^{10}\text{ bytes}.
+$$
+
+Therefore, the offset uses 10 bits. The remaining virtual-address bits are:
+
+$$
+24-10=14.
+$$
+
+Splitting these equally gives:
+
+$$
+\boxed{
+\underbrace{\text{root index}}_{7\text{ bits}}
+\quad
+\underbrace{\text{second-level index}}_{7\text{ bits}}
+\quad
+\underbrace{\text{offset}}_{10\text{ bits}}
+}.
+$$
+
+Each table at either level has:
+
+$$
+2^7=\boxed{128\text{ entries}}.
+$$
+
+With eight-byte entries:
+
+$$
+128\cdot8=\boxed{1024\text{ bytes}=1\text{ KiB per table}}.
+$$
+
+#### b) — 3 points
+
+Decompose each virtual-page number into its two indices:
+
+| Virtual page | Root index | Second-level index |
+|---:|---:|---:|
+| 0 | 0 | 0 |
+| 127 | 0 | 127 |
+| 128 | 1 | 0 |
+| 130 | 1 | 2 |
+| 1023 | 7 | 127 |
+
+Three distinct root entries are used: 0, 1 and 7.
+
+Thus the hierarchy contains:
+
+- **one root table**;
+- **three second-level tables**.
+
+Total table memory:
+
+$$
+(1+3)\cdot1024
+=\boxed{4096\text{ bytes}=4\text{ KiB}}.
+$$
+
+A full single-level table requires:
+
+$$
+2^{14}\cdot8
+=2^{17}\text{ bytes}
+=\boxed{128\text{ KiB}}.
+$$
+
+The sparse hierarchy therefore uses $1/32$ of the full flat table’s memory.
+
+#### c) — 4 points
+
+The virtual-page number is:
+
+$$
+p=1\cdot128+2=130.
+$$
+
+The virtual byte address is:
+
+$$
+V=130\cdot1024+29
+=\boxed{133149}
+=\boxed{\texttt{0x2081D}}.
+$$
+
+The root entry is located at:
+
+$$
+\texttt{0x1000}+1\cdot8
+=\boxed{\texttt{0x1008}}.
+$$
+
+The leaf entry is located at:
+
+$$
+\texttt{0x3000}+2\cdot8
+=\boxed{\texttt{0x3010}}.
+$$
+
+Frame `0x2A` has decimal frame number 42. The physical data address is:
+
+$$
+A=42\cdot1024+29
+=\boxed{43037}
+=\boxed{\texttt{0xA81D}}.
+$$
+
+#### d) — 4 points
+
+A TLB hit requires one TLB lookup and one data-memory access:
+
+$$
+t_{\text{hit}}=6+50
+=\boxed{56\text{ ns}}.
+$$
+
+A resident-page TLB miss requires:
+
+- one TLB lookup;
+- two page-table accesses;
+- one final data access.
+
+Therefore:
+
+$$
+t_{\text{miss}}=6+3\cdot50
+=\boxed{156\text{ ns}}.
+$$
+
+The expected access time is:
+
+$$
+\begin{aligned}
+t_{\text{effective}}
+&=0.96\cdot56+0.04\cdot156\\
+&=53.76+6.24\\
+&=\boxed{60\text{ ns}}.
+\end{aligned}
+$$
+
+**A TLB miss does not necessarily imply a page fault.** It means the translation is absent from the TLB. A page-table walk may find that the requested page is already resident.
+
+#### e) — 4 points
+
+The initial state is:
+
+| Frame 0 | Frame 1 | Frame 2 | Hand |
+|---|---|---|---:|
+| A, $R=1$ | B, $R=0$ | C, $R=1$ | 0 |
+
+The completed Clock trace is:
+
+| Reference | Hit/fault | Victim | Frame 0 | Frame 1 | Frame 2 | Hand afterward |
+|---|---|---|---|---|---|---:|
+| D | Fault | B | A, $R=0$ | D, $R=1$ | C, $R=1$ | 2 |
+| B | Fault | A | B, $R=1$ | D, $R=1$ | C, $R=0$ | 1 |
+| E | Fault | C | B, $R=1$ | D, $R=0$ | E, $R=1$ | 0 |
+
+The scans are:
+
+- **D:** clear A’s bit at frame 0; replace B at frame 1.
+- **B:** clear C’s bit at frame 2; replace A at frame 0.
+- **E:** clear D’s bit at frame 1; replace C at frame 2.
+
+Starting from the original snapshot, **exact LRU would evict C for the first reference**, because the stated oldest-to-newest order is C, A, B.
+
+Clock instead evicts B. Reference bits do not encode an exact ordering of last-access times.
+
+### Aufgabe 3 — 12 points
+
+#### a) — 6 points
+
+**Non-preemptive SJF**
+
+| Interval (ms) | Running process |
+|---|---|
+| 0–5 | $P_1$ |
+| 5–7 | $P_3$ |
+| 7–8 | $P_4$ |
+| 8–11 | $P_2$ |
+
+At time 5, $P_2$ and $P_3$ are ready; SJF selects $P_3$. $P_4$ arrives at time 6 but does not preempt it. At time 7, $P_4$ has the shortest available burst.
+
+**Round Robin, $q=3\text{ ms}$**
+
+| Interval (ms) | Running process |
+|---|---|
+| 0–3 | $P_1$ |
+| 3–6 | $P_2$ |
+| 6–8 | $P_3$ |
+| 8–10 | $P_1$ |
+| 10–11 | $P_4$ |
+
+At time 3, the ready queue after re-enqueuing $P_1$ is:
+
+$$
+[P_2,P_3,P_1].
+$$
+
+At time 6, $P_2$ finishes and $P_4$ arrives. The queue is:
+
+$$
+[P_3,P_1,P_4].
+$$
+
+#### b) — 4 points
+
+For each process:
+
+$$
+T_i=\text{completion time}-\text{arrival time},
+$$
+
+$$
+W_i=T_i-\text{CPU burst}.
+$$
+
+Completion times:
+
+| Process | SJF completion | RR completion |
+|---|---:|---:|
+| $P_1$ | 5 | 10 |
+| $P_2$ | 11 | 6 |
+| $P_3$ | 7 | 8 |
+| $P_4$ | 8 | 11 |
+
+All following values are in milliseconds:
+
+| Process | SJF turnaround | SJF waiting | RR turnaround | RR waiting |
+|---|---:|---:|---:|---:|
+| $P_1$ | 5 | 0 | 10 | 5 |
+| $P_2$ | 10 | 7 | 5 | 2 |
+| $P_3$ | 4 | 2 | 5 | 3 |
+| $P_4$ | 2 | 1 | 5 | 4 |
+
+Average SJF waiting time:
+
+$$
+\overline W_{\mathrm{SJF}}
+=\frac{0+7+2+1}{4}
+=\boxed{2.5\text{ ms}}.
+$$
+
+Average RR waiting time:
+
+$$
+\overline W_{\mathrm{RR}}
+=\frac{5+2+3+4}{4}
+=\boxed{3.5\text{ ms}}.
+$$
+
+#### c) — 2 points
+
+**SJF can cause starvation.** A long ready process may be repeatedly passed over if shorter processes are available at every scheduling decision.
+
+**Round Robin does not cause this form of starvation under the stated assumptions.** A queued process has finitely many processes ahead of it, and each receives at most one quantum before leaving the CPU. New arrivals join the tail rather than overtaking it. A process with a finite burst therefore eventually finishes.
+
+### Aufgabe 4 — 10 points
+
+#### a) — 4 points
+
+Initially, only the root i-node is cached.
+
+| Read | Object | Purpose |
+|---:|---|---|
+| 1 | Root directory block | Find `srv` |
+| 2 | `/srv` i-node | Locate its directory block |
+| 3 | `/srv` directory block | Find `archive` |
+| 4 | `/srv/archive` i-node | Locate its directory block |
+| 5 | `/srv/archive` directory block | Find `report.bin` |
+| 6 | `report.bin` i-node | Load the target file’s metadata |
+
+Therefore:
+
+$$
+\boxed{6\text{ disk reads}}.
+$$
+
+No file-data block is read.
+
+#### b) — 3 points
+
+The root and `/srv` directory information are now cached. The cached `/srv` directory block contains the entry for `latest.bin`.
+
+That entry identifies the same file i-node already loaded in a). Consequently, the only additional read is:
+
+| Additional read | Object |
+|---:|---|
+| 1 | The file’s first data block |
+
+Thus:
+
+$$
+\boxed{1\text{ additional disk read}}.
+$$
+
+Removing `latest.bin` **does not make the data unavailable through `report.bin`**. It removes one hard-link directory entry. The other name still refers to the same i-node.
+
+#### c) — 3 points
+
+Decompose byte offset 8251:
+
+$$
+8251=4\cdot2048+59.
+$$
+
+Therefore:
+
+$$
+\boxed{\text{Logical file block}=4},
+\qquad
+\boxed{\text{Within-block offset}=59}.
+$$
+
+The four direct pointers cover logical blocks 0–3. Block 4 is therefore addressed through:
+
+- the **single-indirect pointer**;
+- entry **0** of the indirect block.
+
+The file i-node is cached, but neither the indirect block nor data block 4 has been read.
+
+Required additional reads:
+
+1. Read the single-indirect block.
+2. Read the data block identified by entry 0.
+
+Hence:
+
+$$
+\boxed{2\text{ additional disk reads}}.
+$$
+
+### Aufgabe 5 — 16 points
+
+#### a) — 3 points
+
+For **10.88.32.0/20**, the mask is:
+
+$$
+\boxed{255.255.240.0}.
+$$
+
+The complete inclusive range is:
+
+$$
+\boxed{10.88.32.0\text{ through }10.88.47.255}.
+$$
+
+The number of addresses is:
+
+$$
+2^{32-20}=2^{12}
+=\boxed{4096}.
+$$
+
+This is the total address count, not the usable-host count.
+
+#### b) — 5 points
+
+| Destination | All matching prefixes | Selected prefix | Interface |
+|---|---|---|---|
+| 10.88.39.250 | 10.88.32.0/20; 0.0.0.0/0 | **10.88.32.0/20** | $I_0$ |
+| 10.88.41.9 | 10.88.40.0/22; 10.88.32.0/20; 0.0.0.0/0 | **10.88.40.0/22** | $I_1$ |
+| 10.88.42.200 | 10.88.42.128/25; 10.88.40.0/22; 10.88.32.0/20; 0.0.0.0/0 | **10.88.42.128/25** | $I_2$ |
+| 10.88.43.200 | 10.88.40.0/22; 10.88.32.0/20; 0.0.0.0/0 | **10.88.40.0/22** | $I_1$ |
+| 10.88.48.1 | 0.0.0.0/0 | **0.0.0.0/0** | $W$ |
+
+The selected entry is always the matching prefix with the greatest prefix length.
+
+#### c) — 6 points
+
+The Bellman–Ford update is:
+
+$$
+\boxed{
+d_u(t)=\min_{v\in N(u)}
+\left[c(u,v)+d_v(t)\right]
+}.
+$$
+
+Here:
+
+- $N(u)$ is the set of $u$’s neighbors;
+- $c(u,v)$ is the direct link cost from $u$ to neighbor $v$;
+- $d_v(t)$ is $v$’s advertised distance to destination $t$;
+- $d_u(t)$ is $u$’s resulting distance estimate.
+
+Candidate costs:
+
+| Destination | Via $a$ | Via $b$ | Via $c$ | Selected distance | Next hop |
+|---|---:|---:|---:|---:|---|
+| $x$ | $2+2=4$ | $5+7=12$ | $1+5=6$ | **4** | $a$ |
+| $y$ | $2+8=10$ | $5+2=7$ | $1+8=9$ | **7** | $b$ |
+| $z$ | $2+9=11$ | $5+4=9$ | $1+3=4$ | **4** | $c$ |
+
+After $c$ changes its advertisement for $z$ to 12:
+
+$$
+\begin{aligned}
+\text{via }a &: 2+9=11,\\
+\text{via }b &: 5+4=9,\\
+\text{via }c &: 1+12=13.
+\end{aligned}
+$$
+
+Therefore:
+
+$$
+\boxed{d_u(z)=9,\qquad\text{next hop}=b}.
+$$
+
+The old distance of 4 is no longer supported by the current advertisements and must not be retained as an additional candidate.
+
+#### d) — 2 points
+
+| Algorithm | Information used by the router |
+|---|---|
+| Dijkstra | A network topology graph with the relevant link costs |
+| Distance vector | Its direct-neighbor link costs and the distance vectors advertised by those neighbors |
+
+Dijkstra calculates paths from a topology map. A distance-vector update selects among neighbors using their advertised distances, without requiring a complete topology map.
+
+### Aufgabe 6 — 8 points
+
+#### a) — 4 points
+
+The original IP payload has length:
+
+$$
+2500-20=\boxed{2480\text{ bytes}}.
+$$
+
+The outgoing MTU allows at most:
+
+$$
+918-20=898
+$$
+
+payload bytes per fragment.
+
+A non-final fragment’s payload must be a multiple of eight bytes, giving:
+
+$$
+8\left\lfloor\frac{898}{8}\right\rfloor
+=\boxed{896\text{ bytes}}.
+$$
+
+After two such payloads, the remainder is:
+
+$$
+2480-2\cdot896=\boxed{688\text{ bytes}}.
+$$
+
+The fragments are:
+
+| Fragment | Original IP-payload byte range | Payload length | Total Length | Fragment Offset field | MF | Identification |
+|---|---|---:|---:|---:|---:|---:|
+| 1 | 0–895 | 896 | 916 | 0 | 1 | 731 |
+| 2 | 896–1791 | 896 | 916 | 112 | 1 | 731 |
+| 3 | 1792–2479 | 688 | 708 | 224 | 0 | 731 |
+
+The offset-field calculations are:
+
+$$
+0/8=0,\qquad896/8=112,\qquad1792/8=224.
+$$
+
+All Total Length values are at most 918 bytes, and the payload lengths sum to 2480 bytes.
+
+#### b) — 2 points
+
+**No.** The second fragment’s payload bytes, 896–1791, are still missing.
+
+The final fragment’s **MF = 0** establishes that this fragment reaches the end of the original datagram’s payload. Combined with its offset and length, it identifies the original payload’s total extent.
+
+It **does not establish that all earlier fragments have arrived**. Reassembly still requires the missing bytes.
+
+#### c) — 1 point
+
+Only **fragment 1** contains the original UDP header, which is at the beginning of the original IP payload.
+
+IPv4 fragmentation creates new **IP headers**, not additional UDP headers.
+
+#### d) — 1 point
+
+The three fragments carry:
+
+$$
+3\cdot20=60
+$$
+
+IP-header bytes altogether.
+
+The original datagram had one 20-byte IP header, so the additional overhead is:
+
+$$
+60-20=\boxed{40\text{ bytes}}.
+$$
+
+### Aufgabe 7 — 8 points
+
+#### a) — 2 points
+
+| Process | Value of `child` | Reaches `waitpid`? |
+|---|---|---|
+| Parent | Positive PID of the newly created child | Yes |
+| Child | 0 | No |
+
+The child executes `exit(0)` inside the `if` block, so it does not fall through to `waitpid`.
+
+#### b) — 2 points
+
+The output records are, in this required order:
+
+```default
+child 9
+parent 4
+```
+
+The child outputs its record before terminating. The parent’s `waitpid` returns only after that termination, so its output follows the child’s output.
+
+The parent still has `value = 4` because the child changes its own process-local copy. The child’s assignment does not modify the parent’s variable.
+
+#### c) — 2 points
+
+When the parent waits for the still-running child:
+
+$$
+\boxed{\text{Running}\rightarrow\text{Blocked}}.
+$$
+
+When the child terminates and the parent becomes eligible to continue:
+
+$$
+\boxed{\text{Blocked}\rightarrow\text{Ready}}.
+$$
+
+The parent does **not** necessarily execute immediately. It must subsequently be dispatched:
+
+$$
+\text{Ready}\rightarrow\text{Running}.
+$$
+
+#### d) — 2 points
+
+Main outputs:
+
+```default
+main 9
+```
+
+Both threads access the same shared variable in one process address space.
+
+The worker writes 9 before terminating, and `join` ensures that Main waits for termination and observes that write. In the `fork()` version, the parent and child instead have separate process-local copies of `value`.
